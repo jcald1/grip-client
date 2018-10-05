@@ -1,0 +1,10 @@
+version: "3.5"
+
+services:
+  client:
+    container_name: linq-client
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
