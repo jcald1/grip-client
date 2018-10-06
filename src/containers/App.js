@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import Explore from '../components/Explore';
-import D3_BarChart from '../components/d3/D3_BarChart';
+import BarChart from '../components/d3/BarChart/BarChart';
 import { resetErrorMessage } from '../actions';
 
 class App extends Component {
@@ -20,18 +20,10 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.d3_barChartContainerRef = React.createRef();
-  }
 
-  componentDidMount() {
-    // D3 Code to create the chart
-    this.d3_barChart = D3_BarChart.create(
-      this.d3_barChartContainerRef.current,
-      this.props.data,
-      this.props.config
-    );
+    this.renderErrorMessage = this.renderErrorMessage.bind(this);
   }
-
+  
   handleDismissClick = e => {
     this.props.resetErrorMessage();
     e.preventDefault();
@@ -56,9 +48,12 @@ class App extends Component {
 
   render() {
     const { children, inputValue } = this.props;
+    // TODO: Move to Redux
+    const commonProps = { apiPath: process.env.REACT_APP_API_PATH };
+    console.log('apiPath', process.env.REACT_APP_API_PATH);
     return (
-      <div className="d3-container" ref={this.d3_barChartContainerRef}>
-        {/*  <D3_BarChart value={inputValue} onChange={this.handleChange} /> */}
+      <div>
+        <BarChart handleError={this.renderErrorMessage} {...commonProps} />
         {/*         <Explore value={inputValue} onChange={this.handleChange} />*/}
       </div>
     );

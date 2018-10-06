@@ -1,4 +1,4 @@
-// d3 is not a top level export
+// since d3 is not a top level export
 import * as d3 from 'd3';
 
 // Simple Bar Chart from D3 v4 example at https://bl.ocks.org/d3noob/bdf28027e0ce70bd132edc64f1dd7ea4
@@ -7,34 +7,16 @@ const D3_BarChart = {};
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable fun-names */
 
-// TODO: Figure out a way to do something like this.
-/*
-styles = {
-.bar { fill: steelblue; }
-}
-*/
+const dataSubset = `salesperson,sales
+Bob,33
+Robin,12`;
 
 D3_BarChart.create = (el, data, configuration) => {
+  console.log('D3_BarChart#create');
   // D3 Code to create the chart
 
   // Styling
   el.style.fill = 'steelblue';
-
-  data = `salesperson,sales
-  Bob,33
-  Robin,12
-  Anne,41
-  Mark,16
-  Joe,59
-  Eve,38
-  Karen,21
-  Kirsty,25
-  Chris,30
-  Lisa,47
-  Tom,5
-  Stacy,20
-  Charles,13
-  Mary,29`;
 
   // set the dimensions and margins of the graph
   const margin = {
@@ -59,7 +41,6 @@ D3_BarChart.create = (el, data, configuration) => {
   // append a 'group' element to 'svg'
   // moves the 'group' element to the top left margin
   const svg = d3
-    // .select("body")
     .select(el)
     .append('svg')
     .attr('width', width + margin.left + margin.right)
@@ -67,24 +48,29 @@ D3_BarChart.create = (el, data, configuration) => {
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
-  // get the data
-  const parsedData = d3.csvParse(data);
+  // Parse the data from a URL
+  // const parsedData = d3.csvParse(data);
+  // Parse the data from a string
+  // const parsedData = d3.csvParse(data);
+  const parsedData = data;
 
+  console.log('Parsed Data', parsedData);
   // format the data
+  // TODO: Remove hard-coding
   parsedData.forEach(function (d) {
-    d.sales = +d.sales;
+    d.air_temperature = +d.air_temperature;
   });
 
   // Scale the range of the data in the domains
   x.domain(
     parsedData.map(function (d) {
-      return d.salesperson;
+      return d.timestamp;
     })
   );
   y.domain([
     0,
     d3.max(parsedData, function (d) {
-      return d.sales;
+      return d.air_temperature;
     })
   ]);
 
@@ -96,14 +82,14 @@ D3_BarChart.create = (el, data, configuration) => {
     .append('rect')
     .attr('class', 'bar')
     .attr('x', function (d) {
-      return x(d.salesperson);
+      return x(d.timestamp);
     })
     .attr('width', x.bandwidth())
     .attr('y', function (d) {
-      return y(d.sales);
+      return y(d.air_temperature);
     })
     .attr('height', function (d) {
-      return height - y(d.sales);
+      return height - y(d.air_temperature);
     });
 
   // add the x Axis
@@ -114,14 +100,23 @@ D3_BarChart.create = (el, data, configuration) => {
 
   // add the y Axis
   svg.append('g').call(d3.axisLeft(y));
+
+  return d3.select(el).select('svg');
 };
 
 D3_BarChart.update = (el, data, configuration, chart) => {
   // D3 Code to update the chart
+  console.log('update el', el);
+  console.log('update chart', chart);
+  console.log('update svg', d3.select(el).select('svg'));
+
+  chart.remove();
+  D3_BarChart.create(el, dataSubset, configuration);
 };
 
-D3_BarChart.destroy = () => {
+D3_BarChart.destroy = chart => {
   // Cleaning code here
+  chart.remove();
 };
 
 export default D3_BarChart;
