@@ -44,7 +44,7 @@ D3_BarChart.create = (el, data, configuration) => {
     .select(el)
     .append('svg')
     .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom)
+    .attr('height', height + margin.top + margin.bottom + 150)
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -56,9 +56,8 @@ D3_BarChart.create = (el, data, configuration) => {
 
   console.log('Parsed Data', parsedData);
   // format the data
-  // TODO: Remove hard-coding
   parsedData.forEach(function (d) {
-    d.air_temperature = +d.air_temperature;
+    d.value = +d.value;
   });
 
   // Scale the range of the data in the domains
@@ -70,7 +69,7 @@ D3_BarChart.create = (el, data, configuration) => {
   y.domain([
     0,
     d3.max(parsedData, function (d) {
-      return d.air_temperature;
+      return d.value;
     })
   ]);
 
@@ -86,35 +85,58 @@ D3_BarChart.create = (el, data, configuration) => {
     })
     .attr('width', x.bandwidth())
     .attr('y', function (d) {
-      return y(d.air_temperature);
+      return y(d.value);
     })
     .attr('height', function (d) {
-      return height - y(d.air_temperature);
+      return height - y(d.value);
     });
 
   // add the x Axis
-  svg
+  const gXAxis = svg
     .append('g')
     .attr('transform', `translate(0,${height})`)
     .call(d3.axisBottom(x));
 
-  // add the y Axis
+  gXAxis
+    .selectAll('text')
+    .style('text-anchor', 'end')
+    .attr('dx', '-.8em')
+    .attr('dy', '.15em')
+    .attr('transform', 'rotate(-35)');
+
+  /*   // Find the maxLabel height, adjust the height accordingly and transform the x axis.
+  let maxWidth = 0;
+  gXAxis.selectAll('text').each(function() {
+    const boxWidth = this.getBBox().width;
+    if (boxWidth > maxWidth) maxWidth = boxWidth;
+  });
+  height = height - maxWidth;
+  gXAxis.attr('transform', 'translate(0,' + height + ')');
+
+  y = d3.scaleLinear().range([height, 0]);
+
+  // add the y Axis */
   svg.append('g').call(d3.axisLeft(y));
 
   return d3.select(el).select('svg');
 };
 
 D3_BarChart.update = (el, data, configuration, chart) => {
+  console.log('D3_BarChart update')
   // D3 Code to update the chart
   console.log('update el', el);
   console.log('update chart', chart);
-  console.log('update svg', d3.select(el).select('svg'));
+  console.log('update svg', d3.select(el).select('svg'))
+  console.log('update data', data);
 
-  chart.remove();
-  D3_BarChart.create(el, dataSubset, configuration);
+  if (chart) {
+    chart.remove();
+  }
+  D3_BarChart.create(el, data, configuration);
 };
 
 D3_BarChart.destroy = chart => {
+  console.log('D3_BarChart destroy')
   // Cleaning code here
   chart.remove();
 };

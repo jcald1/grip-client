@@ -1,10 +1,11 @@
 import axios from 'axios';
 import verror from 'verror';
 
+// TODO: Add Simulation Version
 const getSimulationRunResults = ({
-  path, simulationId, simulationRunId, simulationVersion
+  path, apiVersion, simulationId, simulationRunId
 }) => {
-  const urlPath = `${path}simulations/${simulationId}/simulation-versions/${simulationVersion}/simulation-runs/${simulationRunId}`;
+  const urlPath = `${path}${apiVersion}/simulations/${simulationId}/simulation-runs/${simulationRunId}`;
 
   console.log('GET Simulation Run Data API Call', `${urlPath}`);
 
