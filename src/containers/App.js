@@ -10,8 +10,8 @@ import { resetErrorMessage } from '../actions';
 import simulations from '../actions/simulations';
 import moment from 'moment';
 
-const DEFAULT_SIMULATION_ID = 1;
 const DEFAULT_SIMULATION_VERSION = 1;
+const DEFAULT_SIMULATION_ID = 1;
 const DEFAULT_SIMULATION_RUN_ID = 1;
 const DEFAULT_API_VERSION = 'v1';
 
@@ -71,7 +71,7 @@ class App extends Component {
     const mappedData = data.map(row => ({
       // timestamp: moment(row.timestamp).format('HH:mm'),
       timestamp: moment(row.timestamp).format('YY-MM-DD HH:mm:ss'),
-      value: row.measured_real_power / 1000000
+      value: row.HVMV_Sub_HSB__measured_real_power / 1000000
     }));
     // console.log('App mapResponseToBarChartData', mappedData);
     return mappedData;
