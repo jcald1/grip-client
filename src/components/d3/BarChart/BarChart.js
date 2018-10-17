@@ -25,7 +25,7 @@ class BarChart extends Component {
         );
         console.log('componentDidMount this.d3_barChart', this.d3_barChart);
       } catch (err) {
-        this.props.handleError(err);
+        this.props.commonProps.handleError(err);
       }
     }
     // Updates

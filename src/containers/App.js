@@ -9,6 +9,11 @@ import BarChart from '../components/d3/BarChart/BarChart';
 import { resetErrorMessage } from '../actions';
 import simulations from '../actions/simulations';
 import moment from 'moment';
+import Button from 'antd/lib/button';
+import './App.css';
+import { Route } from 'react-router-dom';
+import SimulationRunRequests from '../components/SimulationRunRequests';
+import SimulationResults from './SimulationResults';
 
 const DEFAULT_SIMULATION_VERSION = 1;
 const DEFAULT_SIMULATION_ID = 1;
@@ -28,11 +33,19 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { error: {}, visualizations: { swingBus: { data: null, config: null } } };
+    this.state = {
+      error: {},
+      SimulationRunRequests: {},
+      visualizations: {
+        overallNetwork: { data: null, config: null },
+        restOfNetwork: { data: null, config: null }
+      },
+      visualizeNetwork: true
+    };
 
-    this.commonProps = { apiPath: process.env.REACT_APP_API_PATH };
-    this.renderErrorMessage = this.renderErrorMessage.bind(this);
     this.handleError = this.handleError.bind(this);
+    this.renderErrorMessage = this.renderErrorMessage.bind(this);
+    this.commonProps = { apiPath: process.env.REACT_APP_API_PATH, handleError: this.handleError };
   }
 
   componentDidMount() {
@@ -52,7 +65,10 @@ class App extends Component {
       .then(data => {
         console.log('Get Simulation Run Results data', data);
         // D3 Code to create the chart
-        this.setState({ visualizations: { swingBus: { data, config: null } } });
+        this.setState({
+          visualizeNetwork: true,
+          visualizations: { overallNetwork: { data, config: null } }
+        });
       })
       .catch(err => {
         this.handleError(err);
@@ -106,13 +122,32 @@ class App extends Component {
     // TODO: Move to Redux
     console.log('apiPath', process.env.REACT_APP_API_PATH);
     return (
-      <div>
-        <BarChart
-          // handleError={this.renderErrorMessage}
-          handleError={this.handleError}
-          {...this.commonProps}
-          {...this.state.visualizations.swingBus}
-        />
+      <div className="App">
+        <Route path="/simulation-results" component={SimulationRunRequests} />
+
+        <div style={{ display: 'flex' }} className="simulation-controls">
+          <div style={{ width: '20%', display: 'inline-block' }} className="simulation-buttons">
+            <div style={{ flexDirection: 'column', width: '20%' }}>
+              <Button type="primary">Run Simulation</Button>
+              <Button style={{ marginTop: '20px' }} type="primary">
+                Get Simulation Runs
+              </Button>
+            </div>
+          </div>
+          <div style={{ width: '80%', display: 'inline-block' }}>
+            <SimulationRunRequests
+              commonProps={this.commonProps}
+              results={this.state.SimulationRunRequests}
+            />
+            <SimulationResults
+              // handleError={this.renderErrorMessage}
+              commonProps={this.commonProps}
+              visualizations={this.state.visualizations}
+              visualizeNetwork={this.state.visualizeNetwork}
+            />
+          </div>
+        </div>
+
         {/*         <Explore value={inputValue} onChange={this.handleChange} />*/}
       </div>
     );
