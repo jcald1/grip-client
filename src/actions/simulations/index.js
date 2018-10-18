@@ -33,7 +33,7 @@ const getSimulationRun = ({
 };
 
 const postSimulationRunRequest = ({ path, apiVersion, simulationId }) => {
-  const urlPath = `${path}${apiVersion}/simulations/:simulationId/simulation-run-requests`;
+  const urlPath = `${path}${apiVersion}/simulations/${simulationId}/simulation-run-requests`;
 
   console.log('POST Simulation Request', `${urlPath}`);
   /* const config = {

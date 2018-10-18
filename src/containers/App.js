@@ -15,6 +15,7 @@ import { Route } from 'react-router-dom';
 import SimulationRunRequests from '../components/SimulationRunRequests';
 import Assets from '../components/Assets';
 import SimulationResults from './SimulationResults';
+import _ from 'lodash';
 
 const DEFAULT_SIMULATION_VERSION = 1;
 const DEFAULT_SIMULATION_ID = 1;
@@ -108,6 +109,9 @@ class App extends Component {
   }
 
   handleAssetClick(e) {
+    if (_.isEmpty(this.state.currentSimulationRun)) {
+      return null;
+    }
     console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
 
     const currentAsset = e.currentTarget.getAttribute('value');
