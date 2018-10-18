@@ -1,5 +1,6 @@
 // since d3 is not a top level export
 import * as d3 from 'd3';
+import '../d3.css';
 
 // Simple Bar Chart from D3 v4 example at https://bl.ocks.org/d3noob/bdf28027e0ce70bd132edc64f1dd7ea4
 const D3_BarChart = {};
@@ -94,6 +95,8 @@ D3_BarChart.create = (el, data, configuration) => {
   // add the x Axis
   const gXAxis = svg
     .append('g')
+    .attr('dy', '3.15em')
+    .attr('dy', '3.15em')
     .attr('transform', `translate(0,${height})`)
     .call(d3.axisBottom(x));
 
@@ -122,21 +125,21 @@ D3_BarChart.create = (el, data, configuration) => {
 };
 
 D3_BarChart.update = (el, data, configuration, chart) => {
-  console.log('D3_BarChart update')
+  console.log('D3_BarChart update');
   // D3 Code to update the chart
   console.log('update el', el);
-  console.log('update chart', chart);
-  console.log('update svg', d3.select(el).select('svg'))
+  console.log('update svg', d3.select(el).select('svg'));
   console.log('update data', data);
 
   if (chart) {
+    console.log('update chart', chart);
     chart.remove();
   }
-  D3_BarChart.create(el, data, configuration);
+  return D3_BarChart.create(el, data, configuration);
 };
 
 D3_BarChart.destroy = chart => {
-  console.log('D3_BarChart destroy')
+  console.log('D3_BarChart destroy');
   // Cleaning code here
   chart.remove();
 };

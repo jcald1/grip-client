@@ -38,7 +38,7 @@ class BarChart extends Component {
   }
 
   componentWillUnmount() {
-    console.log('BarChart componentWillUnmount this.d3_barChart', d3_barChart);
+    console.log('BarChart componentWillUnmount this.d3_barChart', this.d3_barChart);
     if (this.d3_barChart) {
       console.log('BarChart removing this.d3_barChart', this.d3_barChart);
       D3_BarChart.destroy(this.d3_barChart);
@@ -49,7 +49,7 @@ class BarChart extends Component {
     console.log('BarChart componentDidUpdate this.props.data', this.props.data);
     // D3 Code to update the chart
     if (this.props.data) {
-      D3_BarChart.update(
+      this.d3_barChart = D3_BarChart.update(
         this.d3_barChartContainerRef,
         this.props.data,
         this.props.config,
