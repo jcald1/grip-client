@@ -309,15 +309,15 @@ class App extends Component {
               data={this.state.simulationRunRequestsMetadata}
               handleSimulationRunRequestClick={this.handleSimulationRunRequestClick}
             />
+            <SimulationResults
+              commonProps={this.commonProps}
+              visualization={this.state.currentSimulationRun}
+            />
             <Assets
               commonProps={this.commonProps}
               data={this.state.assets}
               handleAssetClick={this.handleAssetClick}
               readyToLoad={!this.state.getingSimulationRun && this.state.currentSimulationRun}
-            />
-            <SimulationResults
-              commonProps={this.commonProps}
-              visualization={this.state.currentSimulationRun}
             />
           </div>
         </div>

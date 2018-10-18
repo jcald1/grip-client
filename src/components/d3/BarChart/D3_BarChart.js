@@ -45,7 +45,7 @@ D3_BarChart.create = (el, data, configuration) => {
     .select(el)
     .append('svg')
     .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom + 150)
+    .attr('height', height + margin.top + margin.bottom + 50)
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
