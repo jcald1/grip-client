@@ -27,8 +27,6 @@ const renderSimulationRuns = (simulationRuns, handleSimulationRunRequestClick) =
 };
 
 const SimulationRunRequests = ({ data, handleSimulationRunRequestClick }) => {
-  return null;
-
   console.log('SimulationRunRequests data', data);
   if (!data || !data.length || data.length === 0) {
     return null;
