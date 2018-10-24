@@ -8,7 +8,7 @@ const Root = ({ store }) => (
   <Provider store={store}>
     <div>
       <RootRoutes store={store} />
-      <DevTools />
+      {/* <DevTools /> */}
     </div>
   </Provider>
 );

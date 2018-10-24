@@ -7,35 +7,31 @@ import { withRouter } from 'react-router-dom';
 import Explore from '../components/Explore';
 import BarChart from '../components/d3/BarChart/BarChart';
 import { resetErrorMessage } from '../actions';
-import simulations from '../actions/simulations';
-import moment from 'moment';
+
 import Button from 'antd/lib/button';
-import './App.css';
 import { Route } from 'react-router-dom';
 import SimulationRunRequests from '../components/SimulationRunRequests';
-import Assets from '../components/Assets';
-import SimulationResults from './SimulationResults';
+import SimulationRun from './SimulationRun';
 import _ from 'lodash';
+import Layout from '../components/Layout';
+import { Redirect } from 'react-router-dom';
+import './App.css';
+import simulations from '../actions/simulations';
+var qs = require('qs');
 
 const DEFAULT_SIMULATION_VERSION = 1;
 const DEFAULT_SIMULATION_ID = 1;
 const DEFAULT_API_VERSION = 'v1';
-const DEFAULT_SWING_BUS = 'HVMV_Sub_HSB__measured_real_power';
-// TODO: Generalize
-const DEFAULT_ASSETS = [
-  'HVMV_Sub_HSB__measured_real_power',
-  'HVMV_Sub_HSB__measured_voltage_A__real',
-  'HVMV_Sub_HSB__measured_voltage_B__real',
-  'HVMV_Sub_HSB__measured_voltage_C__real',
-  'SX2673305B_1__measured_real_power',
-  'SX2673305B_1__measured_voltage_1__real',
-  'SX2673305B_1__measured_voltage_2__real',
-  'SX2673305B_1__measured_voltage_N__real',
-  'SX3048196B_1__measured_real_power',
-  'SX3048196B_1__measured_voltage_1__real',
-  'SX3048196B_1__measured_voltage_2__real',
-  'SX3048196B_1__measured_voltage_N__real'
-];
+
+const shallowEquals = (obj1, obj2) => {
+  if (obj1 === obj2) {
+    return true;
+  }
+  return (
+    Object.keys(obj1).length === Object.keys(obj2).length &&
+    Object.keys(obj1).every(key => obj1[key] === obj2[key])
+  );
+};
 
 class App extends Component {
   static propTypes = {
@@ -53,23 +49,22 @@ class App extends Component {
     this.state = {
       error: {},
       simulationRunRequestsMetadata: [],
-      latestSimulationRunRequest: null,
-      currentSimulationRun: {},
 
       sendingSimulationRunRequest: false,
-      getingSimulationRuns: true,
-      getingSimulationRun: true,
-      currentAsset: DEFAULT_SWING_BUS,
-      assets: DEFAULT_ASSETS
+      getingSimulationRuns: true
     };
 
-    this.handleAssetClick = this.handleAssetClick.bind(this);
     this.handleSimulationRunRequestClick = this.handleSimulationRunRequestClick.bind(this);
     this.handleGetSimulationRunsClick = this.handleGetSimulationRunsClick.bind(this);
     this.handleRunSimulationClick = this.handleRunSimulationClick.bind(this);
     this.handleError = this.handleError.bind(this);
     this.renderErrorMessage = this.renderErrorMessage.bind(this);
-    this.commonProps = { apiPath: process.env.REACT_APP_API_PATH, handleError: this.handleError };
+
+    this.commonProps = {
+      apiPath: process.env.REACT_APP_API_PATH,
+      handleError: this.handleError,
+      shallowEquals
+    };
   }
 
   componentDidMount() {
@@ -81,13 +76,6 @@ class App extends Component {
       // TODO: We need to add the simulation run request fetch first.  Going straight for the Simulation Runs for now
       // but keeping the UI references the Requests to avoid having to change the UI later.saI
       .then(simulationRuns => this.getLatestSimulationRun(simulationRuns))
-      .then(lastestSimulationRunId => {
-        console.log('lastestSimulationRunId', lastestSimulationRunId);
-        return this.getSimulationRun(lastestSimulationRunId, DEFAULT_SWING_BUS);
-      })
-      .then(simulationRun => {
-        this.setState({ currentSimulationRun: simulationRun });
-      })
       .catch(err => {
         this.handleError(err);
       })
@@ -103,30 +91,7 @@ class App extends Component {
     console.log('App handleSimulationRunRequestClick value', e.currentTarget.getAttribute('value'));
 
     const simulationRunId = e.currentTarget.getAttribute('value');
-    this.getSimulationRun(simulationRunId, DEFAULT_SWING_BUS);
-    // TODO: Set based on the simulation
-    // this.setState({ assets: {} });
-  }
-
-  handleAssetClick(e) {
-    if (_.isEmpty(this.state.currentSimulationRun)) {
-      return null;
-    }
-    console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
-
-    const currentAsset = e.currentTarget.getAttribute('value');
-    console.log('this.state', this.state);
-    console.log('state', this.state, 'currentAsset', currentAsset);
-    this.setState({
-      currentAsset,
-      currentSimulationRun: {
-        ...this.state.currentSimulationRun,
-        data: this.mapResponseToBarChartData(
-          [...this.state.currentSimulationRun.originalData],
-          currentAsset
-        )
-      }
-    });
+    this.navigateToSimulationRun(simulationRunId);
   }
 
   handleRunSimulationClick(e) {
@@ -149,41 +114,11 @@ class App extends Component {
       });
   }
 
-  getSimulationRun(simulationRunId, asset) {
-    // TODO: Move this into Redux / Thunk actions
-    console.log('this.commonProps.apiPath', this.commonProps.apiPath);
-    console.log('getSimulationRun simulationRunId', simulationRunId);
-    this.setState({ getingSimulationRun: true });
-    simulations
-      // TODO: Get the latest
-      .getSimulationRun({
-        path: this.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
-        simulationId: DEFAULT_SIMULATION_ID,
-        simulationVersion: DEFAULT_SIMULATION_VERSION,
-        simulationRunId: simulationRunId
-      })
-      // TODO: This belongs in the API container
-      .then(data => {
-        if (!data) {
-          return Promise.reject('No data received from the API.');
-        }
-        const originalData = data;
-        data = this.mapResponseToBarChartData(data, asset);
-        return { data, originalData };
-      })
-      .then(({ data, originalData }) => {
-        console.log('Get Simulation Run Results data', data, 'simulationRunId', simulationRunId);
-        // D3 Code to create the chart
-        this.setState({
-          currentSimulationRun: { data, config: null, simulationRunId, originalData }
-        });
-
-        return data;
-      })
-      .finally(() => {
-        this.setState({ getingSimulationRun: false });
-      });
+  navigateToSimulationRun(simulationRunId) {
+    console.log('navigateToSimulationRun', simulationRunId);
+    this.props.history.push({
+      pathname: `/simulation-runs/${simulationRunId}`
+    });
   }
 
   getLatestSimulationRun(simulationRuns) {
@@ -244,29 +179,14 @@ class App extends Component {
     console.error(err);
   }
 
-  //HVMV_Sub_HSB__measured_real_power
-  // TODO: Conversion should be in the API
-  mapResponseToBarChartData(data, measurement) {
-    console.log('App data', data, 'measurement', measurement);
-    // debugger;
-    const mappedData = data.map(row => ({
-      // timestamp: moment(row.timestamp).format('HH:mm'),
-      timestamp: moment(row.timestamp).format('YY-MM-DD HH:mm:ss'),
-      // value: row[measurement] / 1000000
-      value: row[measurement]
-    }));
-    // console.log('App mapResponseToBarChartData', mappedData);
-    return mappedData;
-  }
-
   handleDismissClick = e => {
     this.props.resetErrorMessage();
     e.preventDefault();
   };
 
-  handleChange = nextValue => {
+  /*   handleChange = nextValue => {
     this.props.history.push(`/${nextValue}`);
-  };
+  }; */
 
   renderErrorMessage() {
     const { errorMessage } = this.props;
@@ -282,47 +202,58 @@ class App extends Component {
   }
 
   render() {
-    console.log('App render commonProps', this.commonProps, 'this.state', this.state);
+    console.log('App render this.commonProps', this.commonProps, 'this.state', this.state);
     const { children, inputValue } = this.props;
     // TODO: Move to Redux
-    // <Route path="/simulation-results" component={simulationRunRequestsMetadata} />
-    return (
-      <div className="App">
-        <div style={{ display: 'flex' }} className="simulation-controls">
-          <div style={{ width: '20%', display: 'inline-block' }} className="simulation-buttons">
-            <div style={{ flexDirection: 'column', width: '20%' }}>
-              <Button type="primary" onClick={this.handleRunSimulationClick}>
-                Run Simulation
-              </Button>
-              <Button
-                style={{ marginTop: '20px' }}
-                type="primary"
-                onClick={this.handleGetSimulationRunsClick}
-              >
-                Get Simulation Runs
-              </Button>
-            </div>
-          </div>
-          <div style={{ width: '80%', display: 'inline-block' }}>
-            <SimulationRunRequests
-              commonProps={this.commonProps}
-              data={this.state.simulationRunRequestsMetadata}
-              handleSimulationRunRequestClick={this.handleSimulationRunRequestClick}
-            />
-            <SimulationResults
-              commonProps={this.commonProps}
-              visualization={this.state.currentSimulationRun}
-            />
-            <Assets
-              commonProps={this.commonProps}
-              data={this.state.assets}
-              handleAssetClick={this.handleAssetClick}
-              readyToLoad={!this.state.getingSimulationRun && this.state.currentSimulationRun}
-            />
-          </div>
-        </div>
 
-        {/*         <Explore value={inputValue} onChange={this.handleChange} />*/}
+    const simulationRunRequestsLeftNavItems = [
+      <div>
+        <Button
+          style={{ marginTop: '20px', display: 'block' }}
+          type="primary"
+          onClick={this.handleRunSimulationClick}
+        >
+          Run Simulation
+        </Button>
+        <Button
+          style={{ marginTop: '20px', display: 'block' }}
+          type="primary"
+          onClick={this.handleGetSimulationRunsClick}
+        >
+          Refresh Simulation Runs
+        </Button>
+      </div>
+    ];
+
+    const simulationRunRequestsMainItems = [
+      <SimulationRunRequests
+        data={this.state.simulationRunRequestsMetadata}
+        handleSimulationRunRequestClick={this.handleSimulationRunRequestClick}
+      />
+    ];
+
+    const mainItems = <div />;
+
+    return (
+      <div>
+        <Route
+          exact
+          path="/"
+          render={props => (
+            <Layout
+              leftNavItems={simulationRunRequestsLeftNavItems}
+              mainItems={simulationRunRequestsMainItems}
+            />
+          )}
+        />
+        <Route
+          path="/simulation-runs/:simulationId"
+          render={props => (
+            <div>
+              <SimulationRun commonProps={this.commonProps} />
+            </div>
+          )}
+        />
       </div>
     );
   }

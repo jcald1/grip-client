@@ -21,17 +21,21 @@ const renderAssets = (data, handleAssetClick) => {
 
 const Assets = ({ data, handleAssetClick, readyToLoad }) => {
   console.log('Assets data', data, 'handleAssetClick', handleAssetClick);
+  // debugger;
   if (!data || !data.length || data.length === 0) {
     return null;
   }
-  // Avoid race conditions that happen when an asset is clicked before the simulation run data is available.
-  if (!readyToLoad) {
+  /* console.log('Assets readyToLoad', readyToLoad);
+   Avoid race conditions that happen when an asset is clicked before the simulation run data is available.
+  // TODO: May not need this any longer.
+  /*   if (!readyToLoad) {
     return null;
   }
   console.log('Assets rendering');
+  */
 
   return (
-    <div style={{ textAlign: 'left' }}>
+    <div style={{ display: 'inline-block', textAlign: 'left' }}>
       <Title text="Assets" />
       <div>{renderAssets(data, handleAssetClick)}</div>
     </div>

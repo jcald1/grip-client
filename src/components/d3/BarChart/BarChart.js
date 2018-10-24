@@ -14,7 +14,7 @@ class BarChart extends Component {
   componentDidMount() {
     console.log('BarChart componentDidMount');
 
-    console.log('Get Simulation Run Results data', this.props.data);
+    console.log('Get Simulation Run Results this.props.data', this.props.data);
     // D3 Code to create the chart
     if (this.props.data) {
       try {
