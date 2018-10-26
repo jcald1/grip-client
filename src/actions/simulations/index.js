@@ -3,10 +3,10 @@ import verror from 'verror';
 
 // TODO: Add Simulation Version
 // TODO: This is returning the BQ data but we may need to also return the PostgreS data by adding it to the API
-const getSimulationRun = ({
+const getSimulationRunResults = ({
   path, apiVersion, simulationId, simulationRunId
 }) => {
-  const urlPath = `${path}${apiVersion}/simulations/${simulationId}/simulation-runs/${simulationRunId}`;
+  const urlPath = `${path}${apiVersion}/simulations/${simulationId}/simulation-runs/${simulationRunId}/results`;
 
   console.log('GET Simulation Run API Call', `${urlPath}`);
 
@@ -89,7 +89,7 @@ const getSimulationRuns = ({ path, apiVersion, simulationId }) => {
 };
 
 export default {
-  getSimulationRun,
+  getSimulationRunResults,
   postSimulationRunRequest,
   getSimulationRuns
 };

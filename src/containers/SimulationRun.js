@@ -104,7 +104,7 @@ class SimulationRun extends Component {
     this.setState({ getingSimulationRun: true });
     simulations
       // TODO: Get the latest
-      .getSimulationRun({
+      .getSimulationRunResults({
         path: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationId: DEFAULT_SIMULATION_ID,
