@@ -1,34 +1,58 @@
 /* eslint-disable no-undef */
 
 import React from 'react';
+import moment from 'moment';
 import Title from './Title';
 
-const DEFAULT_FILENAME='ieee8500_modified.glm';
+const DEFAULT_SIMULATION_RUN_STATUSES = {
+  1: 'SUBMITTED',
+  2: 'RUNNING',
+  3: 'PROCESSING RESULTS',
+  4: 'COMPLETED',
+  5: 'ERROR'
+};
+
+const DEFAULT_SIMULATION_RUN_COLUMNS = (
+  <div style={{ display: 'flex' }}>
+    <span style={{ marginLeft: '0px', width: '20%' }}>Simulation Run ID</span>
+    <span style={{ width: '20%' }}>Run Date/Time</span>
+    <span style={{ width: '20%' }}>Filename</span>
+    <span style={{ width: '20%' }}>Status</span>
+    <span style={{ width: '20%' }}>Status/Error Details</span>
+  </div>
+);
 
 const renderSimulationRuns = (simulationRuns, handleSimulationRunRequestClick) => {
   console.log('renderSimulationRuns simulationRuns', simulationRuns);
-  const runsToRender = simulationRuns
-    .map(run => {
-      const line = (
-        <div
-          style={{ display: 'inline-block' }}
-          onClick={handleSimulationRunRequestClick}
-          value={run.id}
-          key={run.id}
-        >
-          <span>Simulation run request {run.simulation_execution_request_id}</span>
-          <span style={{ marginLeft: '20px' }}>Date/time: (add here)</span>
-          <span style={{ marginLeft: '20px' }}>Filename: {DEFAULT_FILENAME}</span>
-          <span style={{ marginLeft: '20px' }}>Status: (add here)</span>
-          {/* <span style={{ marginLeft: '20px' }}>Description: (add here)</span> */}
-        </div>
-      );
+  let runsToRender = simulationRuns.map(run => {
+    const runDate = moment(run.created_at).format('YYYY-MM-DD HH:mm:ss');
+    const line = (
+      <div
+        style={{ display: 'flex' }}
+        onClick={handleSimulationRunRequestClick}
+        value={run.id}
+        key={run.id}
+      >
+        <span style={{ marginLeft: '0px', width: '20%' }}>{run.id}</span>
+        <span style={{ marginLeft: '0px', width: '20%' }}>{runDate}</span>
+        <span style={{ width: '20%' }}>{run.simulation_filename}</span>
+        <span style={{ width: '20%' }}>{DEFAULT_SIMULATION_RUN_STATUSES[run.status]}</span>
+        <span style={{ width: '20%' }}>{run.status_details}</span>
+        {/* <span style={{ marginLeft: '20px' }}>Description: (add here)</span> */}
+      </div>
+    );
 
-      return <div key={run.simulation_execution_request_id}>{line}</div>;
-    })
-    .reverse();
+    return <div key={run.simulation_execution_request_id}>{line}</div>;
+  });
+  // runsToRender.push(DEFAULT_SIMULATION_RUN_COLUMNS);
+  runsToRender = runsToRender.reverse();
   console.log('SimulationRunRequests runsToRender', runsToRender);
-  return runsToRender;
+  return (
+    <div>
+      {DEFAULT_SIMULATION_RUN_COLUMNS}
+      {runsToRender}
+    </div>
+  );
 };
 
 const SimulationRunRequests = ({ data, handleSimulationRunRequestClick }) => {
@@ -42,7 +66,7 @@ const SimulationRunRequests = ({ data, handleSimulationRunRequestClick }) => {
 
   return (
     <div style={{ textAlign: 'left' }}>
-      <Title text="Simulation Run Requests" />
+      <Title text="Simulation Run Submissions" />
       <div>{renderSimulationRuns(simulationRuns, handleSimulationRunRequestClick)}</div>
     </div>
   );
