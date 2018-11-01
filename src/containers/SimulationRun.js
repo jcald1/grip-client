@@ -12,45 +12,18 @@ import Title from '../components/Title';
 import simulations from '../actions/simulations';
 import moment from 'moment';
 
-// const queryString = require('query-string');
-// const querySearch = require('stringquery');
-const qs = require('qs');
-
-// const DEFAULT_SWING_BUS = 'HVMV_Sub_HSB__measured_real_power';
-const DEFAULT_SWING_BUS = 'HVMV_Sub_HSB';
 const DEFAULT_SIMULATION_VERSION = 1;
 const DEFAULT_SIMULATION_ID = 1;
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
-// TODO: Generalize
-const DEFAULT_ASSETS = {
-  HVMV_Sub_HSB: [
-    'measured_real_power',
-    'measured_voltage_A__real',
-    'measured_voltage_B__real',
-    'measured_voltage_C__real'
-  ],
-  SX2673305B_1: [
-    'measured_real_power',
-    'measured_voltage_1__real',
-    'measured_voltage_2__real',
-    'measured_voltage_N__real'
-  ],
-  SX3048196B_1: [
-    'measured_real_power',
-    'measured_voltage_1__real',
-    'measured_voltage_2__real',
-    'measured_voltage_N__real'
-  ]
-};
 
 class SimulationRun extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      currentAsset: DEFAULT_SWING_BUS,
-      assets: DEFAULT_ASSETS,
+      currentAsset: null,
+      assets: null,
       data: [],
       getingSimulationRun: true
     };
@@ -77,7 +50,7 @@ class SimulationRun extends Component {
     );
 
     if (this.props.commonProps) {
-      this.populateSimulationRun(this.props.match.params.simulationId, this.state.currentAsset);
+      this.populateSimulationRun(this.props.match.params.simulationId);
     }
   }
 
@@ -92,36 +65,72 @@ class SimulationRun extends Component {
       return;
     }
 
-    this.populateSimulationRun(this.props.match.params.simulationId, this.state.currentAsset);
+    this.populateSimulationRun(this.props.match.params.simulationId);
   }
 
-  populateSimulationRun(simulationRunId, asset) {
-    console.log('populateSimulationRun', simulationRunId, 'this.props.', this.props);
+  populateSimulationRun(simulationRunId) {
+    console.log('1populateSimulationRun', simulationRunId, 'this.props.', this.props);
 
     // TODO: Move this into Redux / Thunk actions
     console.log('commonProps.apiPath', this.props.commonProps.apiPath);
 
+    let currentAsset;
+    let assets;
+    let measurements;
+    let assetId;
     this.setState({ getingSimulationRun: true });
-    simulations
-      // TODO: Get the latest
-      .getSimulationRunResults({
+    // TODO: Some of these calls may be able to be done in parallel.
+    const res = simulations
+      .getSimulationRunAssets({
+        path: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION,
+        simulationRunId
+      })
+      .then(data => {
+        console.log('2SimulationRun populateSimulationRun getsimulation run assets data', data);
+        if (!data) {
+          return Promise.reject(new Error('No data received from the API.'));
+        }
+        assets = data;
+        currentAsset = data[0];
+        assetId = data[0].id;
+        this.setState({ currentAsset, assets });
+        return null;
+      })
+      .then(() => simulations.getSimulationRunAsset({
+        path: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION,
+        simulationRunId,
+        assetId
+      }))
+      .then(data => {
+        console.log('SimulationRun populateSimulationRun getsimulation run asset data', data);
+        if (!data) {
+          return Promise.reject(new Error('No data received from the API.'));
+        }
+        measurements = data;
+        this.setState({ measurements });
+
+        return null;
+      })
+      .then(() => simulations.getSimulationRunResults({
         path: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationId: DEFAULT_SIMULATION_ID,
         simulationVersion: DEFAULT_SIMULATION_VERSION,
         simulationRunId
-      })
+      }))
       // TODO: This may belong in the API container
       .then(data => {
-        console.log('SimulationRun populateSimulationRun data', data);
+        console.log('SimulationRun populateSimulationRun get simulation run data', data);
         if (!data) {
           return Promise.reject(new Error('No data received from the API.'));
         }
         const originalData = data;
-        console.log('populateSimulationRun asset', asset);
-        const measurement = this.assetToFirstMeasurement(asset);
+        console.log('populateSimulationRun asset', currentAsset);
+        const measurement = measurements[0].name;
         console.log('populateSimulationRun measurement', measurement);
-        const assetMeasurement = this.getAssetMeasurement(asset, measurement);
+        const assetMeasurement = this.getAssetMeasurement(currentAsset, measurement);
         data = this.mapResponseToBarChartData(data, assetMeasurement);
         return { data, originalData };
       })
@@ -132,6 +141,14 @@ class SimulationRun extends Component {
           originalData
         });
         return data;
+      })
+      .catch(err => {
+        console.error(err);
+        console.log('Error', err);
+        if (err.response && err.response.data && err.response.data.message) {
+          err = new verror.VError(err, err.response.data.message);
+        }
+        this.props.commonProps.handleError(err);
       })
       .finally(() => {
         this.setState({ getingSimulationRun: false });
@@ -152,30 +169,41 @@ class SimulationRun extends Component {
     );
   }
 
-  assetToFirstMeasurement(currentAsset) {
-    console.log('App assetToFirstMeasurement currentAsset', currentAsset);
-    //  debugger;
-    return DEFAULT_ASSETS[currentAsset][0];
-  }
-
   getAssetMeasurement(asset, measurement) {
-    return `${asset}${DEFAULT_DIVIDER}${measurement}`;
+    return `${asset.name}${DEFAULT_DIVIDER}${measurement}`;
   }
 
   handleAssetClick(e) {
     console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
+    console.log('*** this.props.match.params', this.props.match);
+    const currentAssetId = parseInt(e.currentTarget.getAttribute('value'), 10);
+    console.log('state', this.state, 'currentAssetId', currentAssetId);
 
-    const currentAsset = e.currentTarget.getAttribute('value');
-    console.log('state', this.state, 'currentAsset', currentAsset);
-    this.setState({
-      currentAsset
-    });
-
-    const newUrl = `${this.props.location.pathname}/assets/${currentAsset}`;
-    console.log('newUrl', newUrl);
-    this.props.history.push({
-      pathname: newUrl
-    });
+    const currentAsset = this.state.assets.find(asset => asset.id === currentAssetId);
+    console.log('*** currentAsset', currentAsset, '');
+    simulations
+      .getSimulationRunAsset({
+        path: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION,
+        //  TODO: Clean Up.  THese should be Simulation Run IDs not Simulation IDs.
+        simulationRunId: this.props.match.params.simulationId,
+        assetId: currentAsset.id
+      })
+      .then(data => {
+        console.log('SimulationRun populateSimulationRun getsimulation run asset data', data);
+        if (!data) {
+          return Promise.reject(new Error('No data received from the API.'));
+        }
+        const measurements = data;
+        const newState = { measurements, currentAsset };
+        this.setState(newState)
+        const newUrl = `${this.props.location.pathname}/assets/${currentAsset.id}`;
+        console.log('** NEW PUSH', newUrl)
+        console.log('newUrl', newUrl);
+        this.props.history.push({
+          pathname: newUrl
+        });
+      });
   }
 
   // HVMV_Sub_HSB__measured_real_power
@@ -208,7 +236,8 @@ class SimulationRun extends Component {
   }
 
   render() {
-    console.log('SimulationRun render props', this.props, 'this.state', this.state);
+    console.log('SimulationRun render props', this.props);
+    console.log('SimulationRun render state', this.state);
 
     const { data } = this.state;
 
@@ -220,21 +249,16 @@ class SimulationRun extends Component {
 
     const mainItems = (
       <div>
-        <Title text={this.state.currentAsset} />
+        <Title text={this.state.currentAsset.name} />
         <div>
           {this.renderCharts({
             data
           })}
         </div>
-        <Assets
-          data={Object.getOwnPropertyNames(this.state.assets)}
-          handleAssetClick={this.handleAssetClick}
-        />
+        <Assets data={this.state.assets} handleAssetClick={this.handleAssetClick} />
       </div>
     );
-    console.log('###', DEFAULT_ASSETS);
-    console.log('//', this.state.currentAsset);
-    console.log('***', Object.getOwnPropertyNames(DEFAULT_ASSETS));
+    console.log('current asset', this.state.currentAsset);
     return (
       <div>
         <Route
@@ -251,10 +275,12 @@ class SimulationRun extends Component {
                 commonProps={this.props.commonProps}
                 currentAsset={this.state.currentAsset}
                 assetData={this.state.originalData}
-                assets={DEFAULT_ASSETS}
+                assets={this.state.assets}
                 mapResponseToBarChartData={this.mapResponseToBarChartData}
                 getAssetMeasurement={this.getAssetMeasurement}
                 renderCharts={this.renderCharts}
+                measurements={this.state.measurements}
+                /* data={this.state.data} */
               />
             </div>
           )}

@@ -14,11 +14,11 @@ const DEFAULT_SIMULATION_RUN_STATUSES = {
 
 const DEFAULT_SIMULATION_RUN_COLUMNS = (
   <div style={{ display: 'flex' }}>
-    <span style={{ marginLeft: '0px', width: '20%' }}>Simulation Run ID</span>
-    <span style={{ width: '20%' }}>Run Date/Time</span>
-    <span style={{ width: '20%' }}>Filename</span>
-    <span style={{ width: '20%' }}>Status</span>
-    <span style={{ width: '20%' }}>Status/Error Details</span>
+    <span style={{ marginLeft: '0px', width: '15%' }}>Simulation Run ID</span>
+    <span style={{ width: '15%' }}>Run Date/Time</span>
+    <span style={{ width: '30%' }}>Filename</span>
+    <span style={{ width: '25%' }}>Status</span>
+    <span style={{ width: '25%' }}>Status/Error Details</span>
   </div>
 );
 
@@ -33,11 +33,11 @@ const renderSimulationRuns = (simulationRuns, handleSimulationRunRequestClick) =
         value={run.id}
         key={run.id}
       >
-        <span style={{ marginLeft: '0px', width: '20%' }}>{run.id}</span>
-        <span style={{ marginLeft: '0px', width: '20%' }}>{runDate}</span>
-        <span style={{ width: '20%' }}>{run.simulation_filename}</span>
-        <span style={{ width: '20%' }}>{DEFAULT_SIMULATION_RUN_STATUSES[run.status]}</span>
-        <span style={{ width: '20%' }}>{run.status_details}</span>
+        <span style={{ marginLeft: '0px', width: '15%' }}>{run.id}</span>
+        <span style={{ marginLeft: '0px', width: '15%' }}>{runDate}</span>
+        <span style={{ width: '30%' }}>{run.simulation_filename}</span>
+        <span style={{ width: '25%' }}>{DEFAULT_SIMULATION_RUN_STATUSES[run.status]}</span>
+        <span style={{ width: '25%' }}>{run.status_details}</span>
         {/* <span style={{ marginLeft: '20px' }}>Description: (add here)</span> */}
       </div>
     );

@@ -5,11 +5,16 @@ import Title from './Title';
 
 const renderAssets = (data, handleAssetClick) => {
   console.log('renderAssets data', data);
+  /*   const assetNames = data.map(asset => asset.name);
+  if (!assetNames || !assetNames.length || assetNames.length === 0) {
+    return null;
+  } */
+
   const assetsToRender = data.map(asset => {
     // console.log('renderAssets', data, 'asset', asset);
     const assetDiv = (
-      <div style={{ display: 'block' }} onClick={handleAssetClick} value={asset} key={asset}>
-        {asset}
+      <div style={{ display: 'block' }} onClick={handleAssetClick} value={asset.id} key={asset.id}>
+        {asset.name}
       </div>
     );
 
@@ -21,10 +26,11 @@ const renderAssets = (data, handleAssetClick) => {
 
 const Assets = ({ data, handleAssetClick, readyToLoad }) => {
   console.log('Assets data', data, 'handleAssetClick', handleAssetClick);
-  // debugger;
+
   if (!data || !data.length || data.length === 0) {
     return null;
   }
+
   /* console.log('Assets readyToLoad', readyToLoad);
    Avoid race conditions that happen when an asset is clicked before the simulation run data is available.
   // TODO: May not need this any longer.

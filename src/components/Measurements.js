@@ -4,18 +4,18 @@ import React from 'react';
 import Title from './Title';
 
 const renderMeasurements = (data, handleMeasurementClick, asset) => {
-  console.log('renderMeasurements data', data,'asset',asset);
+  console.log('renderMeasurements data', data, 'asset', asset);
   const MeasurementsToRender = data.map(measurement => {
     // console.log('renderMeasurements', data, 'asset', asset);
     const measurementDiv = (
       <div
         style={{ display: 'block' }}
         onClick={handleMeasurementClick}
-        value={measurement}
-        key={measurement}
+        value={measurement.name}
+        key={measurement.id}
         asset={asset}
       >
-        {measurement}
+        {measurement.name}
       </div>
     );
 

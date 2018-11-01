@@ -38,9 +38,9 @@ class Asset extends Component {
       'currentAsset',
       this.props.currentAsset,
       'assets',
-      this.props.assets,
-      'data',
-      this.props.data
+      this.props.assets
+      /* 'data',
+      this.props.data */
     );
 
     // Parent mounted first, and so props were passed in.  Safe to continue
@@ -51,7 +51,9 @@ class Asset extends Component {
       this.props.assets &&
       this.props.mapResponseToBarChartData &&
       this.props.getAssetMeasurement &&
-      this.props.renderCharts
+      this.props.renderCharts &&
+      this.props.measurements
+      /* this.props.data */
     ) {
       this.populateAsset();
     }
@@ -85,7 +87,13 @@ class Asset extends Component {
         prevProps.getAssetMeasurement
       ) &&
       this.props.commonProps.shallowEquals(this.props.renderCharts, prevProps.renderCharts) &&
-      this.state.currentMeasurement === prevState.currentMeasurement
+      /* this.props.commonProps.shallowEquals(this.props.data, prevProps.data) && */
+      this.props.commonProps.shallowEquals(this.props.measurements, prevProps.measurements) &&
+      this.props.commonProps.shallowEquals(
+        this.state.currentMeasurement,
+        prevState.currentMeasurement
+      )
+      /* this.props.commonProps.shallowEquals(this.state.data, prevState.data) */
     ) {
       return;
     }
@@ -107,6 +115,7 @@ class Asset extends Component {
       this.state.currentMeasurement
     );
     console.log('*** assetMeasurement', assetMeasurement);
+    console.log('*** this.props.assetData', this.props.assetData);
     const data = this.props.mapResponseToBarChartData(this.props.assetData, assetMeasurement);
     console.log('*** data', data);
     this.setState({ data });
@@ -124,39 +133,18 @@ class Asset extends Component {
 
     console.log('handleMeasurementClick setting currentMeasurement', currentMeasurement);
     this.setState({ currentMeasurement });
-
-    /*     this.props.history.replace({
-      pathname: this.props.match.url
-    }, { currentMeasurement });
- */
-    // this.populateAsset(this.props.match.params.simulationId, currentMeasurement);
-  }
-
-  getMeasurements(assets, currentAsset) {
-    return assets[currentAsset];
   }
 
   render() {
-    console.log(
-      'Assets commonProps render',
-      this.props.commonProps,
-      'this.props.assetData',
-      this.props.assetData,
-      'this.props.assets',
-      this.props.assets,
-      'this.state.data',
-      this.state.data
-    );
+    console.log('Asset render props', this.props);
+    console.log('Asset render state', this.state);
 
     const { data } = this.state;
-
+    const { measurements } = this.props;
     if (!data || !data.length || data.length === 0) {
       return null;
     }
-
-    const measurements = this.getMeasurements(this.props.assets, this.props.match.params.assetId);
-
-    if (!measurements || _.isEmpty(measurements)) {
+    if (!measurements || !measurements.length || measurements.length === 0) {
       return null;
     }
 
@@ -164,7 +152,7 @@ class Asset extends Component {
 
     const mainItems = (
       <div>
-        <Title text={`${this.props.currentAsset} - ${this.state.currentMeasurement}`} />
+        <Title text={`${this.props.currentAsset.name} - ${this.state.currentMeasurement}`} />
         <div>{this.props.renderCharts({ data })}</div>
         <Measurements
           data={measurements}
