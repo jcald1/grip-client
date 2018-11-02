@@ -2,9 +2,9 @@ import axios from 'axios';
 import verror from 'verror';
 
 const getSimulationRunAsset = ({
-  path, apiVersion, simulationRunId, assetId
+  baseUrl, apiVersion, simulationRunId, assetId
 }) => {
-  const urlPath = `${path}${apiVersion}/simulation-runs/${simulationRunId}/assets/${assetId}`;
+  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/assets/${assetId}`;
 
   console.log('GET Simulation Run Asset API Call', `${urlPath}`);
 
@@ -30,8 +30,8 @@ const getSimulationRunAsset = ({
     });
 };
 
-const getSimulationRunAssets = ({ path, apiVersion, simulationRunId }) => {
-  const urlPath = `${path}${apiVersion}/simulation-runs/${simulationRunId}/assets`;
+const getSimulationRunAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
+  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/assets`;
 
   console.log('GET Simulation Run Assets API Call', `${urlPath}`);
 
@@ -60,10 +60,8 @@ const getSimulationRunAssets = ({ path, apiVersion, simulationRunId }) => {
 
 // TODO: Add Simulation Version
 // TODO: This is returning the BQ data but we may need to also return the PostgreS data by adding it to the API
-const getSimulationRunResults = ({
-  path, apiVersion, simulationId, simulationRunId
-}) => {
-  const urlPath = `${path}${apiVersion}/simulations/${simulationId}/simulation-runs/${simulationRunId}/results`;
+const getSimulationRunResults = ({ baseUrl, apiVersion, simulationRunId }) => {
+  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/results`;
 
   console.log('GET Simulation Run API Call', `${urlPath}`);
 
@@ -89,17 +87,12 @@ const getSimulationRunResults = ({
     });
 };
 
-const postSimulationRunRequest = ({ path, apiVersion, simulationId }) => {
-  const urlPath = `${path}${apiVersion}/simulations/${simulationId}/simulation-run-requests`;
+const postSimulationRunSubmission = ({ baseUrl, apiVersion }) => {
+  const urlPath = `${baseUrl}${apiVersion}/simulation-run-submissions`;
 
   console.log('POST Simulation Request', `${urlPath}`);
-  /* const config = {
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }; */
   return axios
-    .post(urlPath, { simulation_id: simulationId })
+    .post(urlPath)
     .then(res => {
       console.log('POST Simulation Request Response', res);
       if (res.status !== 201) {
@@ -119,8 +112,8 @@ const postSimulationRunRequest = ({ path, apiVersion, simulationId }) => {
     });
 };
 
-const getSimulationRuns = ({ path, apiVersion, simulationId }) => {
-  const urlPath = `${path}${apiVersion}/simulations/${simulationId}/simulation-runs`;
+const getSimulationRuns = ({ baseUrl, apiVersion }) => {
+  const urlPath = `${baseUrl}${apiVersion}/simulation-runs`;
 
   console.log('GET Simulation Run Data API Call', `${urlPath}`);
 
@@ -147,7 +140,7 @@ const getSimulationRuns = ({ path, apiVersion, simulationId }) => {
 
 export default {
   getSimulationRunResults,
-  postSimulationRunRequest,
+  postSimulationRunSubmission,
   getSimulationRuns,
   getSimulationRunAsset,
   getSimulationRunAssets

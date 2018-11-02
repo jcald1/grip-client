@@ -19,8 +19,6 @@ import './App.css';
 import simulations from '../actions/simulations';
 var qs = require('qs');
 
-const DEFAULT_SIMULATION_VERSION = 1;
-const DEFAULT_SIMULATION_ID = 1;
 const DEFAULT_API_VERSION = 'v1';
 
 const shallowEquals = (obj1, obj2) => {
@@ -99,11 +97,9 @@ class App extends Component {
     // TODO: Add message to user
     this.setState({ sendingSimulationRunRequest: true });
     simulations
-      .postSimulationRunRequest({
-        path: this.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
-        simulationId: DEFAULT_SIMULATION_ID,
-        simulationVersion: DEFAULT_SIMULATION_VERSION
+      .postSimulationRunSubmission({
+        baseUrl: this.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION
       })
       // TODO: Add error to page
       .catch(err => {
@@ -141,10 +137,8 @@ class App extends Component {
     return (
       simulations
         .getSimulationRuns({
-          path: this.commonProps.apiPath,
-          apiVersion: DEFAULT_API_VERSION,
-          simulationId: DEFAULT_SIMULATION_ID
-          //simulationVersion: DEFAULT_SIMULATION_VERSION
+          baseUrl: this.commonProps.apiPath,
+          apiVersion: DEFAULT_API_VERSION
         })
         // TODO: For now, just passing the simulation runs directly. EventSoon we'll neeed to submit the call to get simulation run request here that has more data such as request time and eventually possible grouping of multiple simulation runs in a single request (Monte Carlo method)
         .then(data => {
@@ -247,7 +241,7 @@ class App extends Component {
           )}
         />
         <Route
-          path="/simulation-runs/:simulationId"
+          path="/simulation-runs/:simulationRunId"
           render={props => (
             <div>
               <SimulationRun commonProps={this.commonProps} />

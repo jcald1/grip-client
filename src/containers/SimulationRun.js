@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
+import moment from 'moment';
 import BarChart from '../components/d3/BarChart/BarChart';
 import './App.css';
 import Layout from '../components/Layout';
@@ -10,10 +11,7 @@ import Asset from './Asset';
 import Assets from '../components/Assets';
 import Title from '../components/Title';
 import simulations from '../actions/simulations';
-import moment from 'moment';
 
-const DEFAULT_SIMULATION_VERSION = 1;
-const DEFAULT_SIMULATION_ID = 1;
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
 
@@ -43,14 +41,14 @@ class SimulationRun extends Component {
 
   componentDidMount() {
     console.log(
-      'SimulationRun componentDidMount this.props.match.params.simulationId',
-      this.props.match.params.simulationId,
+      'SimulationRun componentDidMount this.props.match.params.simulationRunId',
+      this.props.match.params.simulationRunId,
       'this.props.commonProps',
       this.props.commonProps
     );
 
     if (this.props.commonProps) {
-      this.populateSimulationRun(this.props.match.params.simulationId);
+      this.populateSimulationRun(this.props.match.params.simulationRunId);
     }
   }
 
@@ -65,7 +63,7 @@ class SimulationRun extends Component {
       return;
     }
 
-    this.populateSimulationRun(this.props.match.params.simulationId);
+    this.populateSimulationRun(this.props.match.params.simulationRunId);
   }
 
   populateSimulationRun(simulationRunId) {
@@ -82,7 +80,7 @@ class SimulationRun extends Component {
     // TODO: Some of these calls may be able to be done in parallel.
     const res = simulations
       .getSimulationRunAssets({
-        path: this.props.commonProps.apiPath,
+        baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationRunId
       })
@@ -98,7 +96,7 @@ class SimulationRun extends Component {
         return null;
       })
       .then(() => simulations.getSimulationRunAsset({
-        path: this.props.commonProps.apiPath,
+        baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationRunId,
         assetId
@@ -114,10 +112,8 @@ class SimulationRun extends Component {
         return null;
       })
       .then(() => simulations.getSimulationRunResults({
-        path: this.props.commonProps.apiPath,
+        baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
-        simulationId: DEFAULT_SIMULATION_ID,
-        simulationVersion: DEFAULT_SIMULATION_VERSION,
         simulationRunId
       }))
       // TODO: This may belong in the API container
@@ -183,10 +179,10 @@ class SimulationRun extends Component {
     console.log('*** currentAsset', currentAsset, '');
     simulations
       .getSimulationRunAsset({
-        path: this.props.commonProps.apiPath,
+        baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         //  TODO: Clean Up.  THese should be Simulation Run IDs not Simulation IDs.
-        simulationRunId: this.props.match.params.simulationId,
+        simulationRunId: this.props.match.params.simulationRunId,
         assetId: currentAsset.id
       })
       .then(data => {

@@ -42,7 +42,7 @@ const renderSimulationRuns = (simulationRuns, handleSimulationRunRequestClick) =
       </div>
     );
 
-    return <div key={run.simulation_execution_request_id}>{line}</div>;
+    return <div key={run.simulation_run_submission_id}>{line}</div>;
   });
   // runsToRender.push(DEFAULT_SIMULATION_RUN_COLUMNS);
   runsToRender = runsToRender.reverse();
