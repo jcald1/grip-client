@@ -10,7 +10,7 @@ import Layout from '../components/Layout';
 import Asset from './Asset';
 import Assets from '../components/Assets';
 import Title from '../components/Title';
-import simulations from '../actions/simulations';
+import simulationRuns from '../actions/simulationRuns';
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
@@ -78,7 +78,7 @@ class SimulationRun extends Component {
     let assetId;
     this.setState({ getingSimulationRun: true });
     // TODO: Some of these calls may be able to be done in parallel.
-    const res = simulations
+    const res = simulationRuns
       .getSimulationRunAssets({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
@@ -95,7 +95,7 @@ class SimulationRun extends Component {
         this.setState({ currentAsset, assets });
         return null;
       })
-      .then(() => simulations.getSimulationRunAsset({
+      .then(() => simulationRuns.getSimulationRunAsset({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationRunId,
@@ -111,7 +111,7 @@ class SimulationRun extends Component {
 
         return null;
       })
-      .then(() => simulations.getSimulationRunResults({
+      .then(() => simulationRuns.getSimulationRunResults({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationRunId
@@ -177,7 +177,7 @@ class SimulationRun extends Component {
 
     const currentAsset = this.state.assets.find(asset => asset.id === currentAssetId);
     console.log('*** currentAsset', currentAsset, '');
-    simulations
+    simulationRuns
       .getSimulationRunAsset({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,

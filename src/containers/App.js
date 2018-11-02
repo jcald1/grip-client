@@ -16,7 +16,7 @@ import _ from 'lodash';
 import Layout from '../components/Layout';
 import { Redirect } from 'react-router-dom';
 import './App.css';
-import simulations from '../actions/simulations';
+import simulationRuns from '../actions/simulationRuns';
 var qs = require('qs');
 
 const DEFAULT_API_VERSION = 'v1';
@@ -96,7 +96,7 @@ class App extends Component {
     console.log('App handleRunSimulationClick e.target', e.target);
     // TODO: Add message to user
     this.setState({ sendingSimulationRunRequest: true });
-    simulations
+    simulationRuns
       .postSimulationRunSubmission({
         baseUrl: this.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION
@@ -135,7 +135,7 @@ class App extends Component {
     // TODO: Add message to user
     this.setState({ getingSimulationRuns: true });
     return (
-      simulations
+      simulationRuns
         .getSimulationRuns({
           baseUrl: this.commonProps.apiPath,
           apiVersion: DEFAULT_API_VERSION
