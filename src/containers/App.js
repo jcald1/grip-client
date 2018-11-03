@@ -58,6 +58,12 @@ class App extends Component {
     this.handleError = this.handleError.bind(this);
     this.renderErrorMessage = this.renderErrorMessage.bind(this);
 
+    if (!process.env.REACT_APP_API_PATH) {
+      const err = Error('Configuration file has not been set up.');
+      console.log(err);
+      throw err;
+    }
+
     this.commonProps = {
       apiPath: process.env.REACT_APP_API_PATH,
       handleError: this.handleError,

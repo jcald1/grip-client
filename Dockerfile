@@ -10,6 +10,8 @@ RUN npm run build
 
 FROM nginx:1.13.9-alpine
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+# Use customer nginx configuration to handle nested route forwarding
+COPY config/nginx/default.conf /etc/nginx/conf.d/
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

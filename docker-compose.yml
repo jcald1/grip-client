@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   client:
-    container_name: linq-client
+    container_name: grip-client
     build:
       context: .
       dockerfile: Dockerfile
