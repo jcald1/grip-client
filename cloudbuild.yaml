@@ -1,0 +1,13 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/grip-image', '.' ]
+images:
+- 'gcr.io/$PROJECT_ID/grip-image'
+
+
+# steps:
+# - name: 'docker/compose:1.19.0'
+#   args: ['up', '-d']
+# - name: 'gcr.io/cloud-builders/docker'
+#   args: ['tag', 'grip-client-image:latest', 'gcr.io/grip-project-dev-integration/$REPO_NAME:$COMMIT_SHA']
+# images: ['gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA']
