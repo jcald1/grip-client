@@ -8,3 +8,5 @@ spec:
   backend:
     serviceName: grip-web
     servicePort: 80
+    image: gcr.io/grip-project-dev-integration/grip-image:latest
+
