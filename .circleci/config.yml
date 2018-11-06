@@ -37,6 +37,5 @@ jobs:
       - run: yarn test
 
       - run: sudo apt install -y rsync
-      - run: if [ "${CIRCLE_BRANCH}" == "master" ]; then gce/deployGoogleBackend.sh; fi
+      - run: if [ "${CIRCLE_BRANCH}" == "master" ]; then deployment/deployGoogleBackend.sh; fi
 
-      
