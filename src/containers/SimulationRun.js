@@ -106,7 +106,7 @@ class SimulationRun extends Component {
         if (!data) {
           return Promise.reject(new Error('No data received from the API.'));
         }
-        measurements = data;
+        measurements = data.recordings;
         this.setState({ measurements });
 
         return null;
@@ -190,7 +190,7 @@ class SimulationRun extends Component {
         if (!data) {
           return Promise.reject(new Error('No data received from the API.'));
         }
-        const measurements = data;
+        const measurements = data.recordings;
         const newState = { measurements, currentAsset };
         this.setState(newState)
         const newUrl = `${this.props.location.pathname}/assets/${currentAsset.id}`;
