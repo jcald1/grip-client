@@ -28,6 +28,7 @@ class SimulationRun extends Component {
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
     this.renderCharts = this.renderCharts.bind(this);
+    this.checkUnderscoreKey = this.checkUnderscoreKey.bind(this);
     this.mapResponseToBarChartData = this.mapResponseToBarChartData.bind(this);
     this.getAssetMeasurement.bind(this);
   }
@@ -201,6 +202,15 @@ class SimulationRun extends Component {
         });
       });
   }
+
+checkUnderscoreKey(row, assetMeasurement){
+  console.log('rowrowrowrow data', row, 'assetMeasurement', assetMeasurement, 'both', row[assetMeasurement], 'both1',row["_" + assetMeasurement] );
+  if (row[assetMeasurement]){
+    return row[assetMeasurement];
+  }else{
+    return row["_" + assetMeasurement];
+  }
+}
 
   // HVMV_Sub_HSB__measured_real_power
   // TODO: Conversion should be in the API

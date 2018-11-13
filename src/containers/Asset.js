@@ -7,6 +7,8 @@ import BarChart from '../components/d3/BarChart/BarChart';
 import './App.css';
 import Layout from '../components/Layout';
 import Measurements from '../components/Measurements';
+import AssetRelationships from '../components/AssetRelationships';
+import AssetProperties from '../components/AssetProperties';
 import Title from '../components/Title';
 import moment from 'moment';
 
@@ -159,7 +161,17 @@ class Asset extends Component {
           handleMeasurementClick={this.handleMeasurementClick}
           asset={this.props.asset}
         />
-      </div>
+        <AssetRelationships
+          data={this.props.currentAsset}
+          handleAssetClick={this.handleAssetClick}
+          asset={this.props.asset}
+        />
+        <AssetProperties
+          data={this.props.currentAsset}
+          handleAssetClick={this.handleAssetClick}
+          asset={this.props.asset}
+        />
+        </div>
     );
 
     return <Layout leftNavItems={leftNavItems} mainItems={mainItems} />;
