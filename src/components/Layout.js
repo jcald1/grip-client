@@ -26,7 +26,7 @@ class Layout extends Component {
     return (
       <div className="Layout" style={{ display: 'flex' }}>
         <div
-          style={{ width: '20%', display: 'inline-block', flexDirection: 'column' }}
+          style={{ width: '10%', display: 'inline-block', flexDirection: 'column' }}
           className="left-nav-items"
         >
           <Button
@@ -42,7 +42,7 @@ class Layout extends Component {
         </div>
         <div
           className="main-body"
-          style={{ width: '80%', display: 'inline-block', flexDirection: 'column' }}
+          style={{ width: '90%', display: 'inline-block', flexDirection: 'column' }}
         >
           {mainItems}
           {/*         <Explore value={inputValue} onChange={this.handleChange} /> */}

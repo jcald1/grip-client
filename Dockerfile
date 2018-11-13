@@ -1,10 +1,16 @@
+# TODO: This could probably be removed once we move to D3 V5
+# FROM gcc:8.2.0 as builder-a
+# COPY d3-v3 .
+# WORKDIR /d3-v3
+# RUN npm install
+
 # build environment
-FROM node:10-alpine as builder
+FROM nikolaik/python-nodejs:latest as builder
+#FROM node:10-alpine as builder
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 COPY package.json /usr/src/app/package.json
-RUN npm install
 COPY . /usr/src/app
 RUN npm run build
 

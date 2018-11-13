@@ -66,6 +66,7 @@ class App extends Component {
 
     this.commonProps = {
       apiPath: process.env.REACT_APP_API_PATH,
+      topologyApiPath: process.env.REACT_APP_TOPOLOGY_API_PATH,
       handleError: this.handleError,
       shallowEquals
     };

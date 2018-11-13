@@ -16,6 +16,7 @@
     "axios": "^0.18.0",
     "bluebird": "^3.5.2",
     "d3": "^5.7.0",
+    "d3-v3": "file:d3-v3",
     "humps": "^2.0.0",
     "install": "^0.12.2",
     "json-stringify-safe": "^5.0.1",

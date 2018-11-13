@@ -2,15 +2,13 @@
 import * as d3 from 'd3';
 import '../d3.css';
 
+/* eslint-disable camelcase */
+
 // Simple Bar Chart from D3 v4 example at https://bl.ocks.org/d3noob/bdf28027e0ce70bd132edc64f1dd7ea4
 const D3_BarChart = {};
 
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable fun-names */
-
-const dataSubset = `salesperson,sales
-Bob,33
-Robin,12`;
 
 D3_BarChart.create = (el, data, configuration) => {
   console.log('D3_BarChart#create');

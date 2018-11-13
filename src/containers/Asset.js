@@ -3,14 +3,12 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
-import BarChart from '../components/d3/BarChart/BarChart';
 import './App.css';
 import Layout from '../components/Layout';
 import Measurements from '../components/Measurements';
 import AssetRelationships from '../components/AssetRelationships';
 import AssetProperties from '../components/AssetProperties';
 import Title from '../components/Title';
-import moment from 'moment';
 
 // const queryString = require('query-string');
 // const querySearch = require('stringquery');
@@ -18,7 +16,7 @@ const qs = require('qs');
 
 // const DEFAULT_SWING_BUS = 'HVMV_Sub_HSB__measured_real_power';
 const DEFAULT_MEASUREMENT = 'measured_real_power';
-const DEFAULT_DIVIDER = '__';
+
 // TODO: Generalize
 
 class Asset extends Component {
@@ -136,6 +134,8 @@ class Asset extends Component {
     console.log('handleMeasurementClick setting currentMeasurement', currentMeasurement);
     this.setState({ currentMeasurement });
   }
+
+
 
   render() {
     console.log('Asset render props', this.props);

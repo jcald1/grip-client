@@ -11,6 +11,8 @@ import Asset from './Asset';
 import Assets from '../components/Assets';
 import Title from '../components/Title';
 import simulationRuns from '../actions/simulationRuns';
+import networkTopology from '../actions/networkTopology';
+import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
@@ -23,6 +25,7 @@ class SimulationRun extends Component {
       currentAsset: null,
       assets: null,
       data: [],
+      networkTopologyData: {},
       getingSimulationRun: true
     };
 
@@ -79,16 +82,17 @@ class SimulationRun extends Component {
     let assetId;
     this.setState({ getingSimulationRun: true });
     // TODO: Some of these calls may be able to be done in parallel.
-    const res = simulationRuns
+
+    simulationRuns
       .getSimulationRunAssets({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationRunId
       })
       .then(data => {
-        console.log('2SimulationRun populateSimulationRun getsimulation run assets data', data);
+        console.log('SimulationRun populateSimulationRun getsimulation run assets data', data);
         if (!data) {
-          return Promise.reject(new Error('No data received from the API.'));
+          return Promise.reject(new Error('No simulation run data received from the API.'));
         }
         assets = data;
         currentAsset = data[0];
@@ -138,6 +142,19 @@ class SimulationRun extends Component {
           originalData
         });
         return data;
+      })
+      .then(() => networkTopology.getNetworkTopology({
+        baseUrl: this.props.commonProps.topologyApiPath,
+        apiVersion: DEFAULT_API_VERSION,
+      }))
+      .then(data => {
+        console.log('Topology network data', data);
+        if (!data) {
+          return Promise.reject(new Error('No network topology data received from the API.'));
+        }
+
+        this.setState({ networkTopologyData: data });
+        return null;
       })
       .catch(err => {
         console.error(err);
@@ -193,9 +210,9 @@ class SimulationRun extends Component {
         }
         const measurements = data.recordings;
         const newState = { measurements, currentAsset };
-        this.setState(newState)
+        this.setState(newState);
         const newUrl = `${this.props.location.pathname}/assets/${currentAsset.id}`;
-        console.log('** NEW PUSH', newUrl)
+        console.log('** NEW PUSH', newUrl);
         console.log('newUrl', newUrl);
         this.props.history.push({
           pathname: newUrl
@@ -241,6 +258,23 @@ checkUnderscoreKey(row, assetMeasurement){
     return charts;
   }
 
+  renderPoleVulnerabilityTable() {
+    return <div />;
+  }
+
+  renderNetworkTopologyGraph() {
+    return (
+      <div>
+        <NetworkTopology
+          style={{ marginTop: '20px' }}
+          // handleError={this.renderErrorMessage}
+          commonProps={this.props.commonProps}
+          data={this.state.networkTopologyData}
+        />
+      </div>
+    );
+  }
+
   render() {
     console.log('SimulationRun render props', this.props);
     console.log('SimulationRun render state', this.state);
@@ -262,6 +296,10 @@ checkUnderscoreKey(row, assetMeasurement){
           })}
         </div>
         <Assets data={this.state.assets} handleAssetClick={this.handleAssetClick} />
+        <div style={{ marginTop: '20px', display: 'flex' }}>
+          <div style={{ width: '50%' }}>{this.renderPoleVulnerabilityTable()}</div>
+          <div style={{ width: '50%' }}>{this.renderNetworkTopologyGraph()}</div>
+        </div>
       </div>
     );
     console.log('current asset', this.state.currentAsset);
