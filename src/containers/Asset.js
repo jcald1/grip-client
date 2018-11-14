@@ -15,16 +15,17 @@ import Title from '../components/Title';
 const qs = require('qs');
 
 // const DEFAULT_SWING_BUS = 'HVMV_Sub_HSB__measured_real_power';
-const DEFAULT_MEASUREMENT = 'measured_real_power';
+// const DEFAULT_MEASUREMENT = 'measured_real_power';
 
 // TODO: Generalize
 
 class Asset extends Component {
   constructor(props) {
     super(props);
-
+    const currentMeasurement =
+      this.props.measurements && this.props.measurements[0] && this.props.measurements[0].name;
     this.state = {
-      currentMeasurement: DEFAULT_MEASUREMENT,
+      currentMeasurement,
       data: []
     };
 
@@ -135,8 +136,6 @@ class Asset extends Component {
     this.setState({ currentMeasurement });
   }
 
-
-
   render() {
     console.log('Asset render props', this.props);
     console.log('Asset render state', this.state);
@@ -171,7 +170,7 @@ class Asset extends Component {
           handleAssetClick={this.handleAssetClick}
           asset={this.props.asset}
         />
-        </div>
+      </div>
     );
 
     return <Layout leftNavItems={leftNavItems} mainItems={mainItems} />;

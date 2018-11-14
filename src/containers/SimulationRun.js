@@ -287,9 +287,10 @@ checkUnderscoreKey(row, assetMeasurement){
 
     const leftNavItems = null;
 
+    const defaultMeasurement = this.state.measurements && this.state.measurements[0] && this.state.measurements[0].name;
     const mainItems = (
       <div>
-        <Title text={this.state.currentAsset.name} />
+        <Title text={`${this.state.currentAsset.name} - ${defaultMeasurement}`} />
         <div>
           {this.renderCharts({
             data
