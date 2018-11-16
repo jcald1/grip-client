@@ -46,13 +46,13 @@ const AssetRelationships = ({
 
   return (
     <div>
-      <div style={{ marginLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
+      <div style={{ marginLeft: '10px', marginTop: '5px', display: 'inline-block', textAlign: 'left' }}>
         <Title text="Asset From Relationships" />
-        <div>{renderAssetRelationships(data, handleAssetClick, asset, 'fromAssets')}</div>
+        <div style={{ textAlign: 'center' }}>{renderAssetRelationships(data, handleAssetClick, asset, 'fromAssets')}</div>
       </div>
-      <div style={{ marginLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
+      <div style={{ marginLeft: '10px', display: 'inline-block', textAlign: 'left' }}>
         <Title text="Asset To Relationships" />
-        <div>{renderAssetRelationships(data, handleAssetClick, asset, 'toAssets')}</div>
+        <div style={{ textAlign: 'center' }}>{renderAssetRelationships(data, handleAssetClick, asset, 'toAssets')}</div>
       </div>
     </div>
   );

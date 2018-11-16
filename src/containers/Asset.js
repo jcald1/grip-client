@@ -155,21 +155,45 @@ class Asset extends Component {
       <div>
         <Title text={`${this.props.currentAsset.name} - ${this.state.currentMeasurement}`} />
         <div>{this.props.renderCharts({ data })}</div>
-        <Measurements
-          data={measurements}
-          handleMeasurementClick={this.handleMeasurementClick}
-          asset={this.props.asset}
-        />
-        <AssetRelationships
-          data={this.props.currentAsset}
-          handleAssetClick={this.handleAssetClick}
-          asset={this.props.asset}
-        />
-        <AssetProperties
-          data={this.props.currentAsset}
-          handleAssetClick={this.handleAssetClick}
-          asset={this.props.asset}
-        />
+        <div className="divTable">
+          <div className="divTableBody">
+          <div className="divTableRow">
+          <div className="divTableCell">
+            <AssetProperties
+              data={this.props.currentAsset}
+              handleAssetClick={this.handleAssetClick}
+              asset={this.props.asset}/>
+          </div>
+          </div>
+          </div>
+          </div>
+          <div className="divTable">
+          <div className="divTableBody">
+          <div className="divTableRow">
+          <div className="divTableCell"> 
+            <Measurements
+              data={measurements}
+              handleMeasurementClick={this.handleMeasurementClick}
+              asset={this.props.asset}/>
+            </div>
+            </div>
+            </div>
+            </div>
+            <div className="divTable">
+            <div className="divTableBody">
+            <div className="divTableRow">
+            <div className="divTableCell"> 
+            <AssetRelationships
+              data={this.props.currentAsset}
+              handleAssetClick={this.handleAssetClick}
+              asset={this.props.asset}/>
+          </div>
+          </div>
+          </div>
+        </div>
+
+
+
       </div>
     );
 
