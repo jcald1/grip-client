@@ -18,6 +18,7 @@ import { Redirect } from 'react-router-dom';
 import './App.css';
 import simulationRuns from '../actions/simulationRuns';
 var qs = require('qs');
+const { Header } = Layout;
 
 const DEFAULT_API_VERSION = 'v1';
 
@@ -72,6 +73,9 @@ class App extends Component {
     };
   }
 
+  // TODO: Refactor App so that the dashboard elements are rendered in a different container.
+  // Get simulation runs should not be getting run on subroutes.  App.js should be very light
+  // and only have common functionality.
   componentDidMount() {
     console.log('BarChart componentDidMount');
 
@@ -138,7 +142,7 @@ class App extends Component {
   }
 
   getSimulationRuns() {
-    console.log('App handlegetingSimulationRuns e.target');
+    console.log('App getSimulationRuns');
     // TODO: Add message to user
     this.setState({ getingSimulationRuns: true });
     return (
@@ -164,7 +168,7 @@ class App extends Component {
   }
 
   handleGetSimulationRunsClick() {
-    console.log('App handlegetingSimulationRuns e.target');
+    console.log('App handlegetingSimulationRuns');
     this.getSimulationRuns()
       // End the promise chain
       .then(simulationRuns => {})
@@ -190,15 +194,28 @@ class App extends Component {
   }; */
 
   renderErrorMessage() {
-    const { errorMessage } = this.props;
+    /*    const { errorMessage } = this.props;
     if (!errorMessage) {
+      return null;
+    } */
+    if (!this.state.error || _.isEmpty(this.state.error)) {
       return null;
     }
 
-    return (
-      <p style={{ backgroundColor: '#e99', padding: 10 }}>
+    /* return (
+             <p style={{ backgroundColor: '#e99', padding: 10 }}>
         <b>{errorMessage}</b> <button onClick={this.handleDismissClick}>Dismiss</button>
-      </p>
+      </p> 
+
+    ); */
+
+    return (
+      <div
+        style={{ width: '100%', backgroundColor: 'red', color: 'white', fontSize: '30px' }}
+        className="logo"
+      >
+        Error Occured - {this.state.error.message}
+      </div>
     );
   }
 
@@ -208,7 +225,7 @@ class App extends Component {
     // TODO: Move to Redux
 
     const simulationRunRequestsLeftNavItems = [
-      <div>
+      <div key="left-nav-1">
         <Button
           style={{ marginTop: '20px', display: 'block' }}
           type="primary"
@@ -230,6 +247,7 @@ class App extends Component {
       <SimulationRunRequests
         data={this.state.simulationRunRequestsMetadata}
         handleSimulationRunRequestClick={this.handleSimulationRunRequestClick}
+        key="main-items-1"
       />
     ];
 
@@ -237,6 +255,7 @@ class App extends Component {
 
     return (
       <div>
+        {this.renderErrorMessage()}
         <Route
           exact
           path="/"

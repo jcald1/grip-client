@@ -1,17 +1,38 @@
 /* eslint-disable no-undef */
 
-import React from 'react';
+/*
+From https://ant.design/components/table/ (Dynamic Settings example)
+*/
+
+import React, { Component } from 'react';
 import Title from './Title';
 
-const renderAssets = (data, handleAssetClick) => {
-  console.log('renderAssets data', data);
-  /*   const assetNames = data.map(asset => asset.name);
-  if (!assetNames || !assetNames.length || assetNames.length === 0) {
-    return null;
-  } */
+import { Table, Icon, Switch, Radio, Form, Divider } from 'antd';
 
+const FormItem = Form.Item;
+
+/* const data = [];
+for (let i = 1; i <= 10; i++) {
+  data.push({
+    key: i,
+    name: 'John Brown',
+    age: `${i}2`,
+    address: `New York No. ${i} Lake Park`,
+    description: `My name is John Brown, I am ${i}2 years old, living in New York No. ${i} Lake Park.`
+  });
+} */
+
+const expandedRowRender = record => <p>{record.description}</p>;
+const title = () => 'Assets';
+const showHeader = true;
+const footer = () => 'Here is footer';
+const scroll = { y: 240 };
+const pagination = { position: 'bottom' };
+
+// TODO: Delete this after swapping in the table
+/* const renderAssets = (data, handleAssetClick) => {
+  console.log('renderAssets data', data);
   const assetsToRender = data.map(asset => {
-    // console.log('renderAssets', data, 'asset', asset);
     const assetDiv = (
       <div style={{ display: 'block' }} onClick={handleAssetClick} value={asset.id} key={asset.id}>
         {asset.name}
@@ -22,30 +43,236 @@ const renderAssets = (data, handleAssetClick) => {
   });
   console.log('Assets assetsToRender', assetsToRender);
   return assetsToRender;
+}; */
+
+const getAssets = data => {
+  console.log('getAssets data', data);
+  let assets = [];
+  assets = data.map(asset => {
+    //console.log(asset);
+    return {
+      key: asset.id,
+      id: asset.id,
+      name: asset.name,
+      type: asset.asset_class,
+      substation: asset.properties.substation,
+      feeder: asset.properties.feeder,
+      status: asset.properties.service_status,
+      vulnerability: asset.properties.pole_stress,
+      criticality: asset.properties.criticality
+    };
+  });
+
+  console.log('Assets', assets);
+  return assets;
 };
 
-const Assets = ({ data, handleAssetClick, readyToLoad }) => {
-  console.log('Assets data', data, 'handleAssetClick', handleAssetClick);
+class Assets extends Component {
+  constructor(props) {
+    super(props);
+    console.log('Assets data', this.props.data, 'handleAssetClick', this.props.handleAssetClick);
 
-  if (!data || !data.length || data.length === 0) {
-    return null;
+    this.state = {
+      bordered: true,
+      loading: false,
+      pagination,
+      size: 'default',
+      //expandedRowRender,
+      title,
+      showHeader,
+      //footer,
+      // rowSelection: {},
+      scroll: undefined,
+      hasData: true
+    };
   }
 
-  /* console.log('Assets readyToLoad', readyToLoad);
-   Avoid race conditions that happen when an asset is clicked before the simulation run data is available.
-  // TODO: May not need this any longer.
-  /*   if (!readyToLoad) {
-    return null;
+  componentDidMount() {
+    if (!this.props.data || !this.props.data.length || this.props.data.length === 0) {
+      return null;
+    }
   }
-  console.log('Assets rendering');
-  */
 
-  return (
-    <div style={{ display: 'inline-block', textAlign: 'left' }}>
+  handleToggle = prop => {
+    return enable => {
+      this.setState({ [prop]: enable });
+    };
+  };
+
+  handleSizeChange = e => {
+    this.setState({ size: e.target.value });
+  };
+
+  handleExpandChange = enable => {
+    this.setState({ expandedRowRender: enable ? expandedRowRender : undefined });
+  };
+
+  handleTitleChange = enable => {
+    this.setState({ title: enable ? title : undefined });
+  };
+
+  handleHeaderChange = enable => {
+    this.setState({ showHeader: enable ? showHeader : false });
+  };
+
+  handleFooterChange = enable => {
+    this.setState({ footer: enable ? footer : undefined });
+  };
+
+  handleRowSelectionChange = enable => {
+    this.setState({ rowSelection: enable ? {} : undefined });
+  };
+
+  handleScollChange = enable => {
+    this.setState({ scroll: enable ? scroll : undefined });
+  };
+
+  handleDataChange = hasData => {
+    this.setState({ hasData });
+  };
+
+  handlePaginationChange = e => {
+    const { value } = e.target;
+    this.setState({
+      pagination: value === 'none' ? false : { position: value }
+    });
+  };
+
+  /*   clickAsset() {
+    alert('test');
+  } */
+
+  columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 50
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      width: 200
+    },
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+      width: 80
+    },
+    {
+      title: 'Substation',
+      dataIndex: 'substation',
+      key: 'substation',
+      width: 150
+    },
+    {
+      title: 'Feeder',
+      dataIndex: 'feeder',
+      key: 'feeder',
+      width: 100
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: 120
+    },
+    {
+      title: 'Pole\
+      Vulnerability\
+      (Pole Stress)',
+      key: 'vulnerability',
+      dataIndex: 'vulnerability',
+      width: 120
+    },
+    {
+      title: 'Criticality',
+      key: 'criticality',
+      dataIndex: 'criticality'
+      //width: 100
+    }
+  ];
+
+  render() {
+    const { data, handleAssetClick, readyToLoad } = this.props;
+    {
+      /* <div style={{ display: 'inline-block', textAlign: 'left' }}>
       <Title text="Assets" />
       <div>{renderAssets(data, handleAssetClick)}</div>
-    </div>
-  );
-};
+    </div> */
+    }
+    return (
+      <div>
+        {/*         <div className="components-table-demo-control-bar">
+          <Form layout="inline">
+            <FormItem label="Bordered">
+              <Switch checked={this.state.bordered} onChange={this.handleToggle('bordered')} />
+            </FormItem>
+            <FormItem label="loading">
+              <Switch checked={this.state.loading} onChange={this.handleToggle('loading')} />
+            </FormItem>
+            <FormItem label="Title">
+              <Switch checked={!!this.state.title} onChange={this.handleTitleChange} />
+            </FormItem>
+            <FormItem label="Column Header">
+              <Switch checked={!!this.state.showHeader} onChange={this.handleHeaderChange} />
+            </FormItem>
+            <FormItem label="Footer">
+              <Switch checked={!!this.state.footer} onChange={this.handleFooterChange} />
+            </FormItem>
+            <FormItem label="Expandable">
+              <Switch checked={!!this.state.expandedRowRender} onChange={this.handleExpandChange} />
+            </FormItem>
+            <FormItem label="Checkbox">
+              <Switch
+                checked={!!this.state.rowSelection}
+                onChange={this.handleRowSelectionChange}
+              />
+            </FormItem>
+            <FormItem label="Fixed Header">
+              <Switch checked={!!this.state.scroll} onChange={this.handleScollChange} />
+            </FormItem>
+            <FormItem label="Has Data">
+              <Switch checked={!!this.state.hasData} onChange={this.handleDataChange} />
+            </FormItem>
+            <FormItem label="Size">
+              <Radio.Group size="default" value={this.state.size} onChange={this.handleSizeChange}>
+                <Radio.Button value="default">Default</Radio.Button>
+                <Radio.Button value="middle">Middle</Radio.Button>
+                <Radio.Button value="small">Small</Radio.Button>
+              </Radio.Group>
+            </FormItem>
+            <FormItem label="Pagination">
+              <Radio.Group
+                value={this.state.pagination ? this.state.pagination.position : 'none'}
+                onChange={this.handlePaginationChange}
+              >
+                <Radio.Button value="top">Top</Radio.Button>
+                <Radio.Button value="bottom">Bottom</Radio.Button>
+                <Radio.Button value="both">Both</Radio.Button>
+                <Radio.Button value="none">None</Radio.Button>
+              </Radio.Group>
+            </FormItem>
+          </Form>
+        </div> */}
+        <Table
+          onRow={record => {
+            return {
+              onClick: e => {
+                this.props.handleAssetClick(e);
+              } // click row
+              //onMouseEnter: () => {},  // mouse enter row
+            };
+          }}
+          {...this.state}
+          columns={this.columns}
+          dataSource={this.state.hasData ? getAssets(data) : null}
+        />
+      </div>
+    );
+  }
+}
 
 export default Assets;

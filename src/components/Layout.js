@@ -42,7 +42,12 @@ class Layout extends Component {
         </div>
         <div
           className="main-body"
-          style={{ width: '90%', display: 'inline-block', flexDirection: 'column' }}
+          style={{
+            width: '90%',
+            display: 'inline-block',
+            flexDirection: 'column',
+            paddingRight: '10px'
+          }}
         >
           {mainItems}
           {/*         <Explore value={inputValue} onChange={this.handleChange} /> */}

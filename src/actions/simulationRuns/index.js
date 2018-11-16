@@ -25,7 +25,7 @@ const getSimulationRunAsset = ({
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting');
+      console.log('Rejecting GET Simulation Run Asset');
       return Promise.reject(err);
     });
 };
@@ -52,7 +52,7 @@ const getSimulationRunAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting');
+      console.log('Rejecting GET Simulation Run Assets');
       console.log('getSimulationRunAssets returning rejecting', err);
       return Promise.reject(err);
     });
@@ -82,7 +82,7 @@ const getSimulationRunResults = ({ baseUrl, apiVersion, simulationRunId }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting');
+      console.log('Rejecting GET Simulation Run');
       return Promise.reject(err);
     });
 };
@@ -107,7 +107,7 @@ const postSimulationRunSubmission = ({ baseUrl, apiVersion }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting');
+      console.log('Rejecting POST Simulation Request');
       return Promise.reject(err);
     });
 };
@@ -115,7 +115,7 @@ const postSimulationRunSubmission = ({ baseUrl, apiVersion }) => {
 const getSimulationRuns = ({ baseUrl, apiVersion }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs`;
 
-  console.log('GET Simulation Run Data API Call', `${urlPath}`);
+  console.log('GET Simulation Runs API Call', `${urlPath}`);
 
   return axios
     .get(urlPath)
@@ -133,7 +133,7 @@ const getSimulationRuns = ({ baseUrl, apiVersion }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting');
+      console.log('Rejecting GET Simulation Runs');
       return Promise.reject(err);
     });
 };

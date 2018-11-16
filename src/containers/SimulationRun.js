@@ -145,7 +145,7 @@ class SimulationRun extends Component {
       })
       .then(() => networkTopology.getNetworkTopology({
         baseUrl: this.props.commonProps.topologyApiPath,
-        apiVersion: DEFAULT_API_VERSION,
+        apiVersion: DEFAULT_API_VERSION
       }))
       .then(data => {
         console.log('Topology network data', data);
@@ -172,7 +172,7 @@ class SimulationRun extends Component {
   getBarChart({ commonProps, data }) {
     console.log('SimulationRun getBarChart data', data);
     return (
-      <div key={data.id}>
+      <div>
         <BarChart
           style={{ marginTop: '20px' }}
           // handleError={this.renderErrorMessage}
@@ -188,9 +188,18 @@ class SimulationRun extends Component {
   }
 
   handleAssetClick(e) {
-    console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
-    console.log('*** this.props.match.params', this.props.match);
-    const currentAssetId = parseInt(e.currentTarget.getAttribute('value'), 10);
+    console.log(
+      'handleAssetClick',
+      'e.currentTarget',
+      e.currentTarget
+    );
+    //console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
+    console.log('App handleAssetClick value', e.currentTarget.getAttribute('data-row-key'));
+    //console.log('*** this.props.match.params', this.props.match);
+    //const currentAssetId = parseInt(e.currentTarget.getAttribute('value'), 10);
+    const currentAssetId = parseInt(e.currentTarget.getAttribute('data-row-key'), 10);
+    // const currentAssetId = e;
+
     console.log('state', this.state, 'currentAssetId', currentAssetId);
 
     const currentAsset = this.state.assets.find(asset => asset.id === currentAssetId);
@@ -220,14 +229,22 @@ class SimulationRun extends Component {
       });
   }
 
-checkUnderscoreKey(row, assetMeasurement){
-  console.log('rowrowrowrow data', row, 'assetMeasurement', assetMeasurement, 'both', row[assetMeasurement], 'both1',row["_" + assetMeasurement] );
-  if (row[assetMeasurement]){
-    return row[assetMeasurement];
-  }else{
-    return row["_" + assetMeasurement];
+  checkUnderscoreKey(row, assetMeasurement) {
+    console.log(
+      'rowrowrowrow data',
+      row,
+      'assetMeasurement',
+      assetMeasurement,
+      'both',
+      row[assetMeasurement],
+      'both1',
+      row[`_${assetMeasurement}`]
+    );
+    if (row[assetMeasurement]) {
+      return row[assetMeasurement];
+    }
+    return row[`_${assetMeasurement}`];
   }
-}
 
   // HVMV_Sub_HSB__measured_real_power
   // TODO: Conversion should be in the API
@@ -259,7 +276,7 @@ checkUnderscoreKey(row, assetMeasurement){
   }
 
   renderPoleVulnerabilityTable() {
-    return <div />;
+    return <Assets data={this.state.assets} handleAssetClick={this.handleAssetClick} />;
   }
 
   renderNetworkTopologyGraph() {
@@ -287,7 +304,8 @@ checkUnderscoreKey(row, assetMeasurement){
 
     const leftNavItems = null;
 
-    const defaultMeasurement = this.state.measurements && this.state.measurements[0] && this.state.measurements[0].name;
+    const defaultMeasurement =
+      this.state.measurements && this.state.measurements[0] && this.state.measurements[0].name;
     const mainItems = (
       <div>
         <Title text={`${this.state.currentAsset.name} - ${defaultMeasurement}`} />
@@ -296,8 +314,7 @@ checkUnderscoreKey(row, assetMeasurement){
             data
           })}
         </div>
-        <Assets data={this.state.assets} handleAssetClick={this.handleAssetClick} />
-        <div style={{ marginTop: '20px', display: 'flex' }}>
+        <div style={{ marginTop: '30px', display: 'flex' }}>
           <div style={{ width: '50%' }}>{this.renderPoleVulnerabilityTable()}</div>
           <div style={{ width: '50%' }}>{this.renderNetworkTopologyGraph()}</div>
         </div>

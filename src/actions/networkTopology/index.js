@@ -25,7 +25,7 @@ const getNetworkTopology = ({ baseUrl, apiVersion }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting');
+      console.log('Rejecting GET Network Topology');
       return Promise.reject(err);
     });
 };
