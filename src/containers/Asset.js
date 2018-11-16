@@ -150,10 +150,10 @@ class Asset extends Component {
     }
 
     const leftNavItems = null;
-
+    
     const mainItems = (
       <div>
-        <Title text={`${this.props.currentAsset.name} - ${this.state.currentMeasurement}`} />
+        <Title text={`${this.props.currentAsset.name} (${this.props.currentAsset.properties.class}) - ${this.state.currentMeasurement}`} />
         <div>{this.props.renderCharts({ data })}</div>
         <div className="divTable">
           <div className="divTableBody">
