@@ -54,12 +54,11 @@ const getAssets = data => {
       key: asset.id,
       id: asset.id,
       name: asset.name,
-      type: asset.asset_class,
+      type: asset.properties.class,
       substation: asset.properties.substation,
       feeder: asset.properties.feeder,
       status: asset.properties.service_status,
-      vulnerability: asset.properties.pole_stress,
-      criticality: asset.properties.criticality
+      peak_vulnerability: asset.properties.peak_vulnerability
     };
   });
 
@@ -138,60 +137,115 @@ class Assets extends Component {
     });
   };
 
-  /*   clickAsset() {
-    alert('test');
-  } */
+  stringSorter(a, b) {
+    let a2 = '',
+      b2 = '';
+    if (a) {
+      a2 = a;
+    }
+    if (b) {
+      b2 = b;
+    }
+    return a2.localeCompare(b2);
+  }
+
+  stringFilterer(value, record, property) {
+    let recStatus = '';
+    if (record[property]) {
+      recStatus = record[property];
+    }
+    return recStatus.indexOf(value) === 0;
+  }
 
   columns = [
     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 50
+      //width: 50
+      width: '10%',
+      sorter: (a, b) => a.id - b.id
     },
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      width: 200
+      //width: 200
+      width: '15%',
+      sorter: (a, b) => this.stringSorter(a.name, b.name)
     },
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
-      width: 80
+      //width: 80
+      width: '12%',
+      sorter: (a, b) => this.stringSorter(a.type, b.type),
+      filters: [
+        {
+          text: 'meter',
+          value: 'meter'
+        },
+        {
+          text: 'climate',
+          value: 'climate'
+        },
+        {
+          text: 'pole',
+          value: 'pole'
+        },
+        {
+          text: 'overhead_line',
+          value: 'overhead_line'
+        }
+      ],
+      onFilter: (value, record) => this.stringFilterer(value, record, 'type')
     },
     {
       title: 'Substation',
       dataIndex: 'substation',
       key: 'substation',
-      width: 150
+      //width: 150
+      width: '16%',
+      sorter: (a, b) => this.stringSorter(a.substation, b.substation)
+      // TODO: Add Filtering by Substation
     },
     {
       title: 'Feeder',
       dataIndex: 'feeder',
       key: 'feeder',
-      width: 100
+      //width: 100
+      width: '16%',
+      sorter: (a, b) => this.stringSorter(a.feeder, b.feeder)
+      // TODO: Add Filtering by Feeder
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 120
+      //width: 120
+      width: '18%',
+      sorter: (a, b) => this.stringSorter(a.status, b.status),
+      filters: [
+        {
+          text: 'IN_SERVICE',
+          value: 'IN_SERVICE'
+        },
+        {
+          text: 'OUT_OF_SERVICE',
+          value: 'OUT_OF_SERVICE'
+        }
+      ],
+      onFilter: (value, record) => this.stringFilterer(value, record, 'status')
     },
     {
-      title: 'Pole\
+      title: 'Peak\
       Vulnerability\
       (Pole Stress)',
-      key: 'vulnerability',
-      dataIndex: 'vulnerability',
-      width: 120
-    },
-    {
-      title: 'Criticality',
-      key: 'criticality',
-      dataIndex: 'criticality'
-      //width: 100
+      key: 'peak_vulnerability',
+      dataIndex: 'peak_vulnerability',
+      sorter: (a, b) => this.stringSorter(a.peak_vulnerability, b.peak_vulnerability)
+      //width: 120
     }
   ];
 
@@ -258,6 +312,7 @@ class Assets extends Component {
           </Form>
         </div> */}
         <Table
+          size="small"
           onRow={record => {
             return {
               onClick: e => {

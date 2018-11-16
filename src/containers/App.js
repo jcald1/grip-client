@@ -46,7 +46,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      error: {},
+      error: null,
       simulationRunRequestsMetadata: [],
 
       sendingSimulationRunRequest: false,
@@ -181,7 +181,7 @@ class App extends Component {
   // TODO: Display Error
   handleError(err) {
     this.setState({ error: err });
-    console.error(err);
+    console.error('handleError', err);
   }
 
   handleDismissClick = e => {
@@ -198,7 +198,7 @@ class App extends Component {
     if (!errorMessage) {
       return null;
     } */
-    if (!this.state.error || _.isEmpty(this.state.error)) {
+    if (!this.state.error) {
       return null;
     }
 
@@ -227,18 +227,24 @@ class App extends Component {
     const simulationRunRequestsLeftNavItems = [
       <div key="left-nav-1">
         <Button
-          style={{ marginTop: '20px', display: 'block' }}
+          style={{ height: '55px', marginTop: '10px', display: 'block' }}
           type="primary"
           onClick={this.handleRunSimulationClick}
         >
-          Run Simulation
+          Run
+          <br />
+          Simulation
         </Button>
         <Button
-          style={{ marginTop: '20px', display: 'block' }}
+          style={{ height: '82px', marginTop: '10px', display: 'block' }}
           type="primary"
           onClick={this.handleGetSimulationRunsClick}
         >
-          Refresh Simulation Runs
+          Refresh
+          <br />
+          Simulation
+          <br />
+          Runs
         </Button>
       </div>
     ];

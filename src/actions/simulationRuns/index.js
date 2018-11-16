@@ -6,7 +6,8 @@ const getSimulationRunAsset = ({
 }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/assets/${assetId}`;
 
-  console.log('GET Simulation Run Asset API Call', `${urlPath}`);
+  const context = `GET Simulation Run Asset API Call: ${urlPath}`;
+  console.log(context);
 
   return axios
     .get(urlPath)
@@ -25,15 +26,16 @@ const getSimulationRunAsset = ({
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting GET Simulation Run Asset');
-      return Promise.reject(err);
+      console.log(`Rejecting GET Network Topology: ${context}`);
+      return Promise.reject(new verror.VError(err, context));
     });
 };
 
 const getSimulationRunAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/assets`;
 
-  console.log('GET Simulation Run Assets API Call', `${urlPath}`);
+  const context = `GET Simulation Run Assets API Call: ${urlPath}`;
+  console.log(context);
 
   return axios
     .get(urlPath)
@@ -52,9 +54,8 @@ const getSimulationRunAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting GET Simulation Run Assets');
-      console.log('getSimulationRunAssets returning rejecting', err);
-      return Promise.reject(err);
+      console.log(`Rejecting GET Network Topology: ${context}`);
+      return Promise.reject(new verror.VError(err, context));
     });
 };
 
@@ -63,7 +64,8 @@ const getSimulationRunAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
 const getSimulationRunResults = ({ baseUrl, apiVersion, simulationRunId }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/results`;
 
-  console.log('GET Simulation Run API Call', `${urlPath}`);
+  const context = `GET Simulation Run API Call: ${urlPath}`;
+  console.log(context);
 
   return axios
     .get(urlPath)
@@ -82,15 +84,17 @@ const getSimulationRunResults = ({ baseUrl, apiVersion, simulationRunId }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting GET Simulation Run');
-      return Promise.reject(err);
+      console.log(`Rejecting GET Network Topology: ${context}`);
+      return Promise.reject(new verror.VError(err, context));
     });
 };
 
 const postSimulationRunSubmission = ({ baseUrl, apiVersion }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-run-submissions`;
 
-  console.log('POST Simulation Request', `${urlPath}`);
+  const context = `POST Simulation Run Submission: ${urlPath}`;
+  console.log(context);
+
   return axios
     .post(urlPath)
     .then(res => {
@@ -107,15 +111,16 @@ const postSimulationRunSubmission = ({ baseUrl, apiVersion }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting POST Simulation Request');
-      return Promise.reject(err);
+      console.log(`Rejecting GET Network Topology: ${context}`);
+      return Promise.reject(new verror.VError(err, context));
     });
 };
 
 const getSimulationRuns = ({ baseUrl, apiVersion }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs`;
 
-  console.log('GET Simulation Runs API Call', `${urlPath}`);
+  const context = `GET Simulation Runs API Call: ${urlPath}`;
+  console.log(context);
 
   return axios
     .get(urlPath)
@@ -133,8 +138,8 @@ const getSimulationRuns = ({ baseUrl, apiVersion }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting GET Simulation Runs');
-      return Promise.reject(err);
+      console.log(`Rejecting GET Network Topology: ${context}`);
+      return Promise.reject(new verror.VError(err, context));
     });
 };
 

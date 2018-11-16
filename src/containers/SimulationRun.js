@@ -188,15 +188,11 @@ class SimulationRun extends Component {
   }
 
   handleAssetClick(e) {
-    console.log(
-      'handleAssetClick',
-      'e.currentTarget',
-      e.currentTarget
-    );
-    //console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
+    console.log('handleAssetClick', 'e.currentTarget', e.currentTarget);
+    // console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
     console.log('App handleAssetClick value', e.currentTarget.getAttribute('data-row-key'));
-    //console.log('*** this.props.match.params', this.props.match);
-    //const currentAssetId = parseInt(e.currentTarget.getAttribute('value'), 10);
+    // console.log('*** this.props.match.params', this.props.match);
+    // const currentAssetId = parseInt(e.currentTarget.getAttribute('value'), 10);
     const currentAssetId = parseInt(e.currentTarget.getAttribute('data-row-key'), 10);
     // const currentAssetId = e;
 
@@ -314,9 +310,19 @@ class SimulationRun extends Component {
             data
           })}
         </div>
-        <div style={{ marginTop: '30px', display: 'flex' }}>
-          <div style={{ width: '50%' }}>{this.renderPoleVulnerabilityTable()}</div>
-          <div style={{ width: '50%' }}>{this.renderNetworkTopologyGraph()}</div>
+        <div
+          style={{
+            marginTop: '30px',
+            display: 'flex',
+            maxWidth: '100%',
+            flexWrap: 'wrap',
+            WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
+          }}
+        >
+          <div style={{ display: 'inline-block', width: '50%'  }}>{this.renderPoleVulnerabilityTable()}</div>
+          <div style={{ display: 'inline-block'}}>
+            {this.renderNetworkTopologyGraph()}
+          </div>
         </div>
       </div>
     );

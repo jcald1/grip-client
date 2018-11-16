@@ -3,9 +3,9 @@
 import React from 'react';
 import Title from './Title';
 
-const renderAssetRelationships = (data, handleAssetClick, asset, relationship) => {
-  console.log('renderAssetRelationShips data2', data, 'asset', asset, 'relationship', relationship);
-  let relationships = data[relationship];
+const renderAssetRelationships = (data, handleAssetClick, asset, relationshipType) => {
+  console.log('renderAssetRelationShips data2', data, 'asset', asset, 'relationshipType', relationshipType);
+  const relationships = data[relationshipType];
   console.log('renderAssetRelationShips list', relationships, 'asset', asset);
   const AssetRelationshipsToRender = relationships.map(relationship => {
     console.log('renderAssetRelationShips list', relationship, 'asset', asset);

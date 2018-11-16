@@ -6,8 +6,9 @@ const getNetworkTopology = ({ baseUrl, apiVersion }) => {
   // override it with our own path, while still being able to use the index.html as a test tool.
   // const urlPath = `${baseUrl}${apiVersion}/network-topology`;
   const urlPath = `${baseUrl}data`;
-
-  console.log('GET Network Topology API Call', `${urlPath}`, 'baseUrl', baseUrl);
+  
+  const context = `GET Network Topology API Call: ${urlPath}`;
+  console.log(context);
 
   return axios
     .get(urlPath)
@@ -25,8 +26,8 @@ const getNetworkTopology = ({ baseUrl, apiVersion }) => {
       if (err.response && err.response.data && err.response.data.message) {
         err = new verror.VError(err, err.response.data.message);
       }
-      console.log('Rejecting GET Network Topology');
-      return Promise.reject(err);
+      console.log(`Rejecting GET Network Topology: ${context}`);
+      return Promise.reject(new verror.VError(err, context));
     });
 };
 

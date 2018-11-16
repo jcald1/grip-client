@@ -24,11 +24,16 @@ class Layout extends Component {
     console.log('Layout', 'leftNavItems', leftNavItems, 'mainItems', mainItems, history, 'history');
 
     return (
-      <div className="Layout" style={{ display: 'flex' }}>
-        <div
-          style={{ width: '10%', display: 'inline-block', flexDirection: 'column' }}
-          className="left-nav-items"
-        >
+      <div
+        className="Layout"
+        style={{
+          maxWidth: '100%',
+          display: 'flex',
+          flexWrap: 'wrap',
+          WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
+        }}
+      >
+        <div style={{ marginRight: '20px', display: 'inline-block' }} className="left-nav-items">
           <Button
             style={{ display: 'block' }}
             type="primary"
@@ -43,10 +48,9 @@ class Layout extends Component {
         <div
           className="main-body"
           style={{
-            width: '90%',
             display: 'inline-block',
-            flexDirection: 'column',
-            paddingRight: '10px'
+            width: '92%'
+            // paddingRight: '10px'
           }}
         >
           {mainItems}
