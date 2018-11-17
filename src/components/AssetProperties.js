@@ -1,13 +1,16 @@
 /* eslint-disable no-undef */
 
 import React from 'react';
-import Title from './Title';
+import SubTitle from './SubTitle';
 
 const renderAssetProperties = (data, handleAssetClick, asset) => {
   console.log('renderAssetProperties data2', data, 'asset', asset);
   let properties = data['properties'];
+
   console.log('renderAssetProperties list', properties, 'asset', asset);
-  const AssetPropertiesToRender = Object.keys(properties).map(property => {
+  const AssetPropertiesToRender = (Object.keys(properties)).sort(function (a, b) {
+    return a.toLowerCase().localeCompare(b.toLowerCase());
+}).map(property => {
     console.log('renderAssetProperties list', property, 'asset', asset);
     const AssetPropertiesDiv = (
       <div
@@ -42,7 +45,7 @@ const AssetProperties = ({
   return (
     <div>
       <div style={{ marginLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
-        <Title text="Asset Properties" />
+        <SubTitle text="Asset Properties" />
         <div>{renderAssetProperties(data, handleAssetClick, asset)}</div>
       </div>
     </div>

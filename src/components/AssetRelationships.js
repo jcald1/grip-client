@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 import React from 'react';
-import Title from './Title';
+import SubTitle from './SubTitle';
 
 const renderAssetRelationships = (data, handleAssetClick, asset, relationshipType) => {
   console.log('renderAssetRelationShips data2', data, 'asset', asset, 'relationshipType', relationshipType);
@@ -47,11 +47,11 @@ const AssetRelationships = ({
   return (
     <div>
       <div style={{ marginLeft: '10px', marginTop: '5px', display: 'inline-block', textAlign: 'left' }}>
-        <Title text="Asset From Relationships" />
+        <SubTitle text="Asset From Relationships" />
         <div style={{ textAlign: 'center' }}>{renderAssetRelationships(data, handleAssetClick, asset, 'fromAssets')}</div>
       </div>
       <div style={{ marginLeft: '10px', display: 'inline-block', textAlign: 'left' }}>
-        <Title text="Asset To Relationships" />
+        <SubTitle text="Asset To Relationships" />
         <div style={{ textAlign: 'center' }}>{renderAssetRelationships(data, handleAssetClick, asset, 'toAssets')}</div>
       </div>
     </div>

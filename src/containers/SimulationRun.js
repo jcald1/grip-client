@@ -302,9 +302,13 @@ class SimulationRun extends Component {
 
     const defaultMeasurement =
       this.state.measurements && this.state.measurements[0] && this.state.measurements[0].name;
-    const mainItems = (
+    
+    
+      const mainItems = (
       <div>
-        <Title text={`${this.state.currentAsset.name} - ${defaultMeasurement}`} />
+        <Title text={`${this.state.currentAsset.name} (${
+                this.state.currentAsset.properties.class
+              }) - ${defaultMeasurement}`} />
         <div>
           {this.renderCharts({
             data

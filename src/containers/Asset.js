@@ -1,18 +1,20 @@
 /* eslint-disable no-undef */
 
-import React, { Component } from 'react';
-import _ from 'lodash';
-import { withRouter, Route } from 'react-router-dom';
-import './App.css';
-import Layout from '../components/Layout';
-import Measurements from '../components/Measurements';
-import AssetRelationships from '../components/AssetRelationships';
-import AssetProperties from '../components/AssetProperties';
-import Title from '../components/Title';
+import React, { Component } from "react";
+import _ from "lodash";
+import { withRouter, Route } from "react-router-dom";
+import "./App.css";
+import Layout from "../components/Layout";
+import Row from "antd/lib/grid/row";
+import Col from "antd/lib/grid/col";
+import Measurements from "../components/Measurements";
+import AssetRelationships from "../components/AssetRelationships";
+import AssetProperties from "../components/AssetProperties";
+import Title from "../components/Title";
 
 // const queryString = require('query-string');
 // const querySearch = require('stringquery');
-const qs = require('qs');
+const qs = require("qs");
 
 // const DEFAULT_SWING_BUS = 'HVMV_Sub_HSB__measured_real_power';
 // const DEFAULT_MEASUREMENT = 'measured_real_power';
@@ -23,7 +25,9 @@ class Asset extends Component {
   constructor(props) {
     super(props);
     const currentMeasurement =
-      this.props.measurements && this.props.measurements[0] && this.props.measurements[0].name;
+      this.props.measurements &&
+      this.props.measurements[0] &&
+      this.props.measurements[0].name;
     this.state = {
       currentMeasurement,
       data: []
@@ -34,11 +38,11 @@ class Asset extends Component {
 
   componentDidMount() {
     console.log(
-      'commonProps',
+      "commonProps",
       this.props.commonProps,
-      'currentAsset',
+      "currentAsset",
       this.props.currentAsset,
-      'assets',
+      "assets",
       this.props.assets
       /* 'data',
       this.props.data */
@@ -69,16 +73,28 @@ class Asset extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     console.log(
-      'Asset componentDidUpdate',
-      'this.state.currentMeasurement',
+      "Asset componentDidUpdate",
+      "this.state.currentMeasurement",
       this.state.currentMeasurement
     );
 
     if (
-      this.props.commonProps.shallowEquals(this.props.commonProps, prevProps.commonProps) &&
-      this.props.commonProps.shallowEquals(this.props.currentAsset, prevProps.currentAsset) &&
-      this.props.commonProps.shallowEquals(this.props.assetData, prevProps.assetData) &&
-      this.props.commonProps.shallowEquals(this.props.assets, prevProps.assets) &&
+      this.props.commonProps.shallowEquals(
+        this.props.commonProps,
+        prevProps.commonProps
+      ) &&
+      this.props.commonProps.shallowEquals(
+        this.props.currentAsset,
+        prevProps.currentAsset
+      ) &&
+      this.props.commonProps.shallowEquals(
+        this.props.assetData,
+        prevProps.assetData
+      ) &&
+      this.props.commonProps.shallowEquals(
+        this.props.assets,
+        prevProps.assets
+      ) &&
       this.props.commonProps.shallowEquals(
         this.props.mapResponseToBarChartData,
         prevProps.mapResponseToBarChartData
@@ -87,9 +103,15 @@ class Asset extends Component {
         this.props.getAssetMeasurement,
         prevProps.getAssetMeasurement
       ) &&
-      this.props.commonProps.shallowEquals(this.props.renderCharts, prevProps.renderCharts) &&
+      this.props.commonProps.shallowEquals(
+        this.props.renderCharts,
+        prevProps.renderCharts
+      ) &&
       /* this.props.commonProps.shallowEquals(this.props.data, prevProps.data) && */
-      this.props.commonProps.shallowEquals(this.props.measurements, prevProps.measurements) &&
+      this.props.commonProps.shallowEquals(
+        this.props.measurements,
+        prevProps.measurements
+      ) &&
       this.props.commonProps.shallowEquals(
         this.state.currentMeasurement,
         prevState.currentMeasurement
@@ -104,10 +126,10 @@ class Asset extends Component {
 
   populateAsset() {
     console.log(
-      'Assets populateAsset',
-      'this.props.',
+      "Assets populateAsset",
+      "this.props.",
       this.props,
-      'this.state.currentMeasurement',
+      "this.state.currentMeasurement",
       this.state.currentMeasurement
     );
 
@@ -115,30 +137,36 @@ class Asset extends Component {
       this.props.currentAsset,
       this.state.currentMeasurement
     );
-    console.log('*** assetMeasurement', assetMeasurement);
-    console.log('*** this.props.assetData', this.props.assetData);
-    const data = this.props.mapResponseToBarChartData(this.props.assetData, assetMeasurement);
-    console.log('*** data', data);
+    console.log("*** assetMeasurement", assetMeasurement);
+    console.log("*** this.props.assetData", this.props.assetData);
+    const data = this.props.mapResponseToBarChartData(
+      this.props.assetData,
+      assetMeasurement
+    );
+    console.log("*** data", data);
     this.setState({ data });
   }
 
   handleMeasurementClick(e) {
     console.log(
-      'Asset handleMeasurementClick value',
-      e.currentTarget.getAttribute('value'),
-      'this.props.match.assetId',
+      "Asset handleMeasurementClick value",
+      e.currentTarget.getAttribute("value"),
+      "this.props.match.assetId",
       this.props.match.assetId
     );
 
-    const currentMeasurement = e.currentTarget.getAttribute('value');
+    const currentMeasurement = e.currentTarget.getAttribute("value");
 
-    console.log('handleMeasurementClick setting currentMeasurement', currentMeasurement);
+    console.log(
+      "handleMeasurementClick setting currentMeasurement",
+      currentMeasurement
+    );
     this.setState({ currentMeasurement });
   }
 
   render() {
-    console.log('Asset render props', this.props);
-    console.log('Asset render state', this.state);
+    console.log("Asset render props", this.props);
+    console.log("Asset render state", this.state);
 
     const { data } = this.state;
     const { measurements } = this.props;
@@ -150,50 +178,42 @@ class Asset extends Component {
     }
 
     const leftNavItems = null;
-    
+  	const columnStyle = { border: '3px solid white', backgroundColor: '#d3d3d3' };
     const mainItems = (
       <div>
-        <Title text={`${this.props.currentAsset.name} (${this.props.currentAsset.properties.class}) - ${this.state.currentMeasurement}`} />
-        <div>{this.props.renderCharts({ data })}</div>
-        <div className="divTable">
-          <div className="divTableBody">
-          <div className="divTableRow">
-          <div className="divTableCell">
+        <Row >
+          <Col span={24}>
+            <Title
+              text={`${this.props.currentAsset.name} (${
+                this.props.currentAsset.properties.class
+              }) - ${this.state.currentMeasurement}`}
+            />
+            <div>{this.props.renderCharts({ data })}</div>
+          </Col>
+        </Row>
+        <Row>
+          <Col span={8} style={columnStyle}>
             <AssetProperties
               data={this.props.currentAsset}
               handleAssetClick={this.handleAssetClick}
-              asset={this.props.asset}/>
-          </div>
-          </div>
-          </div>
-          </div>
-          <div className="divTable">
-          <div className="divTableBody">
-          <div className="divTableRow">
-          <div className="divTableCell"> 
+              asset={this.props.asset}
+            />
+          </Col>
+          <Col span={8} style={columnStyle}>
             <Measurements
               data={measurements}
               handleMeasurementClick={this.handleMeasurementClick}
-              asset={this.props.asset}/>
-            </div>
-            </div>
-            </div>
-            </div>
-            <div className="divTable">
-            <div className="divTableBody">
-            <div className="divTableRow">
-            <div className="divTableCell"> 
+              asset={this.props.asset}
+            />
+          </Col>
+          <Col span={8} style={columnStyle}>
             <AssetRelationships
               data={this.props.currentAsset}
               handleAssetClick={this.handleAssetClick}
-              asset={this.props.asset}/>
-          </div>
-          </div>
-          </div>
-        </div>
-
-
-
+              asset={this.props.asset}
+            />
+          </Col>
+        </Row>
       </div>
     );
 

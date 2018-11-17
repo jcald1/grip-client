@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 import React from 'react';
-import Title from './Title';
+import SubTitle from './SubTitle';
 
 const renderMeasurements = (data, handleMeasurementClick, asset) => {
   console.log('renderMeasurements data', data, 'asset', asset);
@@ -44,7 +44,7 @@ const Measurements = ({
 
   return (
     <div style={{ marginLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
-      <Title text="Measurements" />
+      <SubTitle text="Measurements" />
       <div>{renderMeasurements(data, handleMeasurementClick, asset)}</div>
     </div>
   );
