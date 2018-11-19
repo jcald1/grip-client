@@ -23,6 +23,7 @@ class SimulationRun extends Component {
 
     this.state = {
       currentAsset: null,
+      assetDetailPageAsset: null,
       assets: null,
       data: [],
       networkTopologyData: {},
@@ -192,21 +193,21 @@ class SimulationRun extends Component {
     // console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
     console.log('App handleAssetClick value', e.currentTarget.getAttribute('data-row-key'));
     // console.log('*** this.props.match.params', this.props.match);
-    // const currentAssetId = parseInt(e.currentTarget.getAttribute('value'), 10);
-    const currentAssetId = parseInt(e.currentTarget.getAttribute('data-row-key'), 10);
-    // const currentAssetId = e;
+    // const assetDetailPageAssetId = parseInt(e.currentTarget.getAttribute('value'), 10);
+    const assetDetailPageAssetId = parseInt(e.currentTarget.getAttribute('data-row-key'), 10);
+    // const assetDetailPageAssetId = e;
 
-    console.log('state', this.state, 'currentAssetId', currentAssetId);
+    console.log('state', this.state, 'assetDetailPageAssetId', assetDetailPageAssetId);
 
-    const currentAsset = this.state.assets.find(asset => asset.id === currentAssetId);
-    console.log('*** currentAsset', currentAsset, '');
+    const assetDetailPageAsset = this.state.assets.find(asset => asset.id === assetDetailPageAssetId);
+    console.log('*** assetDetailPageAsset', assetDetailPageAsset, '');
     simulationRuns
       .getSimulationRunAsset({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         //  TODO: Clean Up.  THese should be Simulation Run IDs not Simulation IDs.
         simulationRunId: this.props.match.params.simulationRunId,
-        assetId: currentAsset.id
+        assetId: assetDetailPageAsset.id
       })
       .then(data => {
         console.log('SimulationRun populateSimulationRun getsimulation run asset data', data);
@@ -214,9 +215,9 @@ class SimulationRun extends Component {
           return Promise.reject(new Error('No data received from the API.'));
         }
         const measurements = data.recordings;
-        const newState = { measurements, currentAsset };
+        const newState = { measurements, assetDetailPageAsset };
         this.setState(newState);
-        const newUrl = `${this.props.location.pathname}/assets/${currentAsset.id}`;
+        const newUrl = `${this.props.location.pathname}/assets/${assetDetailPageAsset.id}`;
         console.log('** NEW PUSH', newUrl);
         console.log('newUrl', newUrl);
         this.props.history.push({
@@ -257,11 +258,11 @@ class SimulationRun extends Component {
   }
 
   renderCharts({ data }) {
-    console.log('SimulationRun renderCharts', 'data', data, 'this.props', this.props);
     const charts = [];
     if (!data || !data.length || data.length === 0) {
       return null;
     }
+    console.log('SimulationRun renderCharts', 'data', data, 'this.props', this.props);
     charts.push(
       this.getBarChart({
         commonProps: this.props.commonProps,
@@ -323,10 +324,10 @@ class SimulationRun extends Component {
             WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
           }}
         >
-          <div style={{ display: 'inline-block', width: '50%'  }}>{this.renderPoleVulnerabilityTable()}</div>
-          <div style={{ display: 'inline-block'}}>
-            {this.renderNetworkTopologyGraph()}
+          <div style={{ display: 'inline-block', width: '50%' }}>
+            {this.renderPoleVulnerabilityTable()}
           </div>
+          <div style={{ display: 'inline-block' }}>{this.renderNetworkTopologyGraph()}</div>
         </div>
       </div>
     );
@@ -345,7 +346,7 @@ class SimulationRun extends Component {
             <div>
               <Asset
                 commonProps={this.props.commonProps}
-                currentAsset={this.state.currentAsset}
+                currentAsset={this.state.assetDetailPageAsset}
                 assetData={this.state.originalData}
                 assets={this.state.assets}
                 mapResponseToBarChartData={this.mapResponseToBarChartData}

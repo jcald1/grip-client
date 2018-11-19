@@ -3,7 +3,7 @@
 import React from 'react';
 import SubTitle from './SubTitle';
 
-const renderAssetProperties = (data, handleAssetClick, asset) => {
+const renderAssetProperties = (data, asset) => {
   console.log('renderAssetProperties data2', data, 'asset', asset);
   let properties = data['properties'];
 
@@ -25,11 +25,9 @@ const renderAssetProperties = (data, handleAssetClick, asset) => {
   return AssetPropertiesToRender;
 };
 
-const AssetProperties = ({
-  data, handleAssetClick, asset, readyToLoad
-}) => {
+const AssetProperties = ({ data, asset, readyToLoad }) => {
   // return null;
-  console.log('AssetProperties data1', data, 'handleAssetClick', handleAssetClick, 'data.length', data.length);
+  console.log('AssetProperties data1', data, 'data.length', data.length);
   if (!data) {
     return null;
   }
@@ -46,7 +44,7 @@ const AssetProperties = ({
     <div>
       <div style={{ marginLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
         <SubTitle text="Asset Properties" />
-        <div>{renderAssetProperties(data, handleAssetClick, asset)}</div>
+        <div>{renderAssetProperties(data, asset)}</div>
       </div>
     </div>
   );
