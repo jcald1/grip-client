@@ -324,7 +324,7 @@ class SimulationRun extends Component {
             WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
           }}
         >
-          <div style={{ display: 'inline-block', width: '50%' }}>
+          <div style={{ display: 'inline-block', width: '40%' }}>
             {this.renderPoleVulnerabilityTable()}
           </div>
           <div style={{ display: 'inline-block' }}>{this.renderNetworkTopologyGraph()}</div>

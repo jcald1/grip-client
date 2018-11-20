@@ -58,7 +58,8 @@ const getAssets = data => {
       substation: asset.properties.substation,
       feeder: asset.properties.feeder,
       status: asset.properties.service_status,
-      peak_vulnerability: asset.properties.peak_vulnerability
+      peak_vulnerability: asset.properties.peak_vulnerability,
+      measured_real_power: asset.measured_real_power
     };
   });
 
@@ -81,7 +82,7 @@ class Assets extends Component {
       showHeader,
       //footer,
       // rowSelection: {},
-      scroll: undefined,
+      scroll: { x: '155%' },
       hasData: true
     };
   }
@@ -158,20 +159,20 @@ class Assets extends Component {
   }
 
   columns = [
-    {
+    /*     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
       //width: 50
       width: '10%',
       sorter: (a, b) => a.id - b.id
-    },
+    }, */
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
       //width: 200
-      width: '15%',
+      width: '12%',
       sorter: (a, b) => this.stringSorter(a.name, b.name)
     },
     {
@@ -179,7 +180,7 @@ class Assets extends Component {
       dataIndex: 'type',
       key: 'type',
       //width: 80
-      width: '12%',
+      width: '8%',
       sorter: (a, b) => this.stringSorter(a.type, b.type),
       filters: [
         {
@@ -202,29 +203,10 @@ class Assets extends Component {
       onFilter: (value, record) => this.stringFilterer(value, record, 'type')
     },
     {
-      title: 'Substation',
-      dataIndex: 'substation',
-      key: 'substation',
-      //width: 150
-      width: '16%',
-      sorter: (a, b) => this.stringSorter(a.substation, b.substation)
-      // TODO: Add Filtering by Substation
-    },
-    {
-      title: 'Feeder',
-      dataIndex: 'feeder',
-      key: 'feeder',
-      //width: 100
-      width: '16%',
-      sorter: (a, b) => this.stringSorter(a.feeder, b.feeder)
-      // TODO: Add Filtering by Feeder
-    },
-    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      //width: 120
-      width: '18%',
+      width: '12%',
       sorter: (a, b) => this.stringSorter(a.status, b.status),
       filters: [
         {
@@ -239,13 +221,39 @@ class Assets extends Component {
       onFilter: (value, record) => this.stringFilterer(value, record, 'status')
     },
     {
+      title: 'Measured\
+      Real\
+      Power',
+      key: 'measured_real_power',
+      dataIndex: 'measured_real_power',
+      sorter: (a, b) => this.stringSorter(a.measured_real_power, b.measured_real_power),
+      width: '15%'
+    },
+    {
       title: 'Peak\
       Vulnerability\
       (Pole Stress)',
       key: 'peak_vulnerability',
       dataIndex: 'peak_vulnerability',
-      sorter: (a, b) => this.stringSorter(a.peak_vulnerability, b.peak_vulnerability)
-      //width: 120
+      sorter: (a, b) => this.stringSorter(a.peak_vulnerability, b.peak_vulnerability),
+      width: '20%'
+    },
+    {
+      title: 'Substation',
+      dataIndex: 'substation',
+      key: 'substation',
+      //width: 150
+      width: '16%',
+      sorter: (a, b) => this.stringSorter(a.substation, b.substation)
+      // TODO: Add Filtering by Substation
+    },
+    {
+      title: 'Feeder',
+      dataIndex: 'feeder',
+      key: 'feeder',
+      width: '16%',
+      sorter: (a, b) => this.stringSorter(a.feeder, b.feeder)
+      // TODO: Add Filtering by Feeder
     }
   ];
 
