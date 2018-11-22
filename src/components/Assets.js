@@ -48,8 +48,13 @@ const pagination = { position: 'bottom' };
 const getAssets = data => {
   console.log('getAssets data', data);
   let assets = [];
+  let peak_vulnerability = null;
+  let peak_vulnerability_value = null;
   assets = data.map(asset => {
-    //console.log(asset);
+    peak_vulnerability = asset.calculated_recordings.filter(d => d.name === "peak_vulnerability")
+    if (peak_vulnerability.length === 1){
+      peak_vulnerability_value = peak_vulnerability[0].value
+    }
     return {
       key: asset.id,
       id: asset.id,
@@ -58,7 +63,7 @@ const getAssets = data => {
       substation: asset.properties.substation,
       feeder: asset.properties.feeder,
       status: asset.properties.service_status,
-      peak_vulnerability: asset.properties.peak_vulnerability,
+      peak_vulnerability: asset.peak_vulnerability,
       measured_real_power: asset.measured_real_power
     };
   });
