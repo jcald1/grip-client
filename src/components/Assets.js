@@ -58,13 +58,13 @@ const getAssets = data => {
     return {
       key: asset.id,
       id: asset.id,
-      name: asset.name,
-      type: asset.properties.class,
-      substation: asset.properties.substation,
-      feeder: asset.properties.feeder,
-      status: asset.properties.service_status,
-      peak_vulnerability: asset.peak_vulnerability,
-      measured_real_power: asset.measured_real_power
+      name: asset.name || '-',
+      type: asset.properties.class || '-',
+      substation: asset.properties.substation || '-',
+      feeder: asset.properties.feeder || '-',
+      status: asset.properties.pole_status || '-',
+      peak_vulnerability: peak_vulnerability_value || '-',
+      power_out_real: asset.power_out_real || '-'
     };
   });
 
@@ -163,7 +163,9 @@ class Assets extends Component {
     return recStatus.indexOf(value) === 0;
   }
 
-  columns = [
+  render() {
+    const { data, handleAssetClick, readyToLoad } = this.props;
+    const columns = [
     /*     {
       title: 'ID',
       dataIndex: 'id',
@@ -187,6 +189,7 @@ class Assets extends Component {
       //width: 80
       width: '8%',
       sorter: (a, b) => this.stringSorter(a.type, b.type),
+        filteredValue: ['pole'],
       filters: [
         {
           text: 'meter',
@@ -226,12 +229,12 @@ class Assets extends Component {
       onFilter: (value, record) => this.stringFilterer(value, record, 'status')
     },
     {
-      title: 'Measured\
-      Real\
-      Power',
-      key: 'measured_real_power',
-      dataIndex: 'measured_real_power',
-      sorter: (a, b) => this.stringSorter(a.measured_real_power, b.measured_real_power),
+        title: 'Power\
+        Out\
+        (Real)',
+        key: 'power_out_real',
+        dataIndex: 'power_out_real',
+        sorter: (a, b) => this.stringSorter(a.power_out_real, b.power_out_real),
       width: '15%'
     },
     {
@@ -262,9 +265,7 @@ class Assets extends Component {
     }
   ];
 
-  render() {
-    const { data, handleAssetClick, readyToLoad } = this.props;
-    {
+     {
       /* <div style={{ display: 'inline-block', textAlign: 'left' }}>
       <Title text="Assets" />
       <div>{renderAssets(data, handleAssetClick)}</div>
@@ -335,7 +336,7 @@ class Assets extends Component {
             };
           }}
           {...this.state}
-          columns={this.columns}
+          columns={columns}
           dataSource={this.state.hasData ? getAssets(data) : null}
         />
       </div>
