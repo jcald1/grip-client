@@ -53,13 +53,13 @@ const getAssets = data => {
     return {
       key: asset.id,
       id: asset.id,
-      name: asset.name,
-      type: asset.properties.class,
-      substation: asset.properties.substation,
-      feeder: asset.properties.feeder,
-      status: asset.properties.service_status,
-      peak_vulnerability: asset.properties.peak_vulnerability,
-      measured_real_power: asset.measured_real_power
+      name: asset.name || '-',
+      type: asset.properties.class || '-',
+      substation: asset.properties.substation || '-',
+      feeder: asset.properties.feeder || '-',
+      status: asset.properties.pole_status || '-',
+      peak_vulnerability: asset.properties.peak_vulnerability || '-',
+      power_out_real: asset.power_out_real || '-'
     };
   });
 
@@ -158,107 +158,108 @@ class Assets extends Component {
     return recStatus.indexOf(value) === 0;
   }
 
-  columns = [
-    /*     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      //width: 50
-      width: '10%',
-      sorter: (a, b) => a.id - b.id
-    }, */
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      //width: 200
-      width: '12%',
-      sorter: (a, b) => this.stringSorter(a.name, b.name)
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-      //width: 80
-      width: '8%',
-      sorter: (a, b) => this.stringSorter(a.type, b.type),
-      filters: [
-        {
-          text: 'meter',
-          value: 'meter'
-        },
-        {
-          text: 'climate',
-          value: 'climate'
-        },
-        {
-          text: 'pole',
-          value: 'pole'
-        },
-        {
-          text: 'overhead_line',
-          value: 'overhead_line'
-        }
-      ],
-      onFilter: (value, record) => this.stringFilterer(value, record, 'type')
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: '12%',
-      sorter: (a, b) => this.stringSorter(a.status, b.status),
-      filters: [
-        {
-          text: 'IN_SERVICE',
-          value: 'IN_SERVICE'
-        },
-        {
-          text: 'OUT_OF_SERVICE',
-          value: 'OUT_OF_SERVICE'
-        }
-      ],
-      onFilter: (value, record) => this.stringFilterer(value, record, 'status')
-    },
-    {
-      title: 'Measured\
-      Real\
-      Power',
-      key: 'measured_real_power',
-      dataIndex: 'measured_real_power',
-      sorter: (a, b) => this.stringSorter(a.measured_real_power, b.measured_real_power),
-      width: '15%'
-    },
-    {
-      title: 'Peak\
-      Vulnerability\
-      (Pole Stress)',
-      key: 'peak_vulnerability',
-      dataIndex: 'peak_vulnerability',
-      sorter: (a, b) => this.stringSorter(a.peak_vulnerability, b.peak_vulnerability),
-      width: '20%'
-    },
-    {
-      title: 'Substation',
-      dataIndex: 'substation',
-      key: 'substation',
-      //width: 150
-      width: '16%',
-      sorter: (a, b) => this.stringSorter(a.substation, b.substation)
-      // TODO: Add Filtering by Substation
-    },
-    {
-      title: 'Feeder',
-      dataIndex: 'feeder',
-      key: 'feeder',
-      width: '16%',
-      sorter: (a, b) => this.stringSorter(a.feeder, b.feeder)
-      // TODO: Add Filtering by Feeder
-    }
-  ];
-
   render() {
     const { data, handleAssetClick, readyToLoad } = this.props;
+    const columns = [
+      /*     {
+        title: 'ID',
+        dataIndex: 'id',
+        key: 'id',
+        //width: 50
+        width: '10%',
+        sorter: (a, b) => a.id - b.id
+      }, */
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+        //width: 200
+        width: '12%',
+        sorter: (a, b) => this.stringSorter(a.name, b.name)
+      },
+      {
+        title: 'Type',
+        dataIndex: 'type',
+        key: 'type',
+        //width: 80
+        width: '8%',
+        sorter: (a, b) => this.stringSorter(a.type, b.type),
+        filteredValue: ['pole'],
+        filters: [
+          {
+            text: 'meter',
+            value: 'meter'
+          },
+          {
+            text: 'climate',
+            value: 'climate'
+          },
+          {
+            text: 'pole',
+            value: 'pole'
+          },
+          {
+            text: 'overhead_line',
+            value: 'overhead_line'
+          }
+        ],
+        onFilter: (value, record) => this.stringFilterer(value, record, 'type')
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: '12%',
+        sorter: (a, b) => this.stringSorter(a.status, b.status),
+        filters: [
+          {
+            text: 'IN_SERVICE',
+            value: 'IN_SERVICE'
+          },
+          {
+            text: 'OUT_OF_SERVICE',
+            value: 'OUT_OF_SERVICE'
+          }
+        ],
+        onFilter: (value, record) => this.stringFilterer(value, record, 'status')
+      },
+      {
+        title: 'Power\
+        Out\
+        (Real)',
+        key: 'power_out_real',
+        dataIndex: 'power_out_real',
+        sorter: (a, b) => this.stringSorter(a.power_out_real, b.power_out_real),
+        width: '15%'
+      },
+      {
+        title: 'Peak\
+        Vulnerability\
+        (Pole Stress)',
+        key: 'peak_vulnerability',
+        dataIndex: 'peak_vulnerability',
+        sorter: (a, b) => this.stringSorter(a.peak_vulnerability, b.peak_vulnerability),
+        width: '20%'
+      },
+      {
+        title: 'Substation',
+        dataIndex: 'substation',
+        key: 'substation',
+        //width: 150
+        width: '16%',
+        sorter: (a, b) => this.stringSorter(a.substation, b.substation)
+        // TODO: Add Filtering by Substation
+      },
+      {
+        title: 'Feeder',
+        dataIndex: 'feeder',
+        key: 'feeder',
+        width: '16%',
+        sorter: (a, b) => this.stringSorter(a.feeder, b.feeder)
+        // TODO: Add Filtering by Feeder
+      }
+    ];
+
     {
       /* <div style={{ display: 'inline-block', textAlign: 'left' }}>
       <Title text="Assets" />
@@ -330,7 +331,7 @@ class Assets extends Component {
             };
           }}
           {...this.state}
-          columns={this.columns}
+          columns={columns}
           dataSource={this.state.hasData ? getAssets(data) : null}
         />
       </div>
