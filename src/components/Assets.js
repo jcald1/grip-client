@@ -189,7 +189,8 @@ class Assets extends Component {
       //width: 80
       width: '8%',
       sorter: (a, b) => this.stringSorter(a.type, b.type),
-        filteredValue: ['pole'],
+      defaultSortOrder: 'ascend',
+      filteredValue: ['pole','overhead_line','meter'],
       filters: [
         {
           text: 'meter',
