@@ -1,6 +1,7 @@
 /* General formatting */
 .col {
-  width: 960px;
+ /*  width: 960px; */
+ width: 480px;
   margin: 0 auto;
   border: solid 1px #eee;
 }

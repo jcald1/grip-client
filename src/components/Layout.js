@@ -33,7 +33,7 @@ class Layout extends Component {
           WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
         }}
       >
-        <div style={{ marginRight: '20px', display: 'inline-block' }} className="left-nav-items">
+        <div style={{ marginRight: '20px', width: '100px' }} className="left-nav-items">
           <Button
             style={{ display: 'block' }}
             type="primary"
@@ -48,8 +48,7 @@ class Layout extends Component {
         <div
           className="main-body"
           style={{
-            display: 'inline-block',
-            width: '92%'
+            flexGrow: 1
             // paddingRight: '10px'
           }}
         >

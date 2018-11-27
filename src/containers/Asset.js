@@ -57,6 +57,7 @@ class Asset extends Component {
       this.props.mapResponseToBarChartData &&
       this.props.getAssetMeasurement &&
       this.props.renderCharts &&
+      this.props.renderLineChart &&
       this.props.measurements
       /* this.props.data */
     ) {
@@ -106,6 +107,10 @@ class Asset extends Component {
       this.props.commonProps.shallowEquals(
         this.props.renderCharts,
         prevProps.renderCharts
+      ) &&
+      this.props.commonProps.shallowEquals(
+        this.props.renderLineChart,
+        prevProps.renderLineChart
       ) &&
       /* this.props.commonProps.shallowEquals(this.props.data, prevProps.data) && */
       this.props.commonProps.shallowEquals(
@@ -188,7 +193,8 @@ class Asset extends Component {
                 this.props.currentAsset.properties.class
               }) - ${this.state.currentMeasurement}`}
             />
-            <div>{this.props.renderCharts({ data })}</div>
+            {/* <div>{this.props.renderCharts({ data })}</div> */}
+            <div>{this.props.renderLineChart({ data })}</div>
           </Col>
         </Row>
         <Row>

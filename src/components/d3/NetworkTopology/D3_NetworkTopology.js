@@ -19,8 +19,9 @@ import './style.css';
 
 const D3_NetworkTopology = {};
 
-const width = 960;
-
+// const width = 960;
+// const height = 760;
+const width = 480;
 const height = 760;
 
 // initialize force
