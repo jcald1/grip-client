@@ -52,8 +52,11 @@ const getAssets = data => {
   let peak_vulnerability_value = null;
   assets = data.map(asset => {
     peak_vulnerability = asset.calculated_recordings.filter(d => d.name === 'peak_vulnerability');
+    console.log('getAssets data recordings ', asset["name"],asset.calculated_recordings);
     if (peak_vulnerability.length === 1) {
       peak_vulnerability_value = peak_vulnerability[0].value;
+    }else{
+      peak_vulnerability_value=null;
     }
     return {
       key: asset.id,
