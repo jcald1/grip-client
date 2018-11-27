@@ -4,6 +4,9 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
 import moment from 'moment';
+import {
+  LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip
+} from 'recharts';
 import BarChart from '../components/d3/BarChart/BarChart';
 import './App.css';
 import Layout from '../components/Layout';
@@ -199,7 +202,9 @@ class SimulationRun extends Component {
 
     console.log('state', this.state, 'assetDetailPageAssetId', assetDetailPageAssetId);
 
-    const assetDetailPageAsset = this.state.assets.find(asset => asset.id === assetDetailPageAssetId);
+    const assetDetailPageAsset = this.state.assets.find(
+      asset => asset.id === assetDetailPageAssetId
+    );
     console.log('*** assetDetailPageAsset', assetDetailPageAsset, '');
     simulationRuns
       .getSimulationRunAsset({
@@ -272,6 +277,21 @@ class SimulationRun extends Component {
     return charts;
   }
 
+  renderLineChart({ data }) {
+    console.log('renderLineChart', 'data', data);
+    return (
+      <div>
+        <LineChart style={{ margin: '0 auto' }} width={960} height={550} data={data}>
+          <Line type="monotone" dataKey="value" stroke="#8884d8" />
+          <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+          <XAxis dataKey="timestamp" />
+          <YAxis dataKey="value" />
+          <Tooltip />
+        </LineChart>
+      </div>
+    );
+  }
+
   renderPoleVulnerabilityTable() {
     return <Assets data={this.state.assets} handleAssetClick={this.handleAssetClick} />;
   }
@@ -303,13 +323,14 @@ class SimulationRun extends Component {
 
     const defaultMeasurement =
       this.state.measurements && this.state.measurements[0] && this.state.measurements[0].name;
-    
-    
-      const mainItems = (
+
+    const mainItems = (
       <div>
-        <Title text={`${this.state.currentAsset.name} (${
-                this.state.currentAsset.properties.class
-              }) - ${defaultMeasurement}`} />
+        <Title
+          text={`${this.state.currentAsset.name} (${
+            this.state.currentAsset.properties.class
+          }) - ${defaultMeasurement}`}
+        />
         <div>
           {this.renderCharts({
             data
@@ -324,10 +345,10 @@ class SimulationRun extends Component {
             WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
           }}
         >
-          <div style={{ display: 'inline-block', width: '40%' }}>
+          <div style={{ width: '50%' }}>
             {this.renderPoleVulnerabilityTable()}
           </div>
-          <div style={{ display: 'inline-block' }}>{this.renderNetworkTopologyGraph()}</div>
+          <div style={{ flexGrow: 1 }}>{this.renderNetworkTopologyGraph()}</div>
         </div>
       </div>
     );
@@ -352,6 +373,7 @@ class SimulationRun extends Component {
                 mapResponseToBarChartData={this.mapResponseToBarChartData}
                 getAssetMeasurement={this.getAssetMeasurement}
                 renderCharts={this.renderCharts}
+                renderLineChart={this.renderLineChart}
                 measurements={this.state.measurements}
                 /* data={this.state.data} */
               />
