@@ -126,17 +126,19 @@ class SimulationRun extends Component {
         simulationRunId
       }))
       // TODO: This may belong in the API container
-      .then(data => {
-        console.log('SimulationRun populateSimulationRun get simulation run data', data);
-        if (!data) {
+      .then(originalData => {
+        console.log(
+          'SimulationRun populateSimulationRun get simulation run originalData',
+          originalData
+        );
+        if (!originalData) {
           return Promise.reject(new Error('No data received from the API.'));
         }
-        const originalData = data;
         console.log('populateSimulationRun asset', currentAsset);
         const measurement = measurements[0].name;
         console.log('populateSimulationRun measurement', measurement);
         const assetMeasurement = this.getAssetMeasurement(currentAsset, measurement);
-        data = this.mapResponseToBarChartData(data, assetMeasurement);
+        const data = this.mapResponseToBarChartData(originalData, assetMeasurement);
         return { data, originalData };
       })
       .then(({ data, originalData }) => {
@@ -173,8 +175,8 @@ class SimulationRun extends Component {
       });
   }
 
-  getBarChart({ commonProps, data }) {
-    console.log('SimulationRun getBarChart data', data);
+  getBarChart({ commonProps, data, assetMeasurement }) {
+    console.log('SimulationRun getBarChart data', data, 'assetMeasurement',assetMeasurement);
     return (
       <div>
         <BarChart
@@ -182,6 +184,7 @@ class SimulationRun extends Component {
           // handleError={this.renderErrorMessage}
           commonProps={commonProps}
           data={data}
+          yValue={assetMeasurement}
         />
       </div>
     );
@@ -277,15 +280,41 @@ class SimulationRun extends Component {
     return charts;
   }
 
-  renderLineChart({ data }) {
-    console.log('renderLineChart', 'data', data);
+  renderLineChart({ data, assetMeasurements }) {
+    if (!data || !data.length || data.length === 0) {
+      return null;
+    }
+
+    console.log('renderLineChart', 'data', data, 'assetMeasurements', assetMeasurements);
+
+    const lines = assetMeasurements.map(assetMeasurement => (
+          <Line
+            key={assetMeasurement}
+            type="monotone"
+            dataKey={assetMeasurement}
+            stroke="#8884d8"
+          />
+      ));
+
     return (
       <div>
-        <LineChart style={{ margin: '0 auto' }} width={960} height={550} data={data}>
-          <Line type="monotone" dataKey="value" stroke="#8884d8" />
+        <LineChart
+          style={{ margin: '0 auto' }}
+          margin={{
+            top: 5,
+            right: 20,
+            bottom: 100,
+            left: 20
+          }}
+          width={960}
+          height={650}
+          data={data}
+        >
+          {/* <Line type="monotone" dataKey="value" stroke="#8884d8" /> */}
+          {lines}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <XAxis dataKey="timestamp" />
-          <YAxis dataKey="value" />
+          <XAxis tick={{ dy: 30 }} angle={-45} dataKey="timestamp" />
+          <YAxis />
           <Tooltip />
         </LineChart>
       </div>
@@ -309,6 +338,13 @@ class SimulationRun extends Component {
     );
   }
 
+  getWindData(data, assetMeasurements) {
+    console.log('getWindData', 'data', data, 'assetMeasurements', assetMeasurements);
+    const windSpeedData = this.mapResponseToBarChartData(data, assetMeasurements);
+    console.log('getWindData', 'returning windSpeedData', windSpeedData);
+    return windSpeedData;
+  }
+
   render() {
     console.log('SimulationRun render props', this.props);
     console.log('SimulationRun render state', this.state);
@@ -323,7 +359,7 @@ class SimulationRun extends Component {
 
     const defaultMeasurement =
       this.state.measurements && this.state.measurements[0] && this.state.measurements[0].name;
-
+    
     const mainItems = (
       <div>
         <Title
@@ -340,15 +376,16 @@ class SimulationRun extends Component {
           style={{
             marginTop: '30px',
             display: 'flex',
-            maxWidth: '100%',
             flexWrap: 'wrap',
             WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
           }}
         >
-          <div style={{ width: '50%' }}>
+          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '600px' }}>
             {this.renderPoleVulnerabilityTable()}
           </div>
-          <div style={{ flexGrow: 1 }}>{this.renderNetworkTopologyGraph()}</div>
+          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '600px' }}>
+            {this.renderNetworkTopologyGraph()}
+          </div>
         </div>
       </div>
     );
@@ -372,9 +409,9 @@ class SimulationRun extends Component {
                 assets={this.state.assets}
                 mapResponseToBarChartData={this.mapResponseToBarChartData}
                 getAssetMeasurement={this.getAssetMeasurement}
-                renderCharts={this.renderCharts}
                 renderLineChart={this.renderLineChart}
                 measurements={this.state.measurements}
+                getWindData={this.getWindData}
                 /* data={this.state.data} */
               />
             </div>

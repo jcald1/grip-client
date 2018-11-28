@@ -12,7 +12,7 @@ class BarChart extends Component {
   }
 
   // Load the V3 from a CDN to avoid Create React APp Babel adding use strict
-  loadScript(url) {
+  /*   loadScript(url) {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.type = 'text/javascript';
@@ -35,7 +35,7 @@ class BarChart extends Component {
       script.src = url;
       document.getElementsByTagName('head')[0].appendChild(script);
     });
-  }
+  } */
 
   componentDidMount() {
     console.log('BarChart componentDidMount');
