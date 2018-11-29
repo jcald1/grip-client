@@ -158,6 +158,18 @@ class Assets extends Component {
     return a2.localeCompare(b2);
   }
 
+  // this will treat empty values with - as lowest possible,
+  // so when sorting ascending they will be at the top.
+  numberWithDashSorter(a, b) {
+    if (b === '-') {
+      return -1;
+    }
+    if (a === '-') {
+      return 1;
+    }
+    return a - b;
+  }
+
   stringFilterer(value, record, property) {
     let recStatus = '';
     if (record[property]) {
@@ -234,7 +246,7 @@ class Assets extends Component {
       Vulnerability',
         key: 'peak_vulnerability',
         dataIndex: 'peak_vulnerability',
-        sorter: (a, b) => this.stringSorter(a.peak_vulnerability, b.peak_vulnerability),
+        sorter: (a, b) => this.numberWithDashSorter(a.peak_vulnerability, b.peak_vulnerability),
         width: '20%'
       },
       {
