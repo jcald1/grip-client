@@ -25,9 +25,10 @@ D3_BarChart.create = (el, data, configuration) => {
     left: 40
   };
 
-  const width = 960 - margin.left - margin.right;
-
-  const height = 500 - margin.top - margin.bottom;
+  // const width = 960 - margin.left - margin.right;
+  // const height = 500 - margin.top - margin.bottom;
+  const width = 1450 - margin.left - margin.right;
+  const height = 250 - margin.top - margin.bottom;
 
   // set the ranges
   const x = d3
@@ -118,7 +119,7 @@ D3_BarChart.create = (el, data, configuration) => {
 
   // add the y Axis */
   svg.append('g').call(d3.axisLeft(y));
-
+  
   return d3.select(el).select('svg');
 };
 

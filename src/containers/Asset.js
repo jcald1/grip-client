@@ -1,7 +1,5 @@
 /* eslint-disable no-undef */
 
-// const DEFAULT_SWING_BUS = 'HVMV_Sub_HSB__measured_real_power';
-// const DEFAULT_MEASUREMENT = 'measured_real_power';
 
 import React, { Component } from 'react';
 import _ from 'lodash';
@@ -14,6 +12,7 @@ import Measurements from '../components/Measurements';
 import AssetRelationships from '../components/AssetRelationships';
 import AssetProperties from '../components/AssetProperties';
 import Title from '../components/Title';
+import SubTitle from '../components/SubTitle';
 import simulationRuns from '../actions/simulationRuns';
 
 const WIND_SPEED_ASSET_MEASUREMENT = 'weather__wind_speed';
@@ -66,6 +65,7 @@ class Asset extends Component {
       this.props.assetData &&
       this.props.assets &&
       this.props.mapResponseToBarChartData &&
+      this.props.mapResponseToChartData &&
       this.props.getAssetMeasurement &&
       this.props.renderLineChart &&
       this.props.measurements
@@ -108,6 +108,10 @@ class Asset extends Component {
       this.props.commonProps.shallowEquals(
         this.props.mapResponseToBarChartData,
         prevProps.mapResponseToBarChartData
+      ) &&
+      this.props.commonProps.shallowEquals(
+        this.props.mapResponseToChartData,
+        prevProps.mapResponseToChartData
       ) &&
       this.props.commonProps.shallowEquals(
         this.props.getAssetMeasurement,
@@ -277,31 +281,40 @@ class Asset extends Component {
       <div>
         <Row>
           <Col span={24}>
-            <Title
+          <Title text={`Pole Vulnerability - ${this.state.currentAsset.name}`} />
+            <SubTitle
               text={`${this.state.currentAsset.name} (${
                 this.state.currentAsset.properties.class
               }) - ${this.state.currentMeasurement}`}
             />
+           {/* <SubTitle
+              text={`${this.state.currentMeasurement} (${this.props.currentAsset.properties.class})`}
+            /> */}
+            {/* <SubTitle text="Pole failure and fault when Pole Stress >= 1" /> */}
             {/* The dynamic data based on the measurement selection */}
             <div>
               {this.props.renderLineChart({
-                data: this.props.assetData,
-                assetMeasurements: [assetMeasurement]
+                data: this.props.mapResponseToChartData(this.props.assetData),
+                assetMeasurementObjArr: [{ assetMeasurement, stroke: '#8884d8' }]
               })}
             </div>
-            <Title text="Wind Speed and Critical Wind Speed" />
+            <Title text="Wind Speed and Critical Wind Speed (meters/second)" />
+            <SubTitle text="Forecasted Pole failure when Wind Speed >= Critical Wind Speed" />
             <div>
               {this.props.renderLineChart({
-                /* data: this.props.getWindData(this.props.assetData, WIND_SPEED_ASSET_MEASUREMENT) */
-                /* data: this.props.mapResponseToBarChartData(this.props.assetData), */
-                data: this.props.assetData,
-                assetMeasurements: [
-                  WIND_SPEED_ASSET_MEASUREMENT,
-                  this.props.getAssetMeasurement(
-                    this.state.currentAsset,
-                    CRITICAL_WIND_SPEED_MEASUREMENT
-                  )
-                ]
+                data: this.props.mapResponseToChartData(this.props.assetData),
+                assetMeasurementObjArr: [
+                  { assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT, stroke: '#8884d8' },
+                  {
+                    assetMeasurement: this.props.getAssetMeasurement(
+                      this.state.currentAsset,
+                      CRITICAL_WIND_SPEED_MEASUREMENT,
+                    ),
+                    stroke: '#FF0000',
+                    strokeDasharray: '5 5'
+                  }
+                ],
+                renderXaxis: false
               })}
             </div>
           </Col>

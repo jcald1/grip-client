@@ -5,9 +5,10 @@ const barChartPath = '../../components/d3/BarChart/BarChart';
 
 /* describe('App', () => {
   beforeEach(() => {
-    // const mockBarChart = require('../../components/d3/BarChart/__mocks__/BarChart').default;
+    const mockBarChart = require('../../components/d3/BarChart/__mocks__/BarChart').default;
     // jest.mock(barChartPath, () => mockBarChart);
     // jest.mock(barChartPath, () => jest.fn(() => mockBarChart));
+    // jest.mock('../../components/d3/BarChart/BarChart', () => jest.fn(() => mockBarChart));
     jest.mock('../../components/d3/BarChart/BarChart');
   });
 
@@ -15,9 +16,9 @@ const barChartPath = '../../components/d3/BarChart/BarChart';
     const App = require('../App').default;
     mount(<App />);
   });
-}); */
+});  */
 
 describe('App', () => {
   it('renders without crashing - deep', () => {});
 });
-
+ 

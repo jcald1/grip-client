@@ -22,7 +22,34 @@ const D3_NetworkTopology = {};
 // const width = 960;
 // const height = 760;
 const width = 720;
-const height = 760;
+const height = 437;
+
+function zoomFit(zoom, root, paddingPercent, transitionDuration) {
+  // console.log('zoomFit', 'root',root, 'paddingPercent', paddingPercent, 'transitionDuration', transitionDuration)
+  const bounds = root.node().getBBox();
+  const parent = root.node().parentElement;
+  const fullWidth = parent.clientWidth;
+
+
+  const fullHeight = parent.clientHeight;
+  const width = bounds.width;
+
+
+  const height = bounds.height;
+  const midX = bounds.x + width / 2;
+
+
+  const midY = bounds.y + height / 2;
+  if (width == 0 || height == 0) return; // nothing to fit
+  const scale = (paddingPercent || 0.75) / Math.max(width / fullWidth, height / fullHeight);
+  const translate = [fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY];
+
+  console.trace('zoomFit', translate, scale);
+  root
+    .transition()
+    .duration(transitionDuration || 0) // milliseconds
+    .call(zoom.translate(translate).scale(scale).event);
+}
 
 // initialize force
 const force = d3.layout
@@ -176,6 +203,11 @@ D3_NetworkTopology.create = (el, data, configuration) => {
     nodeg.attr('x', d => d.x + 8).attr('y', d => d.y + 20);
   });
   // });
+
+  setTimeout(() => {
+    zoomFit(zoom, container, 0.95, 500);
+  }, 4000);
+
   return d3.select(el).select('div');
 }; // end create()
 

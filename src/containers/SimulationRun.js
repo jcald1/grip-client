@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
 import moment from 'moment';
 import {
-  LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip
+  LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend
 } from 'recharts';
 import BarChart from '../components/d3/BarChart/BarChart';
 import './App.css';
@@ -19,6 +19,7 @@ import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
+const FILTERED_ASSETS = ['meter', 'overhead_line', 'pole'];
 
 class SimulationRun extends Component {
   constructor(props) {
@@ -267,20 +268,25 @@ class SimulationRun extends Component {
     return row[`_${assetMeasurement}`];
   }
 
-  // HVMV_Sub_HSB__measured_real_power
-  // TODO: Conversion should be in the API
   mapResponseToBarChartData(data, assetMeasurement) {
     console.log('mapResponseToBarChartData data', data, 'assetMeasurement', assetMeasurement);
     // debugger;
     const mappedData = data.map(row => ({
-      // timestamp: moment(row.timestamp).format('HH:mm'),
-      timestamp: moment(row.timestamp).format('YY-MM-DD HH:mm:ss'),
-      // value: row[measurement] / 1000000
+      timestamp: moment(row.timestamp).format('YY-MM-DD HH:mm'),
+
       value: row[assetMeasurement]
     }));
     return mappedData;
   }
 
+  mapResponseToChartData(data, assetMeasurement) {
+    console.log('App data', data, 'assetMeasurement', assetMeasurement);
+    const mappedData = data.map(row => ({
+      ...row,
+      timestamp: moment(row.timestamp).format('YY-MM-DD HH:mm')
+    }));
+    return mappedData;
+  }
   renderCharts({ data }) {
     const charts = [];
     if (!data || !data.length || data.length === 0) {
@@ -296,44 +302,69 @@ class SimulationRun extends Component {
     return charts;
   }
 
-  renderLineChart({ data, assetMeasurements }) {
+  renderLineChart({ data, assetMeasurementObjArr, renderXaxis }) {
     if (!data || !data.length || data.length === 0) {
       return null;
     }
 
-    console.log('renderLineChart', 'data', data, 'assetMeasurements', assetMeasurements);
+    console.log('renderLineChart', 'data', data, 'assetMeasurementObjArr', assetMeasurementObjArr);
 
-    const lines = assetMeasurements.map(assetMeasurement => (
-      <Line dataKey={assetMeasurement} type="monotone" stroke="#8884d8" />
+    const lines = assetMeasurementObjArr.map(assetMeasurementObj => (
+      <Line
+        key={assetMeasurementObj.assetMeasurement}
+        type="monotone"
+        dataKey={assetMeasurementObj.assetMeasurement}
+        stroke={assetMeasurementObj.stroke}
+        strokeDasharray={assetMeasurementObj.strokeDasharray}
+      />
     ));
-    console.log('renderLineChartlines', lines);
+    // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
+    const bottomMargin = 100;
+
+    console.log('***bottomMargin', bottomMargin);
     return (
       <div>
         <LineChart
           style={{ margin: '0 auto' }}
           margin={{
             top: 5,
-            right: 20,
-            bottom: 100,
-            left: 20
+            right: 40,
+            bottom: bottomMargin,
+            left: 40
           }}
-          width={960}
-          height={650}
+          width={1100}
+          height={600}
           data={data}
         >
-          {/* <Line type='monotone' dataKey='value' stroke='#8884d8' /> */}
+          {/* <Line type="monotone" dataKey="value" stroke="#8884d8" /> */}
           {lines}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+          {/*           {(renderXaxis || renderXaxis == null) && (
           <XAxis tick={{ dy: 30 }} angle={-45} dataKey="timestamp" />
+          )} */}
+          <XAxis interval={0} tick={{ dy: 40 }} angle={-65} dataKey="timestamp" />
           <YAxis />
+          <Legend verticalAlign="top" height={36} />
           <Tooltip />
         </LineChart>
       </div>
     );
   }
 
+  filterAssetsTable(assets) {console.log('**assets', assets);
+    return assets.filter(asset => {
+      console.log('**asset', asset);
+      return FILTERED_ASSETS.includes(asset.properties.class) ? asset.properties.class : null;
+    });
+  }
   renderPoleVulnerabilityTable() {
-    return <Assets data={this.state.assets} handleAssetClick={this.handleAssetClick} />;
+    return (
+      <Assets
+        data={this.filterAssetsTable(this.state.assets)}
+        handleAssetClick={this.handleAssetClick}
+        assetsList={FILTERED_ASSETS}
+      />
+    );
   }
 
   renderNetworkTopologyGraph() {
@@ -420,6 +451,7 @@ class SimulationRun extends Component {
                 assets={this.state.assets}
                 simulationRunId={this.props.match.params.simulationRunId}
                 mapResponseToBarChartData={this.mapResponseToBarChartData}
+                mapResponseToChartData={this.mapResponseToChartData}
                 getAssetMeasurement={this.getAssetMeasurement}
                 renderLineChart={this.renderLineChart}
                 measurements={this.state.measurements}

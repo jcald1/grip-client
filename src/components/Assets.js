@@ -52,11 +52,11 @@ const getAssets = data => {
   let peak_vulnerability_value = null;
   assets = data.map(asset => {
     peak_vulnerability = asset.calculated_recordings.filter(d => d.name === 'peak_vulnerability');
-    console.log('getAssets data recordings ', asset["name"],asset.calculated_recordings);
+    console.log('getAssets data recordings ', asset['name'], asset.calculated_recordings);
     if (peak_vulnerability.length === 1) {
       peak_vulnerability_value = peak_vulnerability[0].value;
-    }else{
-      peak_vulnerability_value=null;
+    } else {
+      peak_vulnerability_value = null;
     }
     return {
       key: asset.id,
@@ -67,7 +67,7 @@ const getAssets = data => {
       feeder: asset.properties.feeder || '-',
       status: asset.properties.pole_status || '-',
       peak_vulnerability: peak_vulnerability_value || '-',
-      power_out_real: asset.power_out_real || '-'
+      power_out_real: asset.properties.power_out_real || '-'
     };
   });
 
@@ -193,15 +193,11 @@ class Assets extends Component {
         width: '14%',
         sorter: (a, b) => this.stringSorter(a.type, b.type),
         defaultSortOrder: 'ascend',
-        filteredValue: ['pole', 'overhead_line', 'meter'],
-        filters: [
+        filteredValue: this.props.assetsList,
+        /*         filters: [
           {
             text: 'meter',
             value: 'meter'
-          },
-          {
-            text: 'climate',
-            value: 'climate'
           },
           {
             text: 'pole',
@@ -211,7 +207,8 @@ class Assets extends Component {
             text: 'overhead_line',
             value: 'overhead_line'
           }
-        ],
+        ], */
+        filters: this.props.assetsList.map(assetName => ({ text: assetName, value: assetName })),
         onFilter: (value, record) => this.stringFilterer(value, record, 'type')
       },
       {
@@ -234,8 +231,7 @@ class Assets extends Component {
       },
       {
         title: 'Peak\
-      Vulnerability\
-      (Pole Stress)',
+      Vulnerability',
         key: 'peak_vulnerability',
         dataIndex: 'peak_vulnerability',
         sorter: (a, b) => this.stringSorter(a.peak_vulnerability, b.peak_vulnerability),

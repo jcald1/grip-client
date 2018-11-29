@@ -27,7 +27,7 @@ class Layout extends Component {
       <div
         className="Layout"
         style={{
-          maxWidth: '100%',
+          /* maxWidth: '100%', */
           display: 'flex',
           flexWrap: 'wrap',
           WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
@@ -45,11 +45,19 @@ class Layout extends Component {
 
           {leftNavItems}
         </div>
-        <div
+        {/*         <div
           className="main-body"
           style={{
             flexGrow: 1
             // paddingRight: '10px'
+          }} */}
+        <div
+          className="main-body"
+          style={{
+            minWidth: '1200px',
+            flexGrow: 1,
+            flexBasis: 0,
+            paddingRight: '10px'
           }}
         >
           {mainItems}
