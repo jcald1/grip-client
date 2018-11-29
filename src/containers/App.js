@@ -17,7 +17,6 @@ import Layout from '../components/Layout';
 import { Redirect } from 'react-router-dom';
 import './App.css';
 
-
 import simulationRuns from '../actions/simulationRuns';
 var qs = require('qs');
 const { Header } = Layout;
@@ -56,6 +55,7 @@ class App extends Component {
     };
 
     this.handleSimulationRunRequestClick = this.handleSimulationRunRequestClick.bind(this);
+
     this.handleGetSimulationRunsClick = this.handleGetSimulationRunsClick.bind(this);
     this.handleRunSimulationClick = this.handleRunSimulationClick.bind(this);
     this.handleError = this.handleError.bind(this);

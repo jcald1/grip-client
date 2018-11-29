@@ -37,7 +37,8 @@ class SimulationRun extends Component {
     this.renderCharts = this.renderCharts.bind(this);
     this.checkUnderscoreKey = this.checkUnderscoreKey.bind(this);
     this.mapResponseToBarChartData = this.mapResponseToBarChartData.bind(this);
-    this.getAssetMeasurement.bind(this);
+    this.getAssetMeasurement = this.getAssetMeasurement.bind(this);
+    this.navigateToAsset = this.navigateToAsset.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -176,7 +177,7 @@ class SimulationRun extends Component {
   }
 
   getBarChart({ commonProps, data, assetMeasurement }) {
-    console.log('SimulationRun getBarChart data', data, 'assetMeasurement',assetMeasurement);
+    console.log('SimulationRun getBarChart data', data, 'assetMeasurement', assetMeasurement);
     return (
       <div>
         <BarChart
@@ -204,7 +205,12 @@ class SimulationRun extends Component {
     // const assetDetailPageAssetId = e;
 
     console.log('state', this.state, 'assetDetailPageAssetId', assetDetailPageAssetId);
+    this.navigateToAsset(assetDetailPageAssetId);
+  }
 
+  navigateToAsset(assetDetailPageAssetId) {
+    assetDetailPageAssetId = parseInt(assetDetailPageAssetId, 10);
+    console.log('navigateToAsset assetid', assetDetailPageAssetId, 'assets', this.state.assets);
     const assetDetailPageAsset = this.state.assets.find(
       asset => asset.id === assetDetailPageAssetId
     );
@@ -223,9 +229,19 @@ class SimulationRun extends Component {
           return Promise.reject(new Error('No data received from the API.'));
         }
         const measurements = data.recordings;
-        const newState = { measurements, assetDetailPageAsset };
+
+        const newState = {
+          measurements,
+          assetDetailPageAsset,
+          currentAsset: assetDetailPageAsset,
+          currentMeasurement: measurements[0].name
+        };
+        console.log('setting state navigateToAsset', newState);
         this.setState(newState);
-        const newUrl = `${this.props.location.pathname}/assets/${assetDetailPageAsset.id}`;
+
+        const newUrl = `/simulation-runs/${this.props.match.params.simulationRunId}/assets/${
+          assetDetailPageAsset.id
+        }`;
         console.log('** NEW PUSH', newUrl);
         console.log('newUrl', newUrl);
         this.props.history.push({
@@ -254,7 +270,7 @@ class SimulationRun extends Component {
   // HVMV_Sub_HSB__measured_real_power
   // TODO: Conversion should be in the API
   mapResponseToBarChartData(data, assetMeasurement) {
-    console.log('App data', data, 'assetMeasurement', assetMeasurement);
+    console.log('mapResponseToBarChartData data', data, 'assetMeasurement', assetMeasurement);
     // debugger;
     const mappedData = data.map(row => ({
       // timestamp: moment(row.timestamp).format('HH:mm'),
@@ -288,14 +304,9 @@ class SimulationRun extends Component {
     console.log('renderLineChart', 'data', data, 'assetMeasurements', assetMeasurements);
 
     const lines = assetMeasurements.map(assetMeasurement => (
-          <Line
-            key={assetMeasurement}
-            type="monotone"
-            dataKey={assetMeasurement}
-            stroke="#8884d8"
-          />
-      ));
-
+      <Line dataKey={assetMeasurement} type="monotone" stroke="#8884d8" />
+    ));
+    console.log('renderLineChartlines', lines);
     return (
       <div>
         <LineChart
@@ -310,7 +321,7 @@ class SimulationRun extends Component {
           height={650}
           data={data}
         >
-          {/* <Line type="monotone" dataKey="value" stroke="#8884d8" /> */}
+          {/* <Line type='monotone' dataKey='value' stroke='#8884d8' /> */}
           {lines}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis tick={{ dy: 30 }} angle={-45} dataKey="timestamp" />
@@ -359,7 +370,7 @@ class SimulationRun extends Component {
 
     const defaultMeasurement =
       this.state.measurements && this.state.measurements[0] && this.state.measurements[0].name;
-    
+
     const mainItems = (
       <div>
         <Title
@@ -389,7 +400,7 @@ class SimulationRun extends Component {
         </div>
       </div>
     );
-    console.log('current asset', this.state.currentAsset);
+    console.log('current asset**********************************', this.state.currentAsset);
     return (
       <div>
         <Route
@@ -407,11 +418,13 @@ class SimulationRun extends Component {
                 currentAsset={this.state.assetDetailPageAsset}
                 assetData={this.state.originalData}
                 assets={this.state.assets}
+                simulationRunId={this.props.match.params.simulationRunId}
                 mapResponseToBarChartData={this.mapResponseToBarChartData}
                 getAssetMeasurement={this.getAssetMeasurement}
                 renderLineChart={this.renderLineChart}
                 measurements={this.state.measurements}
                 getWindData={this.getWindData}
+                navigateToAsset={this.navigateToAsset}
                 /* data={this.state.data} */
               />
             </div>
