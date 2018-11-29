@@ -277,11 +277,16 @@ class Asset extends Component {
       this.state.currentMeasurement
     );
     console.log('Asset assetMeasurementchart', assetMeasurement, this.state.data);
+    
+    let assetTitle = this.state.currentAsset.name;
+    if (this.state.currentAsset.properties.class === 'pole') {
+      assetTitle = 'Pole Vulnerability - ' + assetTitle;
+    }
     const mainItems = (
       <div>
         <Row>
           <Col span={24}>
-          <Title text={`Pole Vulnerability - ${this.state.currentAsset.name}`} />
+          <Title text={assetTitle} />
             <SubTitle
               text={`${this.state.currentAsset.name} (${
                 this.state.currentAsset.properties.class
