@@ -198,12 +198,8 @@ class SimulationRun extends Component {
 
   handleAssetClick(e) {
     console.log('handleAssetClick', 'e.currentTarget', e.currentTarget);
-    // console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
     console.log('App handleAssetClick value', e.currentTarget.getAttribute('data-row-key'));
-    // console.log('*** this.props.match.params', this.props.match);
-    // const assetDetailPageAssetId = parseInt(e.currentTarget.getAttribute('value'), 10);
     const assetDetailPageAssetId = parseInt(e.currentTarget.getAttribute('data-row-key'), 10);
-    // const assetDetailPageAssetId = e;
 
     console.log('state', this.state, 'assetDetailPageAssetId', assetDetailPageAssetId);
     this.navigateToAsset(assetDetailPageAssetId);
@@ -220,7 +216,6 @@ class SimulationRun extends Component {
       .getSimulationRunAsset({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
-        //  TODO: Clean Up.  THese should be Simulation Run IDs not Simulation IDs.
         simulationRunId: this.props.match.params.simulationRunId,
         assetId: assetDetailPageAsset.id
       })
@@ -268,25 +263,37 @@ class SimulationRun extends Component {
     return row[`_${assetMeasurement}`];
   }
 
+  // TODO: Probably should be doing this in the API
   mapResponseToBarChartData(data, assetMeasurement) {
     console.log('mapResponseToBarChartData data', data, 'assetMeasurement', assetMeasurement);
     // debugger;
     const mappedData = data.map(row => ({
-      timestamp: moment(row.timestamp).format('YY-MM-DD HH:mm'),
+      timestamp: moment(row.timestamp).format('MM-DD-YY HH:mm'),
 
       value: row[assetMeasurement]
     }));
     return mappedData;
   }
 
-  mapResponseToChartData(data, assetMeasurement) {
-    console.log('App data', data, 'assetMeasurement', assetMeasurement);
-    const mappedData = data.map(row => ({
-      ...row,
-      timestamp: moment(row.timestamp).format('YY-MM-DD HH:mm')
-    }));
+  // TODO: Probably should be doing this in the API
+  mapResponseToChartData(data, staticValues) {
+    console.log('App data', data, 'staticValues', staticValues);
+    const mappedData = data.map(row => {
+      const newRow = {
+        ...row,
+        timestamp: moment(row.timestamp).format('MM-DD-YY HH:mm')
+      };
+      if (staticValues) {
+        staticValues.forEach(valueObj => {
+          newRow[valueObj.name] = valueObj.value;
+        });
+      }
+      return newRow;
+    });
+
     return mappedData;
   }
+
   renderCharts({ data }) {
     const charts = [];
     if (!data || !data.length || data.length === 0) {
@@ -302,22 +309,31 @@ class SimulationRun extends Component {
     return charts;
   }
 
-  renderLineChart({ data, assetMeasurementObjArr, renderXaxis }) {
+  renderLineChart({
+    data, lines, domain, renderXaxis
+  }) {
+    console.log('renderLineChart', 'lines', lines);
     if (!data || !data.length || data.length === 0) {
       return null;
     }
 
-    console.log('renderLineChart', 'data', data, 'assetMeasurementObjArr', assetMeasurementObjArr);
-
-    const lines = assetMeasurementObjArr.map(assetMeasurementObj => (
+    const lineComponents = lines.map(line => {
+      if (!line) {
+        return null
+      }
+      return (
       <Line
-        key={assetMeasurementObj.assetMeasurement}
+        key={line.assetMeasurement}
         type="monotone"
-        dataKey={assetMeasurementObj.assetMeasurement}
-        stroke={assetMeasurementObj.stroke}
-        strokeDasharray={assetMeasurementObj.strokeDasharray}
+        dataKey={line.assetMeasurement}
+        stroke={line.stroke}
+        strokeDasharray={line.strokeDasharray}
+        strokeWidth={line.strokeWidth}
+        yAxisId={line.yAxisId}
       />
-    ));
+    )
+    });
+
     // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
     const bottomMargin = 100;
 
@@ -328,7 +344,7 @@ class SimulationRun extends Component {
           style={{ margin: '0 auto' }}
           margin={{
             top: 5,
-            right: 40,
+            right: 60,
             bottom: bottomMargin,
             left: 40
           }}
@@ -336,14 +352,24 @@ class SimulationRun extends Component {
           height={600}
           data={data}
         >
-          {/* <Line type="monotone" dataKey="value" stroke="#8884d8" /> */}
-          {lines}
+          {lineComponents}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          {/*           {(renderXaxis || renderXaxis == null) && (
-          <XAxis tick={{ dy: 30 }} angle={-45} dataKey="timestamp" />
-          )} */}
           <XAxis interval={0} tick={{ dy: 40 }} angle={-65} dataKey="timestamp" />
-          <YAxis />
+          <YAxis
+            domain={domain}
+            yAxisId="left"
+            label={{ value: 'Pole Stress', angle: -90, position: 'insideLeft' }}
+          />
+          <YAxis
+            yAxisId="right"
+            orientation="right"
+            label={{
+              value: 'Wind Sepped - meters/sec',
+              angle: -90,
+              position: 'outsideRight',
+              dx: 10
+            }}
+          />
           <Legend verticalAlign="top" height={36} />
           <Tooltip />
         </LineChart>
@@ -351,12 +377,14 @@ class SimulationRun extends Component {
     );
   }
 
-  filterAssetsTable(assets) {console.log('**assets', assets);
+  filterAssetsTable(assets) {
+    console.log('**assets', assets);
     return assets.filter(asset => {
       console.log('**asset', asset);
       return FILTERED_ASSETS.includes(asset.properties.class) ? asset.properties.class : null;
     });
   }
+
   renderPoleVulnerabilityTable() {
     return (
       <Assets
@@ -432,7 +460,7 @@ class SimulationRun extends Component {
         </div>
       </div>
     );
-    console.log('current asset**********************************', this.state.currentAsset);
+    console.log('current asset *', this.state.currentAsset);
     return (
       <div>
         <Route

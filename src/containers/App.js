@@ -10,7 +10,7 @@ import { resetErrorMessage } from '../actions';
 
 import Button from 'antd/lib/button';
 import { Route } from 'react-router-dom';
-import SimulationRunRequests from '../components/SimulationRunRequests';
+import SimulationRunRequests from './SimulationRunRequests';
 import SimulationRun from './SimulationRun';
 import _ from 'lodash';
 import Layout from '../components/Layout';
@@ -98,10 +98,9 @@ class App extends Component {
   }
 
   handleSimulationRunRequestClick(e) {
-    console.log('App handleSimulationRunRequestClick');
-    console.log('App handleSimulationRunRequestClick value', e.currentTarget.getAttribute('value'));
+    console.log('App handleSimulationRunRequestClick','e.currentTarget',e.currentTarget);
 
-    const simulationRunId = e.currentTarget.getAttribute('value');
+    const simulationRunId = e.currentTarget.getAttribute('data-row-key');
     this.navigateToSimulationRun(simulationRunId);
   }
 

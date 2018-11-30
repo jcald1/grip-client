@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 
-
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
@@ -20,6 +19,7 @@ const CRITICAL_WIND_SPEED_MEASUREMENT = 'critical_wind_speed';
 const qs = require('qs');
 
 const DEFAULT_API_VERSION = 'v1';
+const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
 
 // TODO: Generalize
 
@@ -254,11 +254,6 @@ class Asset extends Component {
     console.log('Asset render props', this.props);
     console.log('Asset render state', this.state);
 
-    if(this.props.history && this.props.history.action === 'POP' &&
-    parseInt(this.props.match.params.assetId,10) !== parseInt(this.state.currentAsset.id,10)){
-       this.populateFullAsset(this.props.match.params.assetId);
-    }
-
     const { data } = this.state;
     const { measurements } = this.state;
 
@@ -283,51 +278,109 @@ class Asset extends Component {
       this.state.currentMeasurement
     );
     console.log('Asset assetMeasurementchart', assetMeasurement, this.state.data);
-    
-    let assetTitle = this.state.currentAsset.name;
+
+    let title = this.state.currentAsset.name;
+    let poleVulnerabilitySubTitle = null;
+    let poleStaticValues = null;
+    let criticalPoleStressLine = null
     if (this.state.currentAsset.properties.class === 'pole') {
-      assetTitle = 'Pole Vulnerability - ' + assetTitle;
+      title = `Pole Vulnerability - ${title}`;
+      poleVulnerabilitySubTitle = (
+        <div>
+          <SubTitle
+            style={{ color: 'red'}}
+            text="Pole Failure and Fault when Pole Stress >= 1"
+          />
+          <div
+            style={{ color: 'darkorange', fontWeight: 'normal' }} >
+            Forecasted Pole Failure when Wind Speed >= Critical Wind Speed
+          </div>
+        </div>
+      );
+      poleStaticValues = [
+        {
+          name: 'critical_pole_stress',
+          value: this.state.currentAsset.calculated_recordings.find(
+            obj => obj.name === 'critical_pole_stress'
+          ).value
+        }
+      ];
+      criticalPoleStressLine = {
+        yAxisId: 'left',
+        assetMeasurement: 'critical_pole_stress',
+        stroke: 'red',
+        strokeDasharray: '5 5',
+        strokeWidth: 3
+      };
     }
+    else {
+      title = `${title} (${this.state.currentAsset.properties.class}) `
+    }
+
+    const combinedData = this.props.mapResponseToChartData(this.props.assetData, poleStaticValues);
+    console.log('staticValues', this.state.currentAsset);
+    const criticalWindSpeedAssetMeasurement = this.props.getAssetMeasurement(
+      this.state.currentAsset,
+      CRITICAL_WIND_SPEED_MEASUREMENT
+    );
     const mainItems = (
       <div>
         <Row>
           <Col span={24}>
-          <Title text={assetTitle} />
-            <SubTitle
-              text={`${this.state.currentAsset.name} (${
-                this.state.currentAsset.properties.class
-              }) - ${this.state.currentMeasurement}`}
+            <Title
+              text={`${title} - ${
+                this.state.currentMeasurement
+              }`}
             />
-           {/* <SubTitle
-              text={`${this.state.currentMeasurement} (${this.props.currentAsset.properties.class})`}
-            /> */}
-            {/* <SubTitle text="Pole failure and fault when Pole Stress >= 1" /> */}
-            {/* The dynamic data based on the measurement selection */}
+            {poleVulnerabilitySubTitle}
             <div>
               {this.props.renderLineChart({
-                data: this.props.mapResponseToChartData(this.props.assetData),
-                assetMeasurementObjArr: [{ assetMeasurement, stroke: '#8884d8' }]
-              })}
-            </div>
-            <Title text="Wind Speed and Critical Wind Speed (meters/second)" />
-            <SubTitle text="Forecasted Pole failure when Wind Speed >= Critical Wind Speed" />
-            <div>
-              {this.props.renderLineChart({
-                data: this.props.mapResponseToChartData(this.props.assetData),
-                assetMeasurementObjArr: [
-                  { assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT, stroke: '#8884d8' },
+                // data: renderPoleData,
+                data: combinedData,
+                lines: [
                   {
-                    assetMeasurement: this.props.getAssetMeasurement(
-                      this.state.currentAsset,
-                      CRITICAL_WIND_SPEED_MEASUREMENT,
-                    ),
-                    stroke: '#FF0000',
+                    assetMeasurement,
+                    stroke: '#8884d8',
+                    strokeWidth: 3,
+                    yAxisId: 'left'
+                  },
+                  criticalPoleStressLine,
+                  {
+                    yAxisId: 'right',
+                    assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
+                    stroke: '#008000'
+                  },
+                  {
+                    yAxisId: 'right',
+                    assetMeasurement: criticalWindSpeedAssetMeasurement,
+                    stroke: 'darkorange',
                     strokeDasharray: '5 5'
                   }
                 ],
-                renderXaxis: false
+                // TODO: In the API, calculate the max values for each asset, then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
+                domain: DEFAULT_YAXIS_DOMAIN
               })}
             </div>
+            {/*
+  <SubTitle text="Wind Speed and Critical Wind Speed (meters/second)" />
+  <div>
+              {this.props.renderLineChart({
+                data: renderWindData,
+                lines: [
+                  {
+                    yAxisId: 'right',
+                    assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
+                    stroke: '#008000'
+                  },
+                  {
+                    yAxisId: 'right',
+                    assetMeasurement: criticalWindSpeedAssetMeasurement,
+                    stroke: 'darkorange',
+                    strokeDasharray: '5 5'
+                  }
+                ]
+              })}
+            </div> */}
           </Col>
         </Row>
         <Row>
