@@ -162,10 +162,13 @@ class Assets extends Component {
   // so when sorting ascending they will be at the top.
   numberWithDashSorter(a, b) {
     if (b === '-') {
-      return -1;
+      return 1;
     }
     if (a === '-') {
-      return 1;
+      return -1;
+    }
+    if (a === '-' && b === '-') {
+      return 0;
     }
     return a - b;
   }
