@@ -250,8 +250,14 @@ class Asset extends Component {
   }
 
   render() {
+    console.log('render============================================================Asset');
     console.log('Asset render props', this.props);
     console.log('Asset render state', this.state);
+
+    if(this.props.history && this.props.history.action === 'POP' &&
+    parseInt(this.props.match.params.assetId,10) !== parseInt(this.state.currentAsset.id,10)){
+       this.populateFullAsset(this.props.match.params.assetId);
+    }
 
     const { data } = this.state;
     const { measurements } = this.state;

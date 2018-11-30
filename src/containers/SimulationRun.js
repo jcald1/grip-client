@@ -388,6 +388,7 @@ class SimulationRun extends Component {
   }
 
   render() {
+    console.log('render============================================================SimulationRun');
     console.log('SimulationRun render props', this.props);
     console.log('SimulationRun render state', this.state);
 
