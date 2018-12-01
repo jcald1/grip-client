@@ -26,14 +26,11 @@ const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
 class Asset extends Component {
   constructor(props) {
     super(props);
-    const currentMeasurement =
-      this.props.measurements && this.props.measurements[0] && this.props.measurements[0].name;
 
     this.state = {
-      currentMeasurement,
-      currentAsset: {},
-      measurements: [],
-      data: []
+      selectedMeasurement: null,
+      selectedMeasurementChartData: null,
+      asset: null
     };
 
     this.handleMeasurementClick = this.handleMeasurementClick.bind(this);
@@ -51,43 +48,21 @@ class Asset extends Component {
       'commonProps',
       this.props.commonProps,
       'currentAsset',
-      this.props.currentAsset,
-      'assets',
-      this.props.assets
+      this.props.selectedAssetDetailId,
+      'allRunAssets',
+      this.props.allRunAssets
       /* 'data',
       this.props.data */
     );
 
     // Parent mounted first, and so props were passed in.  Safe to continue
-    if (
-      this.props.commonProps &&
-      this.props.currentAsset &&
-      this.props.assetData &&
-      this.props.assets &&
-      this.props.mapResponseToBarChartData &&
-      this.props.mapResponseToChartData &&
-      this.props.getAssetMeasurement &&
-      this.props.renderLineChart &&
-      this.props.measurements
-      /* this.props.data */
-    ) {
-      this.setState(this.props);
-    } else {
-      console.log('Asset componentDidMount need to look in URL and update');
-      this.populateFullAsset(this.props.match.params.assetId);
-    }
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (!this.props || !this.props.commonProps) {
-      return false;
-    }
-    return true;
+    console.log('Asset componentDidMount need to look in URL and update');
+    this.populateFullAsset(this.props.match.params.assetId);
   }
 
   componentDidUpdate(prevProps, prevState) {
     console.log(
-      'Asset componentDidUpdate',
+      'AssetcomponentDidUpdate',
       'this.state.currentMeasurement',
       this.state,
       'prevstate',
@@ -101,61 +76,20 @@ class Asset extends Component {
       this.props.match.params.assetId
     );
 
-    if (
-      this.props.commonProps.shallowEquals(this.props.commonProps, prevProps.commonProps) &&
-      this.props.commonProps.shallowEquals(this.props.assetData, prevProps.assetData) &&
-      this.props.commonProps.shallowEquals(this.props.assets, prevProps.assets) &&
-      this.props.commonProps.shallowEquals(
-        this.props.mapResponseToBarChartData,
-        prevProps.mapResponseToBarChartData
-      ) &&
-      this.props.commonProps.shallowEquals(
-        this.props.mapResponseToChartData,
-        prevProps.mapResponseToChartData
-      ) &&
-      this.props.commonProps.shallowEquals(
-        this.props.getAssetMeasurement,
-        prevProps.getAssetMeasurement
-      ) &&
-      this.props.commonProps.shallowEquals(this.props.renderLineChart, prevProps.renderLineChart) &&
-      /* this.props.commonProps.shallowEquals(this.props.data, prevProps.data) && */
-      this.props.commonProps.shallowEquals(this.props.measurements, prevProps.measurements) &&
-      this.props.commonProps.shallowEquals(this.props.windData, prevProps.windData) &&
-      this.props.commonProps.shallowEquals(
-        this.state.currentMeasurement,
-        prevState.currentMeasurement
-      ) &&
-      this.props.commonProps.shallowEquals(this.state.currentAsset, prevState.currentAsset) &&
-      /* this.props.commonProps.shallowEquals(this.props.data, prevProps.data) && */
-      this.props.commonProps.shallowEquals(this.state.measurements, prevState.measurements)
-      /* this.props.commonProps.shallowEquals(this.state.data, prevState.data) */
-    ) {
-      console.log('Asset change not updating');
-      return;
-    }
-    console.log('Asset change updating', this.props.match.params.assetId);
-
-    // this.props.navigateToAsset(this.props.match.params.assetId);
-    if (this.state.currentAsset != null) {
-      const currentData = this.populateAsset(this.state.currentMeasurement);
-      this.setState({ currentData, data: currentData });
-    }
     console.log(
       'Asset change populateFullAsset updating',
       this.props.match.params.assetId,
-      this.state.currentAsset.id
+      this.state.asset.id
     );
 
-    if (
-      this.state.currentAsset != null &&
-      this.props.currentAsset != null &&
-      parseInt(this.props.currentAsset.id, 10) !== parseInt(this.state.currentAsset.id, 10)
-    ) {
+    if (parseInt(this.props.match.params.assetId, 10) !== parseInt(this.state.asset.id, 10)) {
       this.populateFullAsset(this.props.match.params.assetId);
+    } else {
+      return null;
     }
   }
 
-  populateAsset(measurement) {
+  getMeasurementDataForChart(asset, measurement) {
     console.log(
       'Assets populateAsset',
       'this.state.',
@@ -166,49 +100,44 @@ class Asset extends Component {
       measurement
     );
 
-    const assetMeasurement = this.props.getAssetMeasurement(this.state.currentAsset, measurement);
+    const assetMeasurement = this.props.getAssetMeasurement(asset, measurement);
     console.log('*** assetMeasurement', assetMeasurement);
-    console.log('*** this.props.assetData', this.props.assetData);
-    const data = this.props.mapResponseToBarChartData(this.props.assetData, assetMeasurement);
-    console.log('*** data', data);
-    return data;
+    console.log('*** this.props.asset', this.props.asset);
+    const chartData = this.props.mapResponseToBarChartData(
+      this.props.runResultsData,
+      assetMeasurement
+    );
+    console.log('*** data', chartData);
+    return chartData;
   }
 
   populateFullAsset(assetDetailPageAssetId) {
     assetDetailPageAssetId = parseInt(assetDetailPageAssetId, 10);
-    console.log('navigateToAsset assetid', assetDetailPageAssetId, 'assets', this.props.assets);
-    const assetDetailPageAsset = this.props.assets.find(
+    console.log(
+      'navigateToAsset assetid',
+      assetDetailPageAssetId,
+      'assets',
+      this.props.allRunAssets
+    );
+    const assetDetailPageAsset = this.props.allRunAssets.find(
       asset => asset.id === assetDetailPageAssetId
     );
     console.log('*** populateFullAsset', assetDetailPageAsset, '');
-    simulationRuns
-      .getSimulationRunAsset({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
-        //  TODO: Clean Up.  THese should be Simulation Run IDs not Simulation IDs.
-        simulationRunId: this.props.simulationRunId,
-        assetId: assetDetailPageAsset.id
-      })
-      .then(data => {
-        console.log('Asset populateFullAsset getsimulation run asset data', data);
-        if (!data) {
-          return Promise.reject(new Error('No data received from the API.'));
-        }
-        const measurements = data.recordings;
 
-        console.log('Asset currentData', currentData, measurements[0]);
-        const newState = {
-          measurements,
-          assetDetailPageAsset,
-          currentAsset: assetDetailPageAsset,
-          currentMeasurement: measurements[0].name
-        };
-        console.log('setting state', newState);
-        this.setState(newState);
-        const currentData = this.populateAsset(measurements[0].name);
-        this.setState({ data: currentData, assetData: currentData });
-        console.log('setting state currentData', currentData);
-      });
+    const measurements = assetDetailPageAsset.recordings;
+
+    const newState = {
+      asset: assetDetailPageAsset,
+      selectedMeasurement: measurements[0].name
+    };
+    console.log('setting state', newState, assetDetailPageAsset);
+    this.setState(newState);
+    const selectedMeasurementChartData = this.getMeasurementDataForChart(
+      assetDetailPageAsset,
+      measurements[0].name
+    );
+    this.setState({ selectedMeasurementChartData });
+    console.log('setting state currentData', selectedMeasurementChartData);
   }
 
   handleMeasurementClick(e) {
@@ -219,10 +148,10 @@ class Asset extends Component {
       this.props.match.assetId
     );
 
-    const currentMeasurement = e.currentTarget.getAttribute('value');
+    const selectedMeasurement = e.currentTarget.getAttribute('value');
 
-    console.log('handleMeasurementClick setting currentMeasurement', currentMeasurement);
-    this.setState({ currentMeasurement });
+    console.log('handleMeasurementClick setting currentMeasurement', selectedMeasurement);
+    this.setState({ selectedMeasurement });
   }
 
   handleSimulationRunAssetRequestClick(e) {
@@ -254,18 +183,15 @@ class Asset extends Component {
     console.log('Asset render props', this.props);
     console.log('Asset render state', this.state);
 
-    const { data } = this.state;
-    const { measurements } = this.state;
+    const { runResultsData, asset } = this.state;
 
-    console.log('Asset render data', data);
+    console.log('Asset render data', runResultsData);
     console.log('Asset render measurements', measurements);
 
-    if (!data || !data.length || data.length === 0) {
+    if (!asset || !asset.recordings) {
       return null;
     }
-    if (!measurements || !measurements.length || measurements.length === 0) {
-      return null;
-    }
+    const measurements = asset.recordings;
 
     console.log('Continue Rendering', this.props);
     const leftNavItems = null;
@@ -274,16 +200,44 @@ class Asset extends Component {
       backgroundColor: '#d3d3d3'
     };
     const assetMeasurement = this.props.getAssetMeasurement(
-      this.state.currentAsset,
-      this.state.currentMeasurement
+      this.state.asset,
+      this.state.selectedMeasurement
     );
-    console.log('Asset assetMeasurementchart', assetMeasurement, this.state.data);
+    console.log(
+      'Asset assetMeasurementchart',
+      this.state.selectedMeasurement,
+      this.state.runResultsData
+    );
 
-    let title = this.state.currentAsset.name;
+    let title = this.state.asset.name;
     let poleVulnerabilitySubTitle = null;
     let poleStaticValues = null;
-    let criticalPoleStressLine = null
-    if (this.state.currentAsset.properties.class === 'pole') {
+    let criticalPoleStressLine = null;
+    const criticalWindSpeedAssetMeasurement = this.props.getAssetMeasurement(
+      this.state.asset,
+      CRITICAL_WIND_SPEED_MEASUREMENT
+    );
+    let linesToAdd = ([
+      {
+        assetMeasurement,
+        stroke: '#8884d8',
+        strokeWidth: 3,
+        yAxisId: 'left'
+      },
+      {
+        yAxisId: 'right',
+        assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
+        stroke: '#008000'
+      },
+      {
+        yAxisId: 'right',
+        assetMeasurement: criticalWindSpeedAssetMeasurement,
+        stroke: 'darkorange',
+        strokeDasharray: '5 5'
+      }
+    ]);
+    if (this.state.asset.properties.class === 'pole') {
+      console.log('a pole!!!!!!!!!!!!');
       title = `Pole Vulnerability - ${title}`;
       poleVulnerabilitySubTitle = (
         <div>
@@ -300,7 +254,7 @@ class Asset extends Component {
       poleStaticValues = [
         {
           name: 'critical_pole_stress',
-          value: this.state.currentAsset.calculated_recordings.find(
+          value: this.state.asset.calculated_recordings.find(
             obj => obj.name === 'critical_pole_stress'
           ).value
         }
@@ -312,51 +266,31 @@ class Asset extends Component {
         strokeDasharray: '5 5',
         strokeWidth: 3
       };
-    }
-    else {
-      title = `${title} (${this.state.currentAsset.properties.class}) `
+      linesToAdd.push(criticalPoleStressLine);
+      console.log('lines=======' + linesToAdd);
+    } else {
+      console.log('not a pole');
+      title = `${title} (${this.state.asset.properties.class}) `;
     }
 
-    const combinedData = this.props.mapResponseToChartData(this.props.assetData, poleStaticValues);
-    console.log('staticValues', this.state.currentAsset);
-    const criticalWindSpeedAssetMeasurement = this.props.getAssetMeasurement(
-      this.state.currentAsset,
-      CRITICAL_WIND_SPEED_MEASUREMENT
+    const combinedData = this.props.mapResponseToChartData(
+      this.props.runResultsData,
+      poleStaticValues
     );
+    console.log('combinedData', combinedData, 'poleStaticValues', poleStaticValues);
+
+    console.log('combinedData', combinedData);
     const mainItems = (
       <div>
         <Row>
           <Col span={24}>
-            <Title
-              text={`${title} - ${
-                this.state.currentMeasurement
-              }`}
-            />
+            <Title text={`${title} - ${this.state.selectedMeasurement}`} />
             {poleVulnerabilitySubTitle}
             <div>
               {this.props.renderLineChart({
                 // data: renderPoleData,
                 data: combinedData,
-                lines: [
-                  {
-                    assetMeasurement,
-                    stroke: '#8884d8',
-                    strokeWidth: 3,
-                    yAxisId: 'left'
-                  },
-                  criticalPoleStressLine,
-                  {
-                    yAxisId: 'right',
-                    assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
-                    stroke: '#008000'
-                  },
-                  {
-                    yAxisId: 'right',
-                    assetMeasurement: criticalWindSpeedAssetMeasurement,
-                    stroke: 'darkorange',
-                    strokeDasharray: '5 5'
-                  }
-                ],
+                lines: linesToAdd,
                 // TODO: In the API, calculate the max values for each asset, then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
                 domain: DEFAULT_YAXIS_DOMAIN
               })}
@@ -385,21 +319,18 @@ class Asset extends Component {
         </Row>
         <Row>
           <Col span={8} style={columnStyle}>
-            <AssetProperties data={this.state.currentAsset} asset={this.state.asset} />
+            <AssetProperties asset={this.state.asset} />
           </Col>
           <Col span={8} style={columnStyle}>
             <Measurements
-              data={measurements}
+              measurements={measurements}
               handleMeasurementClick={this.handleMeasurementClick}
-              asset={this.state.asset}
             />
           </Col>
           <Col span={8} style={columnStyle}>
             <AssetRelationships
-              data={this.state.currentAsset}
-              handleSimulationRunAssetRequestClick={this.handleSimulationRunAssetRequestClick}
               asset={this.state.asset}
-              simulation_run_id={this.props.simulation_run_id}
+              handleSimulationRunAssetRequestClick={this.handleSimulationRunAssetRequestClick}
             />
           </Col>
         </Row>

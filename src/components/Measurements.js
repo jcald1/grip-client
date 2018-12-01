@@ -3,9 +3,9 @@
 import React from 'react';
 import SubTitle from './SubTitle';
 
-const renderMeasurements = (data, handleMeasurementClick, asset) => {
-  console.log('renderMeasurements data', data, 'asset', asset);
-  const MeasurementsToRender = data.map(measurement => {
+const renderMeasurements = (handleMeasurementClick, measurements) => {
+  console.log('renderMeasurements asset', measurements);
+  const MeasurementsToRender = measurements.map(measurement => {
     // console.log('renderMeasurements', data, 'asset', asset);
     const measurementDiv = (
       <div
@@ -13,7 +13,6 @@ const renderMeasurements = (data, handleMeasurementClick, asset) => {
         onClick={handleMeasurementClick}
         value={measurement.name}
         key={measurement.id}
-        asset={asset}
       >
         {measurement.name}
       </div>
@@ -25,12 +24,10 @@ const renderMeasurements = (data, handleMeasurementClick, asset) => {
   return MeasurementsToRender;
 };
 
-const Measurements = ({
-  data, handleMeasurementClick, asset, readyToLoad
-}) => {
+const Measurements = ({ handleMeasurementClick, measurements }) => {
   // return null;
-  console.log('Measurements data', data, 'handleMeasurementClick', handleMeasurementClick);
-  if (!data || !data.length || data.length === 0) {
+  console.log('Measurements data', measurements, 'handleMeasurementClick', handleMeasurementClick);
+  if (!measurements || !measurements.length || measurements.length === 0) {
     return null;
   }
   /* console.log('Measurements readyToLoad', readyToLoad);
@@ -45,7 +42,7 @@ const Measurements = ({
   return (
     <div style={{ marginLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
       <SubTitle text="Measurements" />
-      <div>{renderMeasurements(data, handleMeasurementClick, asset)}</div>
+      <div>{renderMeasurements(handleMeasurementClick, measurements)}</div>
     </div>
   );
 };

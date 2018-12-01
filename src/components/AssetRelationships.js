@@ -4,28 +4,27 @@ import React from 'react';
 import SubTitle from './SubTitle';
 
 const renderAssetRelationships = (
-  data,
   handleSimulationRunAssetRequestClick,
   asset,
   relationshipType
 ) => {
   console.log(
     'renderAssetRelationShips data2',
-    data,
+    asset,
     'simulation_run_id',
-    data.simulation_run_id,
+    asset.simulation_run_id,
     'relationshipType',
     relationshipType
   );
-  const relationships = data[relationshipType];
+  const relationships = asset[relationshipType];
   console.log('renderAssetRelationShips list', relationships, 'asset', asset);
   const AssetRelationshipsToRender = relationships.map(relationship => {
     console.log(
       'renderAssetRelationShips list',
       relationship,
       'simulation_run_id',
-      data,
-      data.simulation_run_id
+      asset,
+      asset.simulation_run_id
     );
     let assetRelationshipsDiv = '';
     if (relationship.asset_id == null) {
@@ -36,7 +35,6 @@ const renderAssetRelationships = (
           value={relationship.assetId}
           key={relationship.id}
           asset={relationship}
-          simulation_run_id={data.simulation_run_id}
         >
           {relationship.name}
         </div>
@@ -49,8 +47,6 @@ const renderAssetRelationships = (
           onClick={handleSimulationRunAssetRequestClick}
           value={relationship.asset_id}
           key={relationship.id}
-          asset={relationship}
-          simulation_run_id={data.simulation_run_id}
         >
           {relationship.name}
         </div>
@@ -63,19 +59,17 @@ const renderAssetRelationships = (
   return AssetRelationshipsToRender;
 };
 
-const AssetRelationships = ({
-  data, handleSimulationRunAssetRequestClick, asset, readyToLoad
-}) => {
+const AssetRelationships = ({ handleSimulationRunAssetRequestClick, asset }) => {
   // return null;
   console.log(
     'AssetRelationships data1',
-    data,
+    asset,
     'handleAssetClick',
     handleSimulationRunAssetRequestClick,
     'data.length',
-    data
+    asset
   );
-  if (!data) {
+  if (!asset) {
     return null;
   }
   /* console.log('Measurements readyToLoad', readyToLoad);
@@ -99,18 +93,13 @@ const AssetRelationships = ({
       >
         <SubTitle text="Asset From Relationships" />
         <div style={{ textAlign: 'center' }}>
-          {renderAssetRelationships(
-            data,
-            handleSimulationRunAssetRequestClick,
-            asset,
-            'fromAssets'
-          )}
+          {renderAssetRelationships(handleSimulationRunAssetRequestClick, asset, 'fromAssets')}
         </div>
       </div>
       <div style={{ marginLeft: '10px', display: 'inline-block', textAlign: 'left' }}>
         <SubTitle text="Asset To Relationships" />
         <div style={{ textAlign: 'center' }}>
-          {renderAssetRelationships(data, handleSimulationRunAssetRequestClick, asset, 'toAssets')}
+          {renderAssetRelationships(handleSimulationRunAssetRequestClick, asset, 'toAssets')}
         </div>
       </div>
     </div>
