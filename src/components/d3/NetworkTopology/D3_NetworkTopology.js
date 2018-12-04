@@ -1,3 +1,8 @@
+// ///////////////////////////////////////////////////////////////////////////////////////
+// Note:  This file should be kept in sync with the plotNetwork.js in glm-plotter (accounting for slight differences in React vs. straight JS)
+// TODO: Move this React version into glm-plotter, centralize common code, and add a dependency to the React client.
+// /////////////////////////////////////////////////////////////////////////////////////
+
 // since d3 is not a top level export
 // For npm installed D3 V3
 import * as d3 from 'd3-v3';
@@ -30,14 +35,11 @@ function zoomFit(zoom, root, paddingPercent, transitionDuration) {
   const parent = root.node().parentElement;
   const fullWidth = parent.clientWidth;
 
-
   const fullHeight = parent.clientHeight;
   const width = bounds.width;
 
-
   const height = bounds.height;
   const midX = bounds.x + width / 2;
-
 
   const midY = bounds.y + height / 2;
   if (width == 0 || height == 0) return; // nothing to fit
@@ -204,7 +206,11 @@ D3_NetworkTopology.create = (el, data, configuration) => {
   });
   // });
 
-  setTimeout(() => {
+  if (configuration.nodeSelect) {
+    nodeSelect(configuration.nodeSelect);
+  }
+
+   setTimeout(() => {
     zoomFit(zoom, container, 0.95, 500);
   }, 4000);
 
@@ -301,19 +307,24 @@ function removePrefix() {
   d3.selectAll('text.nodeNm').text(d => d.name.replace(pre, ''));
 }
 
-function nodeSelect(targetNodeNm) {
-  console.log("nodeSearcher");
-  const nodes = d3.selectAll("g.node");
-  nodes.each(function(d) {
-    if (d.name === targetNodeNm) {
-      console.log("Found", d, d.name);
-      console.log("Selecting", d3.select(this));
-      d3.select(this).classed("highlight", true);
+function handleNodeSearch() {
+  console.log("handleNodeSearch");
+  nodeSelect(document.getElementById("nodeSearchNm").value);
+}
+
+function nodeSelect(targetNodeName) {
+  console.log('nodeSelect',targetNodeName);
+  const nodes = d3.selectAll('g.node');
+  nodes.each(function (d) {
+    if (d.name === targetNodeName) {
+      console.log('Found', d, d.name);
+      console.log('Selecting', d3.select(this));
+      d3.select(this).classed('highlight', true);
       // Highlight the node text too
       d3.select(this)
-        .selectAll("text")
-        .each(function() {
-          d3.select(this).classed("highlight", true);
+        .selectAll('text')
+        .each(function () {
+          d3.select(this).classed('highlight', true);
         });
     } else {
       nodeUnselectBySelection(d3.select(this));
@@ -321,19 +332,19 @@ function nodeSelect(targetNodeNm) {
   });
 }
 function nodeUnselectBySelection(unselectNodes) {
-  console.log("Unselecting", unselectNodes);
-  unselectNodes.classed("highlight", false);
-  unselectNodes.selectAll("text").each(function() {
-    d3.select(this).classed("highlight", false);
+  //console.log('Unselecting', unselectNodes);
+  unselectNodes.classed('highlight', false);
+  unselectNodes.selectAll('text').each(function () {
+    d3.select(this).classed('highlight', false);
   });
 }
-function nodeUnselectByName(name) {
-  d3.selectAll("g.node").each(function(d) {
+/* function nodeUnselectByName(name) {
+  d3.selectAll('g.node').each(function (d) {
     if (d.name === name) {
       nodeUnselectBySelection(d3.select(this));
     }
   });
-}
+} */
 function changeLinkDistance() {
   force.linkDistance(Number(document.getElementById('linkLengthVal').value));
 }
@@ -344,7 +355,7 @@ function changeCharge() {
   force.charge(Number(document.getElementById('chargeVal').value));
 }
 
-D3_NetworkTopology.update = (el, data, configuration, chart) => {
+D3_NetworkTopology.update = (el, data, configuration, chart, options) => {
   console.log('D3_NetworkTopology update');
   // d3 Code to update the chart
   console.log('update el', el);
@@ -355,7 +366,7 @@ D3_NetworkTopology.update = (el, data, configuration, chart) => {
     console.log('update chart', chart);
     chart.remove();
   }
-  return D3_NetworkTopology.create(el, data, configuration);
+  return D3_NetworkTopology.create(el, data, configuration, options);
 };
 
 D3_NetworkTopology.destroy = chart => {
@@ -363,5 +374,7 @@ D3_NetworkTopology.destroy = chart => {
   // Cleaning code here
   chart.remove();
 };
+
+D3_NetworkTopology.nodeSelect = nodeSelect;
 
 export default D3_NetworkTopology;

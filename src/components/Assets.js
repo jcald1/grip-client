@@ -5,9 +5,8 @@ From https://ant.design/components/table/ (Dynamic Settings example)
 */
 
 import React, { Component } from 'react';
-import Title from './Title';
-
 import { Table, Icon, Switch, Radio, Form, Divider } from 'antd';
+import Title from './Title';
 
 const FormItem = Form.Item;
 
@@ -85,10 +84,10 @@ class Assets extends Component {
       loading: false,
       pagination,
       size: 'default',
-      //expandedRowRender,
+      // expandedRowRender,
       title,
       showHeader,
-      //footer,
+      // footer,
       // rowSelection: {},
       scroll: { x: '155%' },
       hasData: true
@@ -144,11 +143,12 @@ class Assets extends Component {
     this.setState({
       pagination: value === 'none' ? false : { position: value }
     });
-  };
+  }
 
   stringSorter(a, b) {
-    let a2 = '',
-      b2 = '';
+    let a2 = '';
+
+    let b2 = '';
     if (a) {
       a2 = a;
     }
@@ -196,7 +196,7 @@ class Assets extends Component {
         title: 'Name',
         dataIndex: 'name',
         key: 'name',
-        //width: 200
+        // width: 200
         width: '12%',
         sorter: (a, b) => this.stringSorter(a.name, b.name)
       },
@@ -204,7 +204,7 @@ class Assets extends Component {
         title: 'Type',
         dataIndex: 'type',
         key: 'type',
-        //width: 80
+        // width: 80
         width: '14%',
         sorter: (a, b) => this.stringSorter(a.type, b.type),
         defaultSortOrder: 'ascend',
@@ -265,7 +265,7 @@ class Assets extends Component {
         title: 'Substation',
         dataIndex: 'substation',
         key: 'substation',
-        //width: 150
+        // width: 150
         width: '16%',
         sorter: (a, b) => this.stringSorter(a.substation, b.substation)
         // TODO: Add Filtering by Substation
@@ -342,17 +342,20 @@ class Assets extends Component {
         </div> */}
         <Table
           size="small"
-          onRow={record => {
-            return {
-              onClick: e => {
-                this.props.handleAssetClick(e);
-              } // click row
-              //onMouseEnter: () => {},  // mouse enter row
-            };
-          }}
-          {...this.state}
-          columns={columns}
-          dataSource={this.state.hasData ? getAssets(data) : null}
+          onRow={record => ({
+            onMouseEnter: e => {
+              this.props.handleAssetRowMouseEnter(record);
+            },
+            onMouseOut: e => {
+              this.props.handleAssetRowMouseOut(record);
+            },
+            onClick: e => {
+              this.props.handleAssetClick(e);
+            } // click row
+          })}
+        {...this.state}
+        columns={columns}
+        dataSource={this.state.hasData ? getAssets(data) : null}
         />
       </div>
     );

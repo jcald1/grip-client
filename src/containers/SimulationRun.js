@@ -34,7 +34,7 @@ class SimulationRun extends Component {
       networkTopologyData: {},
       gettingSimulationRun: true,
       selectNode: null,
-      unselectNode: null
+      //unselectNode: null
     };
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
@@ -43,6 +43,9 @@ class SimulationRun extends Component {
     this.mapResponseToBarChartData = this.mapResponseToBarChartData.bind(this);
     this.getAssetMeasurement = this.getAssetMeasurement.bind(this);
     this.navigateToAsset = this.navigateToAsset.bind(this);
+    this.handleAssetHoverOver = this.handleAssetHoverOver.bind(this);
+    this.handleAssetRowMouseEnter = this.handleAssetRowMouseEnter.bind(this);
+    this.handleAssetRowMouseOut = this.handleAssetRowMouseOut.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -202,6 +205,10 @@ class SimulationRun extends Component {
     this.navigateToAsset(assetDetailPageAssetId);
   }
 
+  handleAssetHoverOver(record) {
+    console.log('SimulationRun', 'handleAssetClick', 'record', record);
+  }
+
   navigateToAsset(assetDetailPageAssetId) {
     const selectedAssetDetailId = parseInt(assetDetailPageAssetId, 10);
     console.log('*** assetDetailPageAsset', selectedAssetDetailId, '');
@@ -358,11 +365,17 @@ class SimulationRun extends Component {
         data={this.filterAssetsTable(this.state.allRunAssets)}
         handleAssetClick={this.handleAssetClick}
         assetsList={FILTERED_ASSETS}
+        handleAssetRowMouseEnter={this.handleAssetRowMouseEnter}
+        handleAssetRowMouseOut={this.handleAssetRowMouseOut}
       />
     );
   }
 
   renderNetworkTopologyGraph() {
+    const configuration = {
+      nodeSelect: this.state.selectNode,
+      //nodeUnselect: this.state.unselectNode
+    };
     return (
       <div>
         <NetworkTopology
@@ -370,8 +383,7 @@ class SimulationRun extends Component {
           // handleError={this.renderErrorMessage}
           commonProps={this.props.commonProps}
           data={this.state.networkTopologyData}
-          selectNode={this.state.selectNode}
-          unselectNode={this.state.unselectNode}
+          configuration={configuration}
         />
       </div>
     );
@@ -385,13 +397,13 @@ class SimulationRun extends Component {
   }
 
   handleAssetRowMouseEnter(record) {
-    console.log(handleAssetRowMouseEnter, 'record', record);
+    console.log('handleAssetRowMouseEnter', 'record', record);
     this.setState({ selectNode: record.name });
   }
 
-  handleAssetRowMouseExit(record) {
-    console.log(handleAssetRowMouseExit, 'record', record);
-    this.setState({ unselectNode: record.name });
+  handleAssetRowMouseOut(record) {
+    console.log('handleAssetRowMouseOut', 'record', record);
+    //this.setState({ unselectNode: record.name });
   }
 
   render() {
