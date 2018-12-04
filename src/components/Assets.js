@@ -101,45 +101,45 @@ class Assets extends Component {
     }
   }
 
-  handleToggle = prop => {
+  handleToggle(prop) {
     return enable => {
       this.setState({ [prop]: enable });
     };
-  };
+  }
 
-  handleSizeChange = e => {
+  handleSizeChange(e) {
     this.setState({ size: e.target.value });
-  };
+  }
 
-  handleExpandChange = enable => {
+  handleExpandChange(enable) {
     this.setState({ expandedRowRender: enable ? expandedRowRender : undefined });
-  };
+  }
 
-  handleTitleChange = enable => {
+  handleTitleChange(enable) {
     this.setState({ title: enable ? title : undefined });
-  };
+  }
 
-  handleHeaderChange = enable => {
+  handleHeaderChange(enable) {
     this.setState({ showHeader: enable ? showHeader : false });
-  };
+  }
 
-  handleFooterChange = enable => {
+  handleFooterChange(enable) {
     this.setState({ footer: enable ? footer : undefined });
-  };
+  }
 
-  handleRowSelectionChange = enable => {
+  handleRowSelectionChange(enable) {
     this.setState({ rowSelection: enable ? {} : undefined });
-  };
+  }
 
-  handleScollChange = enable => {
+  handleScollChange(enable) {
     this.setState({ scroll: enable ? scroll : undefined });
-  };
+  }
 
-  handleDataChange = hasData => {
+  handleDataChange(hasData) {
     this.setState({ hasData });
-  };
+  }
 
-  handlePaginationChange = e => {
+  handlePaginationChange(e) {
     const { value } = e.target;
     this.setState({
       pagination: value === 'none' ? false : { position: value }

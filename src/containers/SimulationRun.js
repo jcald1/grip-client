@@ -4,7 +4,9 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
 import moment from 'moment';
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import {
+  LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend
+} from 'recharts';
 import BarChart from '../components/d3/BarChart/BarChart';
 import './App.css';
 import Layout from '../components/Layout';
@@ -30,7 +32,9 @@ class SimulationRun extends Component {
       allRunAssets: null,
       runResultsData: [],
       networkTopologyData: {},
-      gettingSimulationRun: true
+      gettingSimulationRun: true,
+      selectNode: null,
+      unselectNode: null
     };
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
@@ -105,13 +109,11 @@ class SimulationRun extends Component {
         this.setState({ currentAsset, allRunAssets, selectedAssetDetailId });
         return null;
       })
-      .then(() =>
-        simulationRuns.getSimulationRunResults({
-          baseUrl: this.props.commonProps.apiPath,
-          apiVersion: DEFAULT_API_VERSION,
-          simulationRunId
-        })
-      )
+      .then(() => simulationRuns.getSimulationRunResults({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION,
+        simulationRunId
+      }))
       // TODO: This may belong in the API container
       .then(runResultsData => {
         console.log(
@@ -142,12 +144,10 @@ class SimulationRun extends Component {
         });
         return chartData;
       })
-      .then(() =>
-        networkTopology.getNetworkTopology({
-          baseUrl: this.props.commonProps.topologyApiPath,
-          apiVersion: DEFAULT_API_VERSION
-        })
-      )
+      .then(() => networkTopology.getNetworkTopology({
+        baseUrl: this.props.commonProps.topologyApiPath,
+        apiVersion: DEFAULT_API_VERSION
+      }))
       .then(topologyData => {
         console.log('Topology network data', topologyData);
         if (!topologyData) {
@@ -281,7 +281,9 @@ class SimulationRun extends Component {
     return charts;
   }
 
-  renderLineChart({ data, lines, domain, renderXaxis }) {
+  renderLineChart({
+    data, lines, domain, renderXaxis
+  }) {
     if (!data || !data.length || data.length === 0) {
       return null;
     }
@@ -368,6 +370,8 @@ class SimulationRun extends Component {
           // handleError={this.renderErrorMessage}
           commonProps={this.props.commonProps}
           data={this.state.networkTopologyData}
+          selectNode={this.state.selectNode}
+          unselectNode={this.state.unselectNode}
         />
       </div>
     );
@@ -378,6 +382,16 @@ class SimulationRun extends Component {
     const windSpeedData = this.mapResponseToBarChartData(data, assetMeasurements);
     console.log('getWindData', 'returning windSpeedData', windSpeedData);
     return windSpeedData;
+  }
+
+  handleAssetRowMouseEnter(record) {
+    console.log(handleAssetRowMouseEnter, 'record', record);
+    this.setState({ selectNode: record.name });
+  }
+
+  handleAssetRowMouseExit(record) {
+    console.log(handleAssetRowMouseExit, 'record', record);
+    this.setState({ unselectNode: record.name });
   }
 
   render() {

@@ -66,7 +66,22 @@ class NetworkTopology extends Component {
     this.d3_NetworkTopologyContainerRef = element;
   }
 
+  selectNode(name) {
+    this.d3_NetworkTopology.nodeSelect(name);
+  }
+
+  unselectNode(name) {
+    this.d3_NetworkTopology.nodeUnselectByName(name);
+  }
+
   render() {
+    if (this.props.selectNode) {
+      this.selectNode(this.props.selectNode);
+    }
+    if (this.props.unselectNode) {
+      this.selectNode(this.props.unselectNode);
+    }
+
     console.log('NetworkTopology render');
     return <div className="d3-container" ref={this.setNetworkTopologyContainerRef.bind(this)} />;
   }

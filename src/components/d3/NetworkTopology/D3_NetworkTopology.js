@@ -301,14 +301,36 @@ function removePrefix() {
   d3.selectAll('text.nodeNm').text(d => d.name.replace(pre, ''));
 }
 
-function nodeSearcher() {
-  const targetNodeNm = document.getElementById('nodeSearchNm').value;
-  d3.selectAll('g.node').each(function (d) {
-    const a = 1;
-    if (d.name.indexOf(targetNodeNm) > -1) {
-      d3.select(this).classed('highlight', (d.highlight = true));
+function nodeSelect(targetNodeNm) {
+  console.log("nodeSearcher");
+  const nodes = d3.selectAll("g.node");
+  nodes.each(function(d) {
+    if (d.name === targetNodeNm) {
+      console.log("Found", d, d.name);
+      console.log("Selecting", d3.select(this));
+      d3.select(this).classed("highlight", true);
+      // Highlight the node text too
+      d3.select(this)
+        .selectAll("text")
+        .each(function() {
+          d3.select(this).classed("highlight", true);
+        });
     } else {
-      d3.select(this).classed('highlight', (d.highlight = false));
+      nodeUnselectBySelection(d3.select(this));
+    }
+  });
+}
+function nodeUnselectBySelection(unselectNodes) {
+  console.log("Unselecting", unselectNodes);
+  unselectNodes.classed("highlight", false);
+  unselectNodes.selectAll("text").each(function() {
+    d3.select(this).classed("highlight", false);
+  });
+}
+function nodeUnselectByName(name) {
+  d3.selectAll("g.node").each(function(d) {
+    if (d.name === name) {
+      nodeUnselectBySelection(d3.select(this));
     }
   });
 }
