@@ -115,6 +115,9 @@ circle.meter {
 .link:hover line {
   stroke: #000000;
 }
+.link line.highlight {
+  stroke: #000000;
+}
 .link:hover text {
   display: inline;
 }
