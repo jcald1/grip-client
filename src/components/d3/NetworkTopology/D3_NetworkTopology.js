@@ -164,7 +164,7 @@ D3_NetworkTopology.create = (el, data, configuration) => {
   const lineLabel = link
     .append('g')
     .append('text')
-    .text(d => d.linkType);
+    .text(d => `${d.name}: ${d.linkType}`);
   const nodeg = node
     .append('g')
     .append('text')
@@ -312,9 +312,12 @@ function handleNodeSearch() {
   nodeSelect(document.getElementById("nodeSearchNm").value);
 }
 
-function nodeSelect(targetNodeName) {
+function nodeSelect(targetNodeName, selection) {
   console.log('nodeSelect',targetNodeName);
-  const nodes = d3.selectAll('g.node');
+  if (!selection) {
+    selection = 'g.node,g.link';
+  }
+  const nodes = d3.selectAll(selection);
   nodes.each(function (d) {
     if (d.name === targetNodeName) {
       console.log('Found', d, d.name);
@@ -322,7 +325,7 @@ function nodeSelect(targetNodeName) {
       d3.select(this).classed('highlight', true);
       // Highlight the node text too
       d3.select(this)
-        .selectAll('text')
+        .selectAll("text,line")
         .each(function () {
           d3.select(this).classed('highlight', true);
         });
@@ -334,7 +337,7 @@ function nodeSelect(targetNodeName) {
 function nodeUnselectBySelection(unselectNodes) {
   //console.log('Unselecting', unselectNodes);
   unselectNodes.classed('highlight', false);
-  unselectNodes.selectAll('text').each(function () {
+  unselectNodes.selectAll('text,line').each(function () {
     d3.select(this).classed('highlight', false);
   });
 }
