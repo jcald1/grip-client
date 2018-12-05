@@ -60,7 +60,8 @@ const getSimulationRunAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
 };
 
 // TODO: Add Simulation Version
-// TODO: This is returning the BQ data but we may need to also return the PostgreS data by adding it to the API
+// TODO: This is returning the BQ data but we may need to also return the
+// PostgreS data by adding it to the API
 const getSimulationRunResults = ({ baseUrl, apiVersion, simulationRunId }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/results`;
 
@@ -71,6 +72,38 @@ const getSimulationRunResults = ({ baseUrl, apiVersion, simulationRunId }) => {
     .get(urlPath)
     .then(res => {
       console.log('GET Simulation Run Response', res);
+      if (res.status !== 200) {
+        const err = new Error('Error retrieving simulation runs');
+        err.response = res;
+        throw err;
+      }
+
+      return res.data;
+    })
+    .catch(err => {
+      console.error(err);
+      if (err.response && err.response.data && err.response.data.message) {
+        err = new verror.VError(err, err.response.data.message);
+      }
+      console.log(`Rejecting GET getSimulationRunResults: ${context}`);
+      return Promise.reject(new verror.VError(err, context));
+    });
+};
+
+const getSimulationRunVulnerabilityAggByTimeStepResults = ({
+  baseUrl,
+  apiVersion,
+  simulationRunId
+}) => {
+  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/results/max_vulnerability_by_timestep`;
+
+  const context = `GET Simulation Run API Call: ${urlPath}`;
+  console.log(context);
+
+  return axios
+    .get(urlPath)
+    .then(res => {
+      console.log('GET Simulation getSimulationRunVulnerabilityAggByTimeStepResults', res);
       if (res.status !== 200) {
         const err = new Error('Error retrieving simulation runs');
         err.response = res;
@@ -148,5 +181,6 @@ export default {
   postSimulationRunSubmission,
   getSimulationRuns,
   getSimulationRunAsset,
-  getSimulationRunAssets
+  getSimulationRunAssets,
+  getSimulationRunVulnerabilityAggByTimeStepResults
 };

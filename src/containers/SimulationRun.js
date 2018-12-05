@@ -7,7 +7,6 @@ import moment from 'moment';
 import {
   LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend
 } from 'recharts';
-import BarChart from '../components/d3/BarChart/BarChart';
 import './App.css';
 import Layout from '../components/Layout';
 import Asset from './Asset';
@@ -20,6 +19,8 @@ import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
 const FILTERED_ASSETS = ['meter', 'overhead_line', 'pole'];
+const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
+const VULNERABILITY_MEASUREMENT = 'vulnerability';
 
 class SimulationRun extends Component {
   constructor(props) {
@@ -34,7 +35,8 @@ class SimulationRun extends Component {
       networkTopologyData: {},
       gettingSimulationRun: true,
       selectNode: null,
-      //unselectNode: null
+      chartVulrunAggResultsResponseDatanerabilityAggData: [],
+      chartData: [],
     };
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
@@ -130,22 +132,19 @@ class SimulationRun extends Component {
         const measurement = currentAsset.recordings[0].name;
         console.log('populateSimulationRun measurement', measurement);
         const assetMeasurement = this.getAssetMeasurement(currentAsset, measurement);
-        const chartData = this.mapResponseToBarChartData(runResultsData, assetMeasurement);
-        return { chartData, runResultsData };
+        return { runResultsData };
       })
-      .then(({ chartData, runResultsData }) => {
+      .then(({ runResultsData }) => {
         console.log(
           'Get Simulation Run Results data',
-          chartData,
           'simulationRunId',
           simulationRunId
         );
         this.setState({
-          chartData,
           runResultsData,
           simulationRunId
         });
-        return chartData;
+        return runResultsData;
       })
       .then(() => networkTopology.getNetworkTopology({
         baseUrl: this.props.commonProps.topologyApiPath,
@@ -160,6 +159,28 @@ class SimulationRun extends Component {
         this.setState({ networkTopologyData: topologyData });
         return null;
       })
+   .then(() => simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION,
+        simulationRunId
+      }))
+      // TODO: This may belong in the API container
+      .then(runAggResultsResponseData => {
+        console.log(
+          'SimulationRun getSimulationRunVulnerabilityAggByTimeStepResults ',
+          runAggResultsResponseData
+        );
+        if (!runAggResultsResponseData) {
+          return Promise.reject(new Error('No data received from the API.'));
+        }
+        const chartData = this.mapResultsAndVulnerabilityToChartData(
+          this.state.runResultsData,
+          runAggResultsResponseData
+        );
+        this.setState({
+          chartData
+        });
+      })
       .catch(err => {
         console.error(err);
         console.log('Error', err);
@@ -171,21 +192,6 @@ class SimulationRun extends Component {
       .finally(() => {
         this.setState({ getingSimulationRun: false });
       });
-  }
-
-  getBarChart(commonProps, chartData, assetMeasurement) {
-    console.log('SimulationRun getBarChart data', chartData, 'assetMeasurement', assetMeasurement);
-    return (
-      <div>
-        <BarChart
-          style={{ marginTop: '20px' }}
-          // handleError={this.renderErrorMessage}
-          commonProps={commonProps}
-          data={chartData}
-          yValue={assetMeasurement}
-        />
-      </div>
-    );
   }
 
   getAssetMeasurement(asset, measurement) {
@@ -277,6 +283,30 @@ class SimulationRun extends Component {
     return mappedData;
   }
 
+  // This might could be done on the server but not sure
+  // we might be coupling what the line chart woudl need with
+  // what the API on the server is for. 
+  mapResultsAndVulnerabilityToChartData(data, aggResultsValues) {
+    console.log('App data', data, 'aggResultsValues', aggResultsValues);
+    const mappedData = data.map(row => {
+      const newRow = {
+        ...row,
+        timestamp: moment(row.timestamp).format('MM-DD-YY HH:mm')
+      };
+      if (aggResultsValues) {
+        let vulnDataforTimestep = aggResultsValues.find(o => o.timestamp === row.timestamp);
+        console.log('vuln timestamp', row.timestamp);
+        if (vulnDataforTimestep) {
+          newRow[VULNERABILITY_MEASUREMENT] = vulnDataforTimestep.pole_stress;
+          newRow[VULNERABILITY_MEASUREMENT + '_recording'] = vulnDataforTimestep.recording;    
+        } 
+      }
+      return newRow;
+    });
+
+    return mappedData;
+  }
+
   renderCharts(chartData) {
     console.log('SimulationRun renderCharts', 'data', chartData, 'this.props', this.props);
     const charts = [];
@@ -332,15 +362,15 @@ class SimulationRun extends Component {
           <YAxis
             domain={domain}
             yAxisId="left"
-            label={{ value: 'Pole Stress', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'Highest Vulnerability', angle: -90, position: 'insideLeft' }}
           />
           <YAxis
             yAxisId="right"
             orientation="right"
             label={{
-              value: 'Wind Sepped - meters/sec',
+              value: 'Vulnerability Index',
               angle: -90,
-              position: 'outsideRight',
+              position: 'outside',
               dx: 10
             }}
           />
@@ -424,6 +454,28 @@ class SimulationRun extends Component {
       this.state.currentAsset.recordings[0] &&
       this.state.currentAsset.recordings[0].name;
 
+    const assetMeasurement = this.getAssetMeasurement(
+      this.state.currentAsset,
+      defaultMeasurement
+    );
+
+    console.log('combinedData' );      
+
+
+    const linesToAdd = ([
+      {
+        assetMeasurement,
+        stroke: '#8884d8',
+        strokeWidth: 3,
+        yAxisId: 'left'
+      },
+      {
+        yAxisId: 'right',
+        assetMeasurement: VULNERABILITY_MEASUREMENT,
+        stroke: '#008000'
+      },
+    ]);
+
     const mainItems = (
       <div>
         <Title
@@ -431,7 +483,14 @@ class SimulationRun extends Component {
             this.state.currentAsset.properties.class
           }) - ${defaultMeasurement}`}
         />
-        <div>{this.renderCharts(chartData)}</div>
+        <div>{this.renderLineChart({
+          // data: renderPoleData,
+          data: chartData,
+          lines: linesToAdd,
+          // TODO: In the API, calculate the max values for each asset, 
+          // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
+          domain: DEFAULT_YAXIS_DOMAIN
+        })}</div>
         <div
           style={{
             marginTop: '30px',
