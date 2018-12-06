@@ -426,13 +426,13 @@ class SimulationRun extends Component {
           <YAxis
             domain={domain}
             yAxisId="left"
-            label={{ value: 'Measured Real Power - W', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'Peak Vulnerability', angle: -90, position: 'insideLeft' }}
           />
           <YAxis
             yAxisId="right"
             orientation="right"
             label={{
-              value: 'Peak Vulnerability',
+              value: 'Measured Real Power - W',
               angle: -90,
               position: 'outside',
               dx: 10
@@ -523,19 +523,19 @@ class SimulationRun extends Component {
       defaultMeasurement
     );
 
-    console.log('combinedData' );      
+    console.log('combinedData');      
 
 
     const linesToAdd = ([
       {
-        assetMeasurement,
+        assetMeasurement: VULNERABILITY_MEASUREMENT,
         stroke: '#8884d8',
         strokeWidth: 3,
         yAxisId: 'left'
       },
       {
         yAxisId: 'right',
-        assetMeasurement: VULNERABILITY_MEASUREMENT,
+        assetMeasurement,
         stroke: '#008000'
       },
     ]);
