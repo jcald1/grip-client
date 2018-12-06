@@ -227,13 +227,13 @@ class Asset extends Component {
       {
         yAxisId: 'right',
         assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
-        stroke: 'red'
+        stroke: '#008000'
       },
       {
         yAxisId: 'right',
         assetMeasurement: criticalWindSpeedAssetMeasurement,
         //stroke: 'darkorange',
-        stroke: 'red',
+        stroke: '#008000',
         strokeDasharray: '5 5'
       }
     ]);
@@ -247,7 +247,7 @@ class Asset extends Component {
             text="Pole Failure and Fault when Pole Stress >= 1"
           />
           <div
-            style={{ color: 'red', fontWeight: 'normal' }} >
+            style={{ color: '#008000', fontWeight: 'normal' }} >
             Forecasted Pole Failure when Wind Speed >= Critical Wind Speed
           </div>
         </div>
