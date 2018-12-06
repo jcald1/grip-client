@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
 import moment from 'moment';
 import {
-  LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend
+  LineChart, ComposedChart, Bar, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend
 } from 'recharts';
 import './App.css';
 import Layout from '../components/Layout';
@@ -391,24 +391,44 @@ class SimulationRun extends Component {
 
     console.log('renderLineChart', 'data', data, 'lines', lines);
 
-    const linesToRender = lines.map(line => (
-      <Line
-        key={line.assetMeasurement}
-        type="monotone"
-        dataKey={line.assetMeasurement}
-        stroke={line.stroke}
-        strokeDasharray={line.strokeDasharray}
-        strokeWidth={line.strokeWidth}
-        yAxisId={line.yAxisId}
-      />
-    ));
+    const linesToRender = lines.map(line => {
+      let lineToAdd = null;
+      if (line.type === 'Line') {
+        lineToAdd =
+        (
+          <Line
+            key={line.assetMeasurement}
+            type="monotone"
+            dataKey={line.assetMeasurement}
+            stroke={line.stroke}
+            strokeDasharray={line.strokeDasharray}
+            strokeWidth={line.strokeWidth}
+            yAxisId={line.yAxisId}
+          />
+        );
+      } else {
+        lineToAdd =
+        (
+          <Bar
+            key={line.assetMeasurement}
+            type="monotone"
+            dataKey={line.assetMeasurement}
+            fill={line.fill}
+            barSize={line.barSize}
+            fillOpacity={line.fillOpacity}
+            yAxisId={line.yAxisId}
+          />
+        );
+      }
+      return lineToAdd;
+    });
     // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
     const bottomMargin = 100;
 
     console.log('***bottomMargin', bottomMargin);
     return (
       <div>
-        <LineChart
+        <ComposedChart
           style={{ margin: '0 auto' }}
           margin={{
             top: 5,
@@ -416,7 +436,7 @@ class SimulationRun extends Component {
             bottom: bottomMargin,
             left: 40
           }}
-          width={1500}
+          width={1300}
           height={650}
           data={data}
         >
@@ -435,12 +455,12 @@ class SimulationRun extends Component {
               value: 'Measured Real Power - W',
               angle: -90,
               position: 'outside',
-              dx: 10
+              dx: 30
             }}
           />
           <Legend verticalAlign="top" height={36} />
           <Tooltip />
-        </LineChart>
+        </ComposedChart>
       </div>
     );
   }
@@ -528,15 +548,19 @@ class SimulationRun extends Component {
 
     const linesToAdd = ([
       {
-        assetMeasurement: VULNERABILITY_MEASUREMENT,
-        stroke: '#8884d8',
-        strokeWidth: 3,
-        yAxisId: 'left'
-      },
-      {
         yAxisId: 'right',
         assetMeasurement,
-        stroke: '#008000'
+        fill: '#4682b4',
+        barSize: '20',
+        type: 'Bar',
+        fillOpacity: '.7'
+      },
+      {
+        assetMeasurement: VULNERABILITY_MEASUREMENT,
+        stroke: '#008000',
+        strokeWidth: 3,
+        yAxisId: 'left',
+        type: 'Line'
       },
     ]);
 
