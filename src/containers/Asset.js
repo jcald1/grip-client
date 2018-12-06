@@ -227,26 +227,27 @@ class Asset extends Component {
       {
         yAxisId: 'right',
         assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
-        stroke: '#008000'
+        stroke: 'red'
       },
       {
         yAxisId: 'right',
         assetMeasurement: criticalWindSpeedAssetMeasurement,
-        stroke: 'darkorange',
+        //stroke: 'darkorange',
+        stroke: 'red',
         strokeDasharray: '5 5'
       }
     ]);
     if (this.state.asset.properties.class === 'pole') {
-      console.log('a pole!!!!!!!!!!!!');
       title = `Pole Vulnerability - ${title}`;
       poleVulnerabilitySubTitle = (
         <div>
           <SubTitle
-            style={{ color: 'red'}}
+            style={{ color: '#8884d8'}}
+            //style={{ color: 'blue'}}
             text="Pole Failure and Fault when Pole Stress >= 1"
           />
           <div
-            style={{ color: 'darkorange', fontWeight: 'normal' }} >
+            style={{ color: 'red', fontWeight: 'normal' }} >
             Forecasted Pole Failure when Wind Speed >= Critical Wind Speed
           </div>
         </div>
@@ -262,7 +263,7 @@ class Asset extends Component {
       criticalPoleStressLine = {
         yAxisId: 'left',
         assetMeasurement: 'critical_pole_stress',
-        stroke: 'red',
+        stroke: '#8884d8',
         strokeDasharray: '5 5',
         strokeWidth: 3
       };
@@ -304,7 +305,7 @@ class Asset extends Component {
                   {
                     yAxisId: 'right',
                     assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
-                    stroke: '#008000'
+                    stroke: '#8884d8'
                   },
                   {
                     yAxisId: 'right',
