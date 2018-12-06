@@ -285,7 +285,7 @@ class SimulationRun extends Component {
 
   // This might could be done on the server but not sure
   // we might be coupling what the line chart woudl need with
-  // what the API on the server is for. 
+  // what the API on the server is for.
   mapResultsAndVulnerabilityToChartData(data, aggResultsValues) {
     console.log('App data', data, 'aggResultsValues', aggResultsValues);
     const mappedData = data.map(row => {
@@ -362,13 +362,77 @@ class SimulationRun extends Component {
           <YAxis
             domain={domain}
             yAxisId="left"
-            label={{ value: 'Highest Vulnerability', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'Peak Vulnerability ', angle: -90, position: 'insideLeft' }}
           />
           <YAxis
             yAxisId="right"
             orientation="right"
             label={{
-              value: 'Vulnerability Index',
+              value: 'Wind Speed - meters/sec',
+              angle: -90,
+              position: 'outside',
+              dx: 10
+            }}
+          />
+          <Legend verticalAlign="top" height={36} />
+          <Tooltip />
+        </LineChart>
+      </div>
+    );
+  }
+
+
+  renderLineChartSimulationRun({
+    data, lines, domain, renderXaxis
+  }) {
+    if (!data || !data.length || data.length === 0) {
+      return null;
+    }
+
+    console.log('renderLineChart', 'data', data, 'lines', lines);
+
+    const linesToRender = lines.map(line => (
+      <Line
+        key={line.assetMeasurement}
+        type="monotone"
+        dataKey={line.assetMeasurement}
+        stroke={line.stroke}
+        strokeDasharray={line.strokeDasharray}
+        strokeWidth={line.strokeWidth}
+        yAxisId={line.yAxisId}
+      />
+    ));
+    // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
+    const bottomMargin = 100;
+
+    console.log('***bottomMargin', bottomMargin);
+    return (
+      <div>
+        <LineChart
+          style={{ margin: '0 auto' }}
+          margin={{
+            top: 5,
+            right: 60,
+            bottom: bottomMargin,
+            left: 40
+          }}
+          width={1500}
+          height={650}
+          data={data}
+        >
+          {linesToRender}
+          <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+          <XAxis interval={0} tick={{ dy: 40 }} angle={-65} dataKey="timestamp" />
+          <YAxis
+            domain={domain}
+            yAxisId="left"
+            label={{ value: 'Measured Real Power - W', angle: -90, position: 'insideLeft' }}
+          />
+          <YAxis
+            yAxisId="right"
+            orientation="right"
+            label={{
+              value: 'Peak Vulnerability',
               angle: -90,
               position: 'outside',
               dx: 10
@@ -483,7 +547,7 @@ class SimulationRun extends Component {
             this.state.currentAsset.properties.class
           }) - ${defaultMeasurement}`}
         />
-        <div>{this.renderLineChart({
+        <div>{this.renderLineChartSimulationRun({
           // data: renderPoleData,
           data: chartData,
           lines: linesToAdd,
