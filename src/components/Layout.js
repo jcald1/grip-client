@@ -2,19 +2,20 @@ import React, { Component } from 'react';
 import './Layout.css';
 import Button from 'antd/lib/button';
 import { withRouter } from 'react-router-dom';
+import '../containers/App.css';
 
 class Layout extends Component {
   constructor(props) {
     super(props);
 
-    this.onHomeClick = this.onHomeClick.bind(this);
+    this.handleButtonClick = this.handleButtonClick.bind(this);
   }
 
-  onHomeClick(e) {
-    // console.log('goHome e.currentTarget.history', e.currentTarget.history);
+  handleButtonClick(e) {
+    console.log('e.currentTarget.getAttribute...', e.currentTarget.getAttribute('path'));
     const { history } = this.props;
     history.push({
-      pathname: '/'
+      pathname: e.currentTarget.getAttribute('path')
     });
   }
 
@@ -37,10 +38,20 @@ class Layout extends Component {
           <Button
             style={{ display: 'block' }}
             type="primary"
-            onClick={this.onHomeClick}
+            onClick={this.handleButtonClick}
             history={history}
+            path="/"
           >
             Home
+          </Button>
+          <Button className="nav-button"
+            style={{ display: 'block' }}
+            type="primary"
+            onClick={this.handleButtonClick}
+            history={history}
+            path="/admin"
+          >
+            Admin
           </Button>
 
           {leftNavItems}

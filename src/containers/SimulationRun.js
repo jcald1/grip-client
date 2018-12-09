@@ -147,7 +147,7 @@ class SimulationRun extends Component {
         return runResultsData;
       })
       .then(() => networkTopology.getNetworkTopology({
-        baseUrl: this.props.commonProps.topologyApiPath,
+        baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION
       }))
       .then(topologyData => {

@@ -14,6 +14,7 @@ import SimulationRunRequests from './SimulationRunRequests';
 import SimulationRun from './SimulationRun';
 import _ from 'lodash';
 import Layout from '../components/Layout';
+import Admin from './Admin';
 import { Redirect } from 'react-router-dom';
 import './App.css';
 
@@ -69,7 +70,6 @@ class App extends Component {
 
     this.commonProps = {
       apiPath: process.env.REACT_APP_API_PATH,
-      topologyApiPath: process.env.REACT_APP_TOPOLOGY_API_PATH,
       handleError: this.handleError,
       shallowEquals
     };
@@ -98,7 +98,7 @@ class App extends Component {
   }
 
   handleSimulationRunRequestClick(e) {
-    console.log('App handleSimulationRunRequestClick','e.currentTarget',e.currentTarget);
+    console.log('App handleSimulationRunRequestClick', 'e.currentTarget', e.currentTarget);
 
     const simulationRunId = e.currentTarget.getAttribute('data-row-key');
     this.navigateToSimulationRun(simulationRunId);
@@ -228,7 +228,8 @@ class App extends Component {
     const simulationRunRequestsLeftNavItems = [
       <div key="left-nav-1">
         <Button
-          style={{ height: '55px', marginTop: '10px', display: 'block' }}
+          className="nav-button"
+          style={{ height: '55px', display: 'block' }}
           type="primary"
           onClick={this.handleRunSimulationClick}
         >
@@ -236,8 +237,8 @@ class App extends Component {
           <br />
           Simulation
         </Button>
-        <Button
-          style={{ height: '82px', marginTop: '10px', display: 'block' }}
+        <Button className="nav-button"
+          style={{ height: '82px', display: 'block' }}
           type="primary"
           onClick={this.handleGetSimulationRunsClick}
         >
@@ -278,6 +279,14 @@ class App extends Component {
           render={props => (
             <div>
               <SimulationRun commonProps={this.commonProps} />
+            </div>
+          )}
+        />
+        <Route
+          path="/admin"
+          render={props => (
+            <div>
+              <Admin commonProps={this.commonProps} />
             </div>
           )}
         />

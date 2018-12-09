@@ -14,7 +14,7 @@ const renderAssetProperties = asset => {
       console.log('renderAssetProperties list', property, 'asset', asset);
       const AssetPropertiesDiv = (
         <div style={{ display: 'block' }}>
-          {property} - {properties[property]}
+          {property}: {properties[property]}
         </div>
       );
 

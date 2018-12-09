@@ -22,6 +22,13 @@ import './style.css';
 
 // JAC - jdechalendar@stanford.edu
 
+const OPTIONS = {
+  lineDisplayText: {
+    name: true,
+    linkType: false
+  }
+};
+
 const D3_NetworkTopology = {};
 
 // const width = 960;
@@ -162,14 +169,34 @@ D3_NetworkTopology.create = (el, data, configuration) => {
 
   // add labels at end so they are on top
   const lineLabel = link
-    .append('g')
     .append('text')
-    .text(d => `${d.name}: ${d.linkType}`);
+    .text(function (d) {
+      const txt = [];
+      if (OPTIONS.lineDisplayText.name) {
+        txt.push(d.name);
+      }
+      if (OPTIONS.lineDisplayText.linkType) {
+        txt.push(d.linkType);
+      }
+      return txt.join(': ');
+    })
+    .attr('class', 'nodeNm');
+  // Need to add x and y to line to get this to display properly
+  /*  var lineg = link
+    .append("g")
+    .append("text")
+    .style("font-size", 16)
+    .text(function(d) {
+      if (d.linkType) {
+        return d.linkType;
+      }
+    }); */
+
   const nodeg = node
     .append('g')
     .append('text')
     .style('font-size', 16)
-    .text(d => {
+    .text(function (d) {
       if (d.child) {
         return `${d.classNm}:${d.child}`;
       }
@@ -203,6 +230,13 @@ D3_NetworkTopology.create = (el, data, configuration) => {
     circle.attr('cx', d => d.x).attr('cy', d => d.y);
     label.attr('x', d => d.x + 8).attr('y', d => d.y);
     nodeg.attr('x', d => d.x + 8).attr('y', d => d.y + 20);
+    /*     lineg
+      .attr("x", function(d) {
+        return d.x + 8;
+      })
+      .attr("y", function(d) {
+        return d.y + 20;
+      }); */
   });
   // });
 
@@ -210,7 +244,7 @@ D3_NetworkTopology.create = (el, data, configuration) => {
     nodeSelect(configuration.nodeSelect);
   }
 
-   setTimeout(() => {
+  setTimeout(() => {
     zoomFit(zoom, container, 0.95, 500);
   }, 4000);
 
@@ -308,12 +342,12 @@ function removePrefix() {
 }
 
 function handleNodeSearch() {
-  console.log("handleNodeSearch");
-  nodeSelect(document.getElementById("nodeSearchNm").value);
+  console.log('handleNodeSearch');
+  nodeSelect(document.getElementById('nodeSearchNm').value);
 }
 
 function nodeSelect(targetNodeName, selection) {
-  console.log('nodeSelect',targetNodeName);
+  console.log('nodeSelect', targetNodeName);
   if (!selection) {
     selection = 'g.node,g.link';
   }
@@ -324,18 +358,18 @@ function nodeSelect(targetNodeName, selection) {
       console.log('Selecting', d3.select(this));
       d3.select(this).classed('highlight', true);
       // Highlight the node text too
-      d3.select(this)
+      /*       d3.select(this)
         .selectAll("text,line")
         .each(function () {
           d3.select(this).classed('highlight', true);
-        });
+        }); */
     } else {
       nodeUnselectBySelection(d3.select(this));
     }
   });
 }
 function nodeUnselectBySelection(unselectNodes) {
-  //console.log('Unselecting', unselectNodes);
+  // console.log('Unselecting', unselectNodes);
   unselectNodes.classed('highlight', false);
   unselectNodes.selectAll('text,line').each(function () {
     d3.select(this).classed('highlight', false);

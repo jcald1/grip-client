@@ -20,6 +20,7 @@ const qs = require('qs');
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
+const DEFAULT_POLE_STRESS_MEASUREMEMENT = 'pole_stress'
 
 // TODO: Generalize
 
@@ -217,6 +218,7 @@ class Asset extends Component {
       this.state.asset,
       CRITICAL_WIND_SPEED_MEASUREMENT
     );
+    //console.log('**criticalWindSpeedAssetMeasurement',criticalWindSpeedAssetMeasurement)
     let linesToAdd = ([
       {
         assetMeasurement,
@@ -267,8 +269,10 @@ class Asset extends Component {
         strokeDasharray: '5 5',
         strokeWidth: 3
       };
-      linesToAdd.push(criticalPoleStressLine);
-      console.log('lines=======' + linesToAdd);
+      if (this.state.selectedMeasurement === DEFAULT_POLE_STRESS_MEASUREMEMENT) {
+        linesToAdd.push(criticalPoleStressLine);
+      }
+      console.log('linesToAdd', linesToAdd);
     } else {
       console.log('not a pole');
       title = `${title} (${this.state.asset.properties.class}) `;
