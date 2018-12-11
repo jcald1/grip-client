@@ -5,7 +5,15 @@ import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
 import moment from 'moment';
 import {
-  LineChart, ComposedChart, Bar, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend
+  LineChart,
+  ComposedChart,
+  Bar,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend
 } from 'recharts';
 import './App.css';
 import Layout from '../components/Layout';
@@ -26,8 +34,12 @@ class SimulationRun extends Component {
   constructor(props) {
     super(props);
 
-    const chartsConfiguration =
-    {
+    const chartsConfiguration = {
+      // The substation has to be mapped here
+      selectionMappings: {
+        substation_meter: 'node_14', // Asset List to Network Topology
+        node_14: 'substation_meter' // Network Topology to Asset List
+      },
       defaultFirstAssetSelected: 'substation_meter',
       defaultFirstMetricSelected: 'measured_real_power',
       defaultMetricClasses: [
@@ -62,7 +74,7 @@ class SimulationRun extends Component {
         {
           class: 'line',
           recording: 'power_out_real'
-        },
+        }
       ],
       globalRecordings: [
         {
@@ -71,35 +83,35 @@ class SimulationRun extends Component {
           name: 'wind_speed',
           asset: 'weather',
           fullName: 'weather__wind_speed'
-        }    
+        }
       ],
       recordingLabels: [
         {
           name: 'vulnerability',
           label: 'Vulnerability Index  - pu',
-          YAxisPosition: 'left',
+          YAxisPosition: 'left'
         },
         {
           name: 'pole_stress',
           nameAlias: 'vulnerability_index',
           label: 'Vulnerability Index  - pu',
-          YAxisPosition: 'left',
+          YAxisPosition: 'left'
         },
         {
           name: 'critical_pole_stress',
           nameAlias: 'critical_vulnerability_index',
           label: 'Critical Vulnerability Index - pu',
-          YAxisPosition: 'left',
+          YAxisPosition: 'left'
         },
         {
           name: 'measured_real_power',
           label: 'Measured Real Power - W',
-          YAxisPosition: 'left',
+          YAxisPosition: 'left'
         },
         {
           name: 'measured_real_power',
           label: 'Measured Real Power - W',
-          YAxisPosition: 'right',
+          YAxisPosition: 'right'
         },
         {
           name: 'measured_reactive_power',
@@ -109,7 +121,7 @@ class SimulationRun extends Component {
         {
           name: 'wind_speed',
           label: 'Wind Speed - meters/sec',
-          YAxisPosition: 'left',
+          YAxisPosition: 'left'
         },
         {
           name: 'resisting_moment',
@@ -144,7 +156,7 @@ class SimulationRun extends Component {
         {
           name: 'power_out_real',
           label: 'Power Out Real - W',
-          YAxisPosition: 'left',
+          YAxisPosition: 'left'
         }
       ]
     };
@@ -160,7 +172,7 @@ class SimulationRun extends Component {
       chartVulrunAggResultsResponseDatanerabilityAggData: [],
       chartData: [],
       chartsConfiguration,
-      topologyMapSelectNode: null,
+      topologyMapSelectNode: null
     };
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
@@ -169,7 +181,6 @@ class SimulationRun extends Component {
     this.mapResponseToBarChartData = this.mapResponseToBarChartData.bind(this);
     this.getAssetMeasurement = this.getAssetMeasurement.bind(this);
     this.navigateToAsset = this.navigateToAsset.bind(this);
-    this.handleAssetHoverOver = this.handleAssetHoverOver.bind(this);
     this.handleAssetRowMouseEnter = this.handleAssetRowMouseEnter.bind(this);
     this.handleAssetRowMouseOut = this.handleAssetRowMouseOut.bind(this);
     this.handleTopologyMapAssetHover = this.handleTopologyMapAssetHover.bind(this);
@@ -239,7 +250,11 @@ class SimulationRun extends Component {
         if (!allRunAssets) {
           return Promise.reject(new Error('No simulation run data received from the API.'));
         }
-        console.log(' this.state.chartsConfiguration',  this.state.chartsConfiguration, allRunAssets);
+        console.log(
+          ' this.state.chartsConfiguration',
+          this.state.chartsConfiguration,
+          allRunAssets
+        );
         const defaultAsset = this.findDefaultAsset(allRunAssets, this.state.chartsConfiguration);
         console.log('defaultAsset', defaultAsset);
         currentAsset = defaultAsset;
@@ -266,11 +281,7 @@ class SimulationRun extends Component {
         return { runResultsData };
       })
       .then(({ runResultsData }) => {
-        console.log(
-          'Get Simulation Run Results data',
-          'simulationRunId',
-          simulationRunId
-        );
+        console.log('Get Simulation Run Results data', 'simulationRunId', simulationRunId);
         this.setState({
           runResultsData,
           simulationRunId
@@ -290,7 +301,7 @@ class SimulationRun extends Component {
         this.setState({ networkTopologyData: topologyData });
         return null;
       })
-   .then(() => simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
+      .then(() => simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationRunId
@@ -349,7 +360,7 @@ class SimulationRun extends Component {
       labelObj => labelObj.name === selectedMeasurement
     );
     console.log('getAliasForRecording default found', recordingLabel, selectedMeasurement);
-    
+
     if (recordingLabel && recordingLabel.label) {
       return recordingLabel.label;
     }
@@ -361,7 +372,11 @@ class SimulationRun extends Component {
     const recordingLabel = chartConfiguration.recordingLabels.find(
       labelObj => labelObj.name === selectedMeasurement && labelObj.YAxisPosition === yAxisLocation
     );
-    console.log('getLabelForRecording default found', recordingLabel, yAxisLeftLine.assetMeasurement);
+    console.log(
+      'getLabelForRecording default found',
+      recordingLabel,
+      yAxisLeftLine.assetMeasurement
+    );
     if (recordingLabel && recordingLabel.label) {
       return recordingLabel.label;
     }
@@ -375,6 +390,7 @@ class SimulationRun extends Component {
   addGlobalMeasurements(measurements, chartsConfiguration) {
     return measurements.concat(chartsConfiguration.globalRecordings);
   }
+
   handleAssetClick(e) {
     console.log('handleAssetClick', 'e.currentTarget', e.currentTarget);
     // console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
@@ -386,10 +402,6 @@ class SimulationRun extends Component {
 
     console.log('state', this.state, 'assetDetailPageAssetId', assetDetailPageAssetId);
     this.navigateToAsset(assetDetailPageAssetId);
-  }
-
-  handleAssetHoverOver(record) {
-    console.log('SimulationRun', 'handleAssetClick', 'record', record);
   }
 
   navigateToAsset(assetDetailPageAssetId) {
@@ -471,12 +483,12 @@ class SimulationRun extends Component {
         timestamp: moment(row.timestamp).format('MM-DD-YY HH:mm')
       };
       if (aggResultsValues) {
-        let vulnDataforTimestep = aggResultsValues.find(o => o.timestamp === row.timestamp);
+        const vulnDataforTimestep = aggResultsValues.find(o => o.timestamp === row.timestamp);
         console.log('vuln timestamp', row.timestamp);
         if (vulnDataforTimestep) {
           newRow[VULNERABILITY_MEASUREMENT] = vulnDataforTimestep.pole_stress;
-          newRow[VULNERABILITY_MEASUREMENT + '_recording'] = vulnDataforTimestep.recording;    
-        } 
+          newRow[`${VULNERABILITY_MEASUREMENT}_recording`] = vulnDataforTimestep.recording;
+        }
       }
       return newRow;
     });
@@ -496,7 +508,12 @@ class SimulationRun extends Component {
   }
 
   renderLineChartAssetDetail({
-    data, lines, domain, renderXaxis, chartsConfiguration, selectedMeasurement
+    data,
+    lines,
+    domain,
+    renderXaxis,
+    chartsConfiguration,
+    selectedMeasurement
   }) {
     if (!data || !data.length || data.length === 0) {
       return null;
@@ -522,19 +539,25 @@ class SimulationRun extends Component {
     console.log('***bottomMargin', bottomMargin);
     console.log('***linesToRender', linesToRender);
     let leftYAxis = '';
-    const measureLabelLeft = this.getLabelForRecording(lines, 'left', selectedMeasurement, chartsConfiguration);
+    const measureLabelLeft = this.getLabelForRecording(
+      lines,
+      'left',
+      selectedMeasurement,
+      chartsConfiguration
+    );
 
     leftYAxis = (
-    <YAxis
-      yAxisId="left"
-      orientation="left"
-      label={{
-        value: measureLabelLeft,
-        angle: -90,
-        position: 'outside',
-        dx: -40
-      }}
-    />);
+      <YAxis
+        yAxisId="left"
+        orientation="left"
+        label={{
+          value: measureLabelLeft,
+          angle: -90,
+          position: 'outside',
+          dx: -40
+        }}
+      />
+    );
     return (
       <div>
         <LineChart
@@ -560,7 +583,6 @@ class SimulationRun extends Component {
     );
   }
 
-
   renderLineChartSimulationRun({
     data, lines, domain, renderXaxis, chartsConfiguration
   }) {
@@ -573,8 +595,7 @@ class SimulationRun extends Component {
     const linesToRender = lines.map(line => {
       let lineToAdd = null;
       if (line.type === 'Line') {
-        lineToAdd =
-        (
+        lineToAdd = (
           <Line
             key={line.assetMeasurement}
             type="monotone"
@@ -587,8 +608,7 @@ class SimulationRun extends Component {
           />
         );
       } else {
-        lineToAdd =
-        (
+        lineToAdd = (
           <Bar
             key={line.assetMeasurement}
             type="monotone"
@@ -669,8 +689,8 @@ class SimulationRun extends Component {
 
   renderNetworkTopologyGraph() {
     const configuration = {
-      nodeSelect: this.state.selectNode,
-      //nodeUnselect: this.state.unselectNode
+      nodeSelect: this.state.selectNode
+      // nodeUnselect: this.state.unselectNode
     };
     return (
       <div>
@@ -695,17 +715,24 @@ class SimulationRun extends Component {
 
   handleAssetRowMouseEnter(record) {
     console.log('handleAssetRowMouseEnter', 'record', record);
-    this.setState({ selectNode: record.name });
+    this.setState({
+      selectNode: this.state.chartsConfiguration.selectionMappings[record.name] || record.name
+    });
   }
 
   handleAssetRowMouseOut(record) {
     console.log('handleAssetRowMouseOut', 'record', record);
-    //this.setState({ unselectNode: record.name });
+    // this.setState({ unselectNode: record.name });
   }
 
   handleTopologyMapAssetHover(assetNode) {
     console.log('handleTopologyMapAssetHover', 'assetNode', assetNode);
-    this.setState({ topologyMapSelectNode: assetNode ? assetNode.name : assetNode });
+    let assetNodeName = null;
+    if (assetNode && assetNode.name) {
+      assetNodeName =
+        this.state.chartsConfiguration.selectionMappings[assetNode.name] || assetNode.name;
+    }
+    this.setState({ topologyMapSelectNode: assetNodeName });
   }
 
   render() {
@@ -726,15 +753,11 @@ class SimulationRun extends Component {
       this.state.currentAsset.recordings[0] &&
       this.state.chartsConfiguration.defaultFirstMetricSelected;
 
-    const assetMeasurement = this.getAssetMeasurement(
-      this.state.currentAsset,
-      defaultMeasurement
-    );
+    const assetMeasurement = this.getAssetMeasurement(this.state.currentAsset, defaultMeasurement);
 
-    console.log('combinedData');      
+    console.log('combinedData');
 
-
-    const linesToAdd = ([
+    const linesToAdd = [
       {
         yAxisId: 'right',
         assetMeasurement,
@@ -751,8 +774,8 @@ class SimulationRun extends Component {
         strokeWidth: 3,
         yAxisId: 'left',
         type: 'Line'
-      },
-    ]);
+      }
+    ];
 
     const mainItems = (
       <div>
@@ -761,15 +784,17 @@ class SimulationRun extends Component {
             this.state.currentAsset.properties.class
           }) - ${defaultMeasurement}`}
         />
-        <div>{this.renderLineChartSimulationRun({
-          // data: renderPoleData,
-          data: chartData,
-          lines: linesToAdd,
-          // TODO: In the API, calculate the max values for each asset, 
-          // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
-          domain: DEFAULT_YAXIS_DOMAIN,
-          chartsConfiguration: this.state.chartsConfiguration
-        })}</div>
+        <div>
+          {this.renderLineChartSimulationRun({
+            // data: renderPoleData,
+            data: chartData,
+            lines: linesToAdd,
+            // TODO: In the API, calculate the max values for each asset,
+            // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
+            domain: DEFAULT_YAXIS_DOMAIN,
+            chartsConfiguration: this.state.chartsConfiguration
+          })}
+        </div>
         <div
           style={{
             marginTop: '30px',
