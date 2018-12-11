@@ -14,13 +14,11 @@ import Title from '../components/Title';
 import SubTitle from '../components/SubTitle';
 import simulationRuns from '../actions/simulationRuns';
 
-const WIND_SPEED_ASSET_MEASUREMENT = 'weather__wind_speed';
-const CRITICAL_WIND_SPEED_MEASUREMENT = 'critical_wind_speed';
 const qs = require('qs');
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
-const DEFAULT_POLE_STRESS_MEASUREMEMENT = 'pole_stress'
+const DEFAULT_POLE_STRESS_MEASUREMEMENT = 'pole_stress';
 
 // TODO: Generalize
 
@@ -125,17 +123,20 @@ class Asset extends Component {
     );
     console.log('*** populateFullAsset', assetDetailPageAsset, '');
 
-    const measurements = assetDetailPageAsset.recordings;
-
+    const defaultMeasurementForAsset = this.props.getDefaultMeasurementForAsset(
+      assetDetailPageAsset,
+      this.props.chartsConfiguration
+    );
     const newState = {
       asset: assetDetailPageAsset,
-      selectedMeasurement: measurements[0].name
+      selectedMeasurement: defaultMeasurementForAsset
     };
+
     console.log('setting state', newState, assetDetailPageAsset);
     this.setState(newState);
     const selectedMeasurementChartData = this.getMeasurementDataForChart(
       assetDetailPageAsset,
-      measurements[0].name
+      defaultMeasurementForAsset
     );
     this.setState({ selectedMeasurementChartData });
     console.log('setting state currentData', selectedMeasurementChartData);
@@ -187,12 +188,13 @@ class Asset extends Component {
     const { runResultsData, asset } = this.state;
 
     console.log('Asset render data', runResultsData);
-    console.log('Asset render measurements', measurements);
+
 
     if (!asset || !asset.recordings) {
       return null;
     }
-    const measurements = asset.recordings;
+    let measurements = asset.recordings;
+    measurements = this.props.addGlobalMeasurements(measurements, this.props.chartsConfiguration);
 
     console.log('Continue Rendering', this.props);
     const leftNavItems = null;
@@ -200,78 +202,77 @@ class Asset extends Component {
       border: '3px solid white',
       backgroundColor: '#d3d3d3'
     };
-    const assetMeasurement = this.props.getAssetMeasurement(
-      this.state.asset,
-      this.state.selectedMeasurement
+
+    let assetMeasurement = '';
+    const globalMeasurement = this.props.getGlobalMeasurement(
+      this.state.selectedMeasurement,
+      this.props.chartsConfiguration
     );
+    console.log('globalMeasurement:', globalMeasurement);
+    if (globalMeasurement) {
+      assetMeasurement = globalMeasurement.fullName;
+    } else {
+      assetMeasurement = this.props.getAssetMeasurement(
+        this.state.asset,
+        this.state.selectedMeasurement
+      );
+    }
+
     console.log(
       'Asset assetMeasurementchart',
+      assetMeasurement,
       this.state.selectedMeasurement,
-      this.state.runResultsData
+      this.props.runResultsData
     );
 
     let title = this.state.asset.name;
     let poleVulnerabilitySubTitle = null;
     let poleStaticValues = null;
     let criticalPoleStressLine = null;
-    const criticalWindSpeedAssetMeasurement = this.props.getAssetMeasurement(
-      this.state.asset,
-      CRITICAL_WIND_SPEED_MEASUREMENT
-    );
-    //console.log('**criticalWindSpeedAssetMeasurement',criticalWindSpeedAssetMeasurement)
-    let linesToAdd = ([
-      {
-        assetMeasurement,
-        stroke: '#8884d8',
-        strokeWidth: 3,
-        yAxisId: 'left'
-      },
-      {
-        yAxisId: 'right',
-        assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
-        stroke: '#008000'
-      },
-      {
-        yAxisId: 'right',
-        assetMeasurement: criticalWindSpeedAssetMeasurement,
-        //stroke: 'darkorange',
-        stroke: '#008000',
-        strokeDasharray: '5 5'
-      }
-    ]);
-    if (this.state.asset.properties.class === 'pole') {
-      title = `Pole Vulnerability - ${title}`;
+
+    const linesToAdd = [];
+    // add primary Asset metric
+    linesToAdd.push({
+      assetMeasurement,
+      measurement: this.state.selectedMeasurement,
+      stroke: '#8884d8',
+      strokeWidth: 3,
+      yAxisId: 'left'
+    });
+    if (this.state.selectedMeasurement === 'pole_stress') {
+      title = `Vulnerability Index - ${title}`;
       poleVulnerabilitySubTitle = (
         <div>
           <SubTitle
-            style={{ color: '#8884d8'}}
-            //style={{ color: 'blue'}}
-            text="Pole Failure and Fault when Pole Stress >= 1"
+            style={{ color: '#8884d8' }}
+            // style={{ color: 'blue'}}
+            text="Pole Failure and Fault when Vulnerability Index >= Vulnerability Index of 1"
           />
-          <div
-            style={{ color: '#008000', fontWeight: 'normal' }} >
-            Forecasted Pole Failure when Wind Speed >= Critical Wind Speed
-          </div>
         </div>
       );
-      poleStaticValues = [
-        {
-          name: 'critical_pole_stress',
-          value: this.state.asset.calculated_recordings.find(
-            obj => obj.name === 'critical_pole_stress'
-          ).value
-        }
-      ];
+      if (this.state.selectedMeasurement === 'pole_stress') {
+        poleStaticValues = [
+          {
+            name: 'critical_pole_stress',
+            value: this.state.asset.calculated_recordings.find(
+              obj => obj.name === 'critical_pole_stress'
+            ).value
+          }
+        ];
+      }
       criticalPoleStressLine = {
         yAxisId: 'left',
         assetMeasurement: 'critical_pole_stress',
+        measurement: 'critical_pole_stress',
         stroke: '#8884d8',
         strokeDasharray: '5 5',
         strokeWidth: 3
       };
+
       if (this.state.selectedMeasurement === DEFAULT_POLE_STRESS_MEASUREMEMENT) {
         linesToAdd.push(criticalPoleStressLine);
       }
+
       console.log('linesToAdd', linesToAdd);
     } else {
       console.log('not a pole');
@@ -289,37 +290,24 @@ class Asset extends Component {
       <div>
         <Row>
           <Col span={24}>
-            <Title text={`${title} - ${this.state.selectedMeasurement}`} />
+            <Title
+              text={`${title} - ${this.props.getAliasForRecording(
+                this.state.selectedMeasurement,
+                this.props.chartsConfiguration
+              )}`}
+            />
             {poleVulnerabilitySubTitle}
             <div>
-              {this.props.renderLineChart({
+              {this.props.renderLineChartAssetDetail({
                 // data: renderPoleData,
                 data: combinedData,
                 lines: linesToAdd,
                 // TODO: In the API, calculate the max values for each asset, then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
-                domain: DEFAULT_YAXIS_DOMAIN
+                domain: DEFAULT_YAXIS_DOMAIN,
+                chartsConfiguration: this.props.chartsConfiguration,
+                selectedMeasurement: this.state.selectedMeasurement
               })}
             </div>
-            {/*
-  <SubTitle text="Wind Speed and Critical Wind Speed (meters/second)" />
-  <div>
-              {this.props.renderLineChart({
-                data: renderWindData,
-                lines: [
-                  {
-                    yAxisId: 'right',
-                    assetMeasurement: WIND_SPEED_ASSET_MEASUREMENT,
-                    stroke: '#8884d8'
-                  },
-                  {
-                    yAxisId: 'right',
-                    assetMeasurement: criticalWindSpeedAssetMeasurement,
-                    stroke: 'darkorange',
-                    strokeDasharray: '5 5'
-                  }
-                ]
-              })}
-            </div> */}
           </Col>
         </Row>
         <Row>
@@ -330,6 +318,8 @@ class Asset extends Component {
             <Measurements
               measurements={measurements}
               handleMeasurementClick={this.handleMeasurementClick}
+              getAliasForRecording={this.props.getAliasForRecording}
+              chartsConfiguration={this.props.chartsConfiguration}
             />
           </Col>
           <Col span={8} style={columnStyle}>

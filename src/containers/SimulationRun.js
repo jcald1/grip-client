@@ -26,6 +26,130 @@ class SimulationRun extends Component {
   constructor(props) {
     super(props);
 
+
+    const chartsConfiguration =
+    {
+      defaultFirstAssetSelected: 'substation_meter',
+      defaultFirstMetricSelected: 'measured_real_power',
+      defaultMetricClasses: [
+        {
+          class: 'meter',
+          recording: 'measured_real_power'
+        },
+        {
+          class: 'triplex-meter',
+          recording: 'measured_real_power'
+        },
+        {
+          class: 'transformer',
+          recording: 'measured_real_power'
+        },
+        {
+          class: 'substation',
+          recording: 'measured_real_power'
+        },
+        {
+          class: 'substation_meter',
+          recording: 'measured_real_power'
+        },
+        {
+          class: 'pole',
+          recording: 'pole_stress'
+        },
+        {
+          class: 'weather',
+          recording: 'wind_speed'
+        },
+        {
+          class: 'line',
+          recording: 'power_out_real'
+        },
+      ],
+      globalRecordings: [
+        {
+          id: 10000,
+          is_measure: true,
+          name: 'wind_speed',
+          asset: 'weather',
+          fullName: 'weather__wind_speed'
+        }    
+      ],
+      recordingLabels: [
+        {
+          name: 'vulnerability',
+          label: 'Vulnerability Index  - pu',
+          YAxisPosition: 'left',
+        },
+        {
+          name: 'pole_stress',
+          nameAlias: 'vulnerability_index',
+          label: 'Vulnerability Index  - pu',
+          YAxisPosition: 'left',
+        },
+        {
+          name: 'critical_pole_stress',
+          nameAlias: 'critical_vulnerability_index',
+          label: 'Critical Vulnerability Index - pu',
+          YAxisPosition: 'left',
+        },
+        {
+          name: 'measured_real_power',
+          label: 'Measured Real Power - W',
+          YAxisPosition: 'left',
+        },
+        {
+          name: 'measured_real_power',
+          label: 'Measured Real Power - W',
+          YAxisPosition: 'right',
+        },
+        {
+          name: 'measured_reactive_power',
+          label: 'Measured Reactive Power - W',
+          YAxisPosition: 'left'
+        },
+        {
+          name: 'wind_speed',
+          label: 'Wind Speed - meters/sec',
+          YAxisPosition: 'left',
+        },
+        {
+          name: 'resisting_moment',
+          label: 'Resisting Moment - ft*lb',
+          YAxisPosition: 'left'
+        },
+        {
+          name: 'total_moment',
+          label: 'Total Moment - ft*lb',
+          YAxisPosition: 'left'
+        },
+        {
+          name: 'critical_wind_speed',
+          label: 'Critical Wind Speed - meters/sec',
+          YAxisPosition: 'left'
+        },
+        {
+          name: 'susceptibility',
+          label: 'Susceptibility - pu*s/m',
+          YAxisPosition: 'left'
+        },
+        {
+          name: 'pole_status',
+          label: 'Pole Status - OK/FAILED',
+          YAxisPosition: 'left'
+        },
+        {
+          name: 'current_uptime',
+          label: 'Current Uptime in Minutes',
+          YAxisPosition: 'left'
+        },
+        {
+          name: 'power_out_real',
+          label: 'Power Out Real - W',
+          YAxisPosition: 'left',
+        }
+      ]
+    };
+
     this.state = {
       simulationRunId: null,
       currentAsset: null,
@@ -37,6 +161,7 @@ class SimulationRun extends Component {
       selectNode: null,
       chartVulrunAggResultsResponseDatanerabilityAggData: [],
       chartData: [],
+      chartsConfiguration
     };
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
@@ -48,6 +173,11 @@ class SimulationRun extends Component {
     this.handleAssetHoverOver = this.handleAssetHoverOver.bind(this);
     this.handleAssetRowMouseEnter = this.handleAssetRowMouseEnter.bind(this);
     this.handleAssetRowMouseOut = this.handleAssetRowMouseOut.bind(this);
+    this.findDefaultAsset = this.findDefaultAsset.bind(this);
+    this.getDefaultMeasurementForAsset = this.getDefaultMeasurementForAsset.bind(this);
+    this.getLabelForRecording = this.getLabelForRecording.bind(this);
+    this.getGlobalMeasurement = this.getGlobalMeasurement.bind(this);
+    this.addGlobalMeasurements = this.addGlobalMeasurements.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -109,8 +239,12 @@ class SimulationRun extends Component {
         if (!allRunAssets) {
           return Promise.reject(new Error('No simulation run data received from the API.'));
         }
-        currentAsset = allRunAssets[0];
-        selectedAssetDetailId = allRunAssets[0].id;
+        console.log(' this.state.chartsConfiguration',  this.state.chartsConfiguration, allRunAssets);
+        const defaultAsset = this.findDefaultAsset(allRunAssets, this.state.chartsConfiguration);
+        console.log('defaultAsset', defaultAsset);
+        currentAsset = defaultAsset;
+
+        selectedAssetDetailId = currentAsset.id;
         this.setState({ currentAsset, allRunAssets, selectedAssetDetailId });
         return null;
       })
@@ -129,9 +263,6 @@ class SimulationRun extends Component {
           return Promise.reject(new Error('No data received from the API.'));
         }
         console.log('populateSimulationRun asset', currentAsset);
-        const measurement = currentAsset.recordings[0].name;
-        console.log('populateSimulationRun measurement', measurement);
-        const assetMeasurement = this.getAssetMeasurement(currentAsset, measurement);
         return { runResultsData };
       })
       .then(({ runResultsData }) => {
@@ -196,6 +327,53 @@ class SimulationRun extends Component {
 
   getAssetMeasurement(asset, measurement) {
     return `${asset.name}${DEFAULT_DIVIDER}${measurement}`;
+  }
+
+  findDefaultAsset(assets, chartConfiguration) {
+    return assets.find(asset => asset.name === chartConfiguration.defaultFirstAssetSelected);
+  }
+
+  getDefaultMeasurementForAsset(asset, chartConfiguration) {
+    const recordingClass = chartConfiguration.defaultMetricClasses.find(
+      classObj => classObj.class === asset.properties.class
+    );
+    console.log('recordingClass default found', recordingClass, asset.properties.class);
+    if (recordingClass) {
+      return recordingClass.recording;
+    }
+    return asset.recordings[0].name;
+  }
+
+  getAliasForRecording(selectedMeasurement, chartConfiguration) {
+    const recordingLabel = chartConfiguration.recordingLabels.find(
+      labelObj => labelObj.name === selectedMeasurement
+    );
+    console.log('getAliasForRecording default found', recordingLabel, selectedMeasurement);
+    
+    if (recordingLabel && recordingLabel.label) {
+      return recordingLabel.label;
+    }
+    return selectedMeasurement;
+  }
+
+  getLabelForRecording(lines, yAxisLocation, selectedMeasurement, chartConfiguration) {
+    const yAxisLeftLine = lines.find(line => line.yAxisId === yAxisLocation);
+    const recordingLabel = chartConfiguration.recordingLabels.find(
+      labelObj => labelObj.name === selectedMeasurement && labelObj.YAxisPosition === yAxisLocation
+    );
+    console.log('getLabelForRecording default found', recordingLabel, yAxisLeftLine.assetMeasurement);
+    if (recordingLabel && recordingLabel.label) {
+      return recordingLabel.label;
+    }
+    return selectedMeasurement;
+  }
+
+  getGlobalMeasurement(measurement, chartsConfiguration) {
+    return chartsConfiguration.globalRecordings.find(recording => recording.name === measurement);
+  }
+
+  addGlobalMeasurements(measurements, chartsConfiguration) {
+    return measurements.concat(chartsConfiguration.globalRecordings);
   }
 
   handleAssetClick(e) {
@@ -318,14 +496,14 @@ class SimulationRun extends Component {
     return charts;
   }
 
-  renderLineChart({
-    data, lines, domain, renderXaxis
+  renderLineChartAssetDetail({
+    data, lines, domain, renderXaxis, chartsConfiguration, selectedMeasurement
   }) {
     if (!data || !data.length || data.length === 0) {
       return null;
     }
 
-    console.log('renderLineChart', 'data', data, 'lines', lines);
+    console.log('renderLineChartAssetDetail', 'data', data, 'lines', lines, chartsConfiguration);
 
     const linesToRender = lines.map(line => (
       <Line
@@ -335,13 +513,29 @@ class SimulationRun extends Component {
         stroke={line.stroke}
         strokeDasharray={line.strokeDasharray}
         strokeWidth={line.strokeWidth}
-        yAxisId={line.yAxisId}
+        yAxisId="left"
+        name={this.getLabelForRecording(lines, 'left', line.measurement, chartsConfiguration)}
       />
     ));
     // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
     const bottomMargin = 100;
 
     console.log('***bottomMargin', bottomMargin);
+    console.log('***linesToRender', linesToRender);
+    let leftYAxis = '';
+    const measureLabelLeft = this.getLabelForRecording(lines, 'left', selectedMeasurement, chartsConfiguration);
+
+    leftYAxis = (
+    <YAxis
+      yAxisId="left"
+      orientation="left"
+      label={{
+        value: measureLabelLeft,
+        angle: -90,
+        position: 'outside',
+        dx: -40
+      }}
+    />);
     return (
       <div>
         <LineChart
@@ -359,21 +553,8 @@ class SimulationRun extends Component {
           {linesToRender}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis interval={0} tick={{ dy: 40 }} angle={-65} dataKey="timestamp" />
-          <YAxis
-            domain={domain}
-            yAxisId="left"
-            label={{ value: 'Peak Vulnerability ', angle: -90, position: 'insideLeft' }}
-          />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            label={{
-              value: 'Wind Speed - meters/sec',
-              angle: -90,
-              position: 'outside',
-              dx: 10
-            }}
-          />
+
+          {leftYAxis}
           <Legend verticalAlign="top" height={36} />
           <Tooltip />
         </LineChart>
@@ -383,7 +564,7 @@ class SimulationRun extends Component {
 
 
   renderLineChartSimulationRun({
-    data, lines, domain, renderXaxis
+    data, lines, domain, renderXaxis, chartsConfiguration
   }) {
     if (!data || !data.length || data.length === 0) {
       return null;
@@ -404,6 +585,7 @@ class SimulationRun extends Component {
             strokeDasharray={line.strokeDasharray}
             strokeWidth={line.strokeWidth}
             yAxisId={line.yAxisId}
+            name={this.getLabelForRecording(lines, 'left', line.measurement, chartsConfiguration)}
           />
         );
       } else {
@@ -417,6 +599,7 @@ class SimulationRun extends Component {
             barSize={line.barSize}
             fillOpacity={line.fillOpacity}
             yAxisId={line.yAxisId}
+            name={this.getLabelForRecording(lines, 'right', line.measurement, chartsConfiguration)}
           />
         );
       }
@@ -446,7 +629,7 @@ class SimulationRun extends Component {
           <YAxis
             domain={domain}
             yAxisId="left"
-            label={{ value: 'Peak Vulnerability', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'Vulnerability Index', angle: -90, position: 'insideLeft' }}
           />
           <YAxis
             yAxisId="right"
@@ -536,7 +719,7 @@ class SimulationRun extends Component {
     const defaultMeasurement =
       this.state.currentAsset.recordings &&
       this.state.currentAsset.recordings[0] &&
-      this.state.currentAsset.recordings[0].name;
+      this.state.chartsConfiguration.defaultFirstMetricSelected;
 
     const assetMeasurement = this.getAssetMeasurement(
       this.state.currentAsset,
@@ -550,6 +733,7 @@ class SimulationRun extends Component {
       {
         yAxisId: 'right',
         assetMeasurement,
+        measurement: defaultMeasurement,
         fill: '#4682b4',
         barSize: '20',
         type: 'Bar',
@@ -557,6 +741,7 @@ class SimulationRun extends Component {
       },
       {
         assetMeasurement: VULNERABILITY_MEASUREMENT,
+        measurement: VULNERABILITY_MEASUREMENT,
         stroke: '#008000',
         strokeWidth: 3,
         yAxisId: 'left',
@@ -577,7 +762,8 @@ class SimulationRun extends Component {
           lines: linesToAdd,
           // TODO: In the API, calculate the max values for each asset, 
           // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
-          domain: DEFAULT_YAXIS_DOMAIN
+          domain: DEFAULT_YAXIS_DOMAIN,
+          chartsConfiguration: this.state.chartsConfiguration
         })}</div>
         <div
           style={{
@@ -618,9 +804,15 @@ class SimulationRun extends Component {
                 mapResponseToBarChartData={this.mapResponseToBarChartData}
                 mapResponseToChartData={this.mapResponseToChartData}
                 getAssetMeasurement={this.getAssetMeasurement}
-                renderLineChart={this.renderLineChart}
+                renderLineChartAssetDetail={this.renderLineChartAssetDetail}
                 getWindData={this.getWindData}
                 navigateToAsset={this.navigateToAsset}
+                chartsConfiguration={this.state.chartsConfiguration}
+                getDefaultMeasurementForAsset={this.getDefaultMeasurementForAsset}
+                getLabelForRecording={this.getLabelForRecording}
+                getGlobalMeasurement={this.getGlobalMeasurement}
+                addGlobalMeasurements={this.addGlobalMeasurements}
+                getAliasForRecording={this.getAliasForRecording}
               />
             </div>
           )}

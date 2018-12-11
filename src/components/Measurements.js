@@ -3,7 +3,12 @@
 import React from 'react';
 import SubTitle from './SubTitle';
 
-const renderMeasurements = (handleMeasurementClick, measurements) => {
+const renderMeasurements = (
+  handleMeasurementClick,
+  measurements,
+  chartsConfiguration,
+  getAliasForRecording
+) => {
   console.log('renderMeasurements asset', measurements);
   const MeasurementsToRender = measurements.map(measurement => {
     // console.log('renderMeasurements', data, 'asset', asset);
@@ -14,7 +19,7 @@ const renderMeasurements = (handleMeasurementClick, measurements) => {
         value={measurement.name}
         key={measurement.id}
       >
-        {measurement.name}
+        {getAliasForRecording(measurement.name, chartsConfiguration)}
       </div>
     );
 
@@ -24,7 +29,12 @@ const renderMeasurements = (handleMeasurementClick, measurements) => {
   return MeasurementsToRender;
 };
 
-const Measurements = ({ handleMeasurementClick, measurements }) => {
+const Measurements = ({
+  handleMeasurementClick,
+  measurements,
+  chartsConfiguration,
+  getAliasForRecording
+}) => {
   // return null;
   console.log('Measurements data', measurements, 'handleMeasurementClick', handleMeasurementClick);
   if (!measurements || !measurements.length || measurements.length === 0) {
@@ -42,7 +52,14 @@ const Measurements = ({ handleMeasurementClick, measurements }) => {
   return (
     <div style={{ marginLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
       <SubTitle text="Measurements" />
-      <div>{renderMeasurements(handleMeasurementClick, measurements)}</div>
+      <div>
+        {renderMeasurements(
+          handleMeasurementClick,
+          measurements,
+          chartsConfiguration,
+          getAliasForRecording
+        )}
+      </div>
     </div>
   );
 };
