@@ -240,7 +240,7 @@ class Asset extends Component {
       yAxisId: 'left'
     });
     if (this.state.selectedMeasurement === 'pole_stress') {
-      title = `Vulnerability Index - ${title}`;
+      title = `${title} (${this.state.asset.properties.class}) `;
       poleVulnerabilitySubTitle = (
         <div>
           <SubTitle
