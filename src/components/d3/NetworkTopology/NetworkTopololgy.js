@@ -3,13 +3,25 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import D3_NetworkTopology from './D3_NetworkTopology';
+import * as d3 from 'd3-v3';
+import './css/style.css';
+import D3_NetworkTopology from './js/D3_NetworkTopology';
 
 class NetworkTopology extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.configuration = {
+      width: 720,
+      height: 437
+    };
+
+    this.handleTopologyMapMouseOver = this.handleTopologyMapMouseOver.bind(this);
+    this.handleTopologyMapMouseOut = this.handleTopologyMapMouseOut.bind(this);
     this.setNetworkTopologyContainerRef = this.setNetworkTopologyContainerRef.bind(this);
+
+    D3_NetworkTopology.registerMouseOverHandler(this.handleTopologyMapMouseOver);
+    D3_NetworkTopology.registerMouseOutHandler(this.handleTopologyMapMouseOut);
   }
 
   componentDidMount() {
@@ -27,7 +39,8 @@ class NetworkTopology extends PureComponent {
         this.d3_NetworkTopology = D3_NetworkTopology.create(
           this.d3_NetworkTopologyContainerRef,
           this.props.data,
-          this.props.configuration
+          { ...this.configuration, ...this.props.configuration },
+          d3
         );
         console.log('componentDidMount this.d3_NetworkTopology', this.d3_NetworkTopology);
       } catch (err) {
@@ -54,12 +67,12 @@ class NetworkTopology extends PureComponent {
       // until we can handle updates at a fine level in the D3 code
       if (prevProps.data !== this.props.data) {
         this.d3_NetworkTopology = D3_NetworkTopology.update(
-        this.d3_NetworkTopologyContainerRef,
-        this.props.data,
-        this.props.configuration,
-        this.d3_NetworkTopology
-      );
-        } 
+          this.d3_NetworkTopologyContainerRef,
+          this.props.data,
+          this.props.configuration,
+          this.d3_NetworkTopology
+        );
+      }
 
       if (this.props.configuration && this.props.configuration.nodeSelect) {
         D3_NetworkTopology.nodeSelect(this.props.configuration.nodeSelect);
@@ -85,12 +98,20 @@ class NetworkTopology extends PureComponent {
     }
   } */
 
+  handleTopologyMapMouseOver(node) {
+    console.log('handleTopologyMapMouseOver', node);
+    this.props.handleTopologyMapAssetHover(node);
+  }
+  handleTopologyMapMouseOut(node) {
+    console.log('handleTopologyMapMouseOut', node);
+    this.props.handleTopologyMapAssetHover(null);
+  }
+
   render() {
     console.log('NetworkTopology render', 'this.props.configuration', this.props.configuration);
     if (this.props.configuration) {
       this.selectNode(this.props.configuration.selectNode);
     }
-
 
     return <div className="d3-container" ref={this.setNetworkTopologyContainerRef.bind(this)} />;
   }

@@ -26,7 +26,6 @@ class SimulationRun extends Component {
   constructor(props) {
     super(props);
 
-
     const chartsConfiguration =
     {
       defaultFirstAssetSelected: 'substation_meter',
@@ -149,7 +148,6 @@ class SimulationRun extends Component {
         }
       ]
     };
-
     this.state = {
       simulationRunId: null,
       currentAsset: null,
@@ -161,7 +159,8 @@ class SimulationRun extends Component {
       selectNode: null,
       chartVulrunAggResultsResponseDatanerabilityAggData: [],
       chartData: [],
-      chartsConfiguration
+      chartsConfiguration,
+      topologyMapSelectNode: null,
     };
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
@@ -173,6 +172,7 @@ class SimulationRun extends Component {
     this.handleAssetHoverOver = this.handleAssetHoverOver.bind(this);
     this.handleAssetRowMouseEnter = this.handleAssetRowMouseEnter.bind(this);
     this.handleAssetRowMouseOut = this.handleAssetRowMouseOut.bind(this);
+    this.handleTopologyMapAssetHover = this.handleTopologyMapAssetHover.bind(this);
     this.findDefaultAsset = this.findDefaultAsset.bind(this);
     this.getDefaultMeasurementForAsset = this.getDefaultMeasurementForAsset.bind(this);
     this.getLabelForRecording = this.getLabelForRecording.bind(this);
@@ -375,7 +375,6 @@ class SimulationRun extends Component {
   addGlobalMeasurements(measurements, chartsConfiguration) {
     return measurements.concat(chartsConfiguration.globalRecordings);
   }
-
   handleAssetClick(e) {
     console.log('handleAssetClick', 'e.currentTarget', e.currentTarget);
     // console.log('App handleAssetClick value', e.currentTarget.getAttribute('value'));
@@ -553,7 +552,6 @@ class SimulationRun extends Component {
           {linesToRender}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis interval={0} tick={{ dy: 40 }} angle={-65} dataKey="timestamp" />
-
           {leftYAxis}
           <Legend verticalAlign="top" height={36} />
           <Tooltip />
@@ -664,6 +662,7 @@ class SimulationRun extends Component {
         assetsList={FILTERED_ASSETS}
         handleAssetRowMouseEnter={this.handleAssetRowMouseEnter}
         handleAssetRowMouseOut={this.handleAssetRowMouseOut}
+        selectNode={this.state.topologyMapSelectNode}
       />
     );
   }
@@ -681,6 +680,7 @@ class SimulationRun extends Component {
           commonProps={this.props.commonProps}
           data={this.state.networkTopologyData}
           configuration={configuration}
+          handleTopologyMapAssetHover={this.handleTopologyMapAssetHover}
         />
       </div>
     );
@@ -701,6 +701,11 @@ class SimulationRun extends Component {
   handleAssetRowMouseOut(record) {
     console.log('handleAssetRowMouseOut', 'record', record);
     //this.setState({ unselectNode: record.name });
+  }
+
+  handleTopologyMapAssetHover(assetNode) {
+    console.log('handleTopologyMapAssetHover', 'assetNode', assetNode);
+    this.setState({ topologyMapSelectNode: assetNode ? assetNode.name : assetNode });
   }
 
   render() {

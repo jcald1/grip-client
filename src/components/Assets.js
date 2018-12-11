@@ -5,7 +5,9 @@ From https://ant.design/components/table/ (Dynamic Settings example)
 */
 
 import React, { Component } from 'react';
-import { Table, Icon, Switch, Radio, Form, Divider } from 'antd';
+import {
+  Table, Icon, Switch, Radio, Form, Divider
+} from 'antd';
 import Title from './Title';
 
 const FormItem = Form.Item;
@@ -51,7 +53,7 @@ const getAssets = data => {
   let peak_vulnerability_value = null;
   assets = data.map(asset => {
     peak_vulnerability = asset.calculated_recordings.filter(d => d.name === 'peak_vulnerability');
-    console.log('getAssets data recordings ', asset['name'], asset.calculated_recordings);
+    // console.log('getAssets data recordings ', asset.name, asset.calculated_recordings);
     if (peak_vulnerability.length === 1) {
       peak_vulnerability_value = peak_vulnerability[0].value;
     } else {
@@ -142,6 +144,36 @@ class Assets extends Component {
     const { value } = e.target;
     this.setState({
       pagination: value === 'none' ? false : { position: value }
+    });
+  }
+
+  clearAssetTableHighlights() {
+    console.log('clearAssetTableHighlights')
+    const allRows = document.querySelectorAll('.ant-table-tbody tr');
+    if (allRows) {
+      //allRows.forEach(row => row.classList.remove('asset-table-highlight'));
+      for (let i=0; i< allRows.length; i++) {
+        console.log('clearAssetTableHighlights','clearing',i)
+        allRows[i].classList.remove('asset-table-highlight');
+      }
+    }
+  }
+
+  hoverOverTableRow(nodeName) {
+    if (!nodeName) {
+      return null;
+    }
+    console.log('hoverOverTableRow nodeName', nodeName);
+    this.clearAssetTableHighlights();
+    this.table.props.dataSource.forEach(data => {
+      if (data.name === nodeName) {
+        console.log('hoverOverTableRow found', data, 'data.id', data.id);
+
+        const row = document.querySelector(`.ant-table-tbody tr[data-row-key='${data.id}']`);
+        if (row) {
+          row.classList.add('asset-table-highlight');
+        }
+      }
     });
   }
 
@@ -285,6 +317,29 @@ class Assets extends Component {
       <div>{renderAssets(data, handleAssetClick)}</div>
     </div> */
     }
+
+    this.table = (
+      <Table
+        size="small"
+        onRow={record => ({
+          onMouseEnter: e => {
+            this.clearAssetTableHighlights(); //For highlights resulting from network topology hover.
+            this.props.handleAssetRowMouseEnter(record);
+          },
+          onMouseOut: e => {
+            this.props.handleAssetRowMouseOut(record);
+          },
+          onClick: e => {
+            this.props.handleAssetClick(e);
+          } // click row
+        })}
+        {...this.state}
+        columns={columns}
+        dataSource={this.state.hasData ? getAssets(data) : null}
+      />
+    );
+    // console.log('!!Table', table);
+    this.hoverOverTableRow(this.props.selectNode);
     return (
       <div>
         {/*         <div className="components-table-demo-control-bar">
@@ -339,23 +394,7 @@ class Assets extends Component {
             </FormItem>
           </Form>
         </div> */}
-        <Table
-          size="small"
-          onRow={record => ({
-            onMouseEnter: e => {
-              this.props.handleAssetRowMouseEnter(record);
-            },
-            onMouseOut: e => {
-              this.props.handleAssetRowMouseOut(record);
-            },
-            onClick: e => {
-              this.props.handleAssetClick(e);
-            } // click row
-          })}
-        {...this.state}
-        columns={columns}
-        dataSource={this.state.hasData ? getAssets(data) : null}
-        />
+        {this.table}
       </div>
     );
   }

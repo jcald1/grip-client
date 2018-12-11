@@ -1,0 +1,1 @@
+For now, the D3_NetworkTopology.js and style.css files need to copied over from the glm_plotter code. Eventually these files should probably become part of a separate node node module which can be imported by both repos (glm plotter and grip-client)

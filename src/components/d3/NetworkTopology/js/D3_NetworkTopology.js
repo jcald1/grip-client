@@ -5,14 +5,13 @@
 
 // since d3 is not a top level export
 // For npm installed D3 V3
-import * as d3 from 'd3-v3';
+// import * as d3 from 'd3-v3';
+// import d3 from "../lib/js/d3.js";
+
 // Importing local d3 library because this code is incompatible with d3 V5. There is a WIP version for d3 V5 but it needs work.
 // import d3 from './lib/d3/v3/d3';
 // Create React App runs Babel and Linter.  Babel adds "use strict", wchihc breaks the D3 code.  Using a CDN instead to get the D3 V3 script from the network.  This is probably the best long term solution as well.
 // import d3 from './lib/d3/v3/d3';
-
-// import '../d3.css';
-import './style.css';
 
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable fun-names */
@@ -22,19 +21,31 @@ import './style.css';
 
 // JAC - jdechalendar@stanford.edu
 
-const OPTIONS = {
-  lineDisplayText: {
+/* const OPTIONS = {
+  linkDisplayText: {
     name: true,
     linkType: false
   }
-};
+}; */
+
+let d3; // Allow the right version to be passed in.
+
+let mouseOverHandler = e => {};
+let mouseOutHandler = e => {};
 
 const D3_NetworkTopology = {};
 
 // const width = 960;
 // const height = 760;
-const width = 720;
-const height = 437;
+// const width = 720;
+// const height = 437;
+
+const defaultConfiguration = {
+  width: 960,
+  height: 760
+};
+
+let force;
 
 function zoomFit(zoom, root, paddingPercent, transitionDuration) {
   // console.log('zoomFit', 'root',root, 'paddingPercent', paddingPercent, 'transitionDuration', transitionDuration)
@@ -60,15 +71,20 @@ function zoomFit(zoom, root, paddingPercent, transitionDuration) {
     .call(zoom.translate(translate).scale(scale).event);
 }
 
-// initialize force
-const force = d3.layout
-  .force()
-  .charge(-120)
-  .linkDistance(30)
-  .gravity(0.05)
-  .size([width, height]);
+D3_NetworkTopology.create = (el, data, configuration, d3ver) => {
+  d3 = d3 || d3ver;
 
-D3_NetworkTopology.create = (el, data, configuration) => {
+  // initialize force
+  force = d3.layout
+    .force()
+    .charge(-120)
+    .linkDistance(30)
+    .gravity(0.05)
+    .size([
+      configuration.width || defaultConfiguration.width,
+      configuration.height || defaultConfiguration.height
+    ]);
+
   const myTitle = d3.select('#main').append('h1');
 
   const svg = d3
@@ -76,8 +92,8 @@ D3_NetworkTopology.create = (el, data, configuration) => {
     .append('div')
     .attr('class', 'col')
     .append('svg')
-    .attr('width', width)
-    .attr('height', height);
+    .attr('width', configuration.width || defaultConfiguration.width)
+    .attr('height', configuration.height || defaultConfiguration.width);
 
   const container = svg.append('g');
 
@@ -167,30 +183,15 @@ D3_NetworkTopology.create = (el, data, configuration) => {
     .text(d => d.name)
     .attr('class', 'nodeNm');
 
-  // add labels at end so they are on top
-  const lineLabel = link
+  const lineLabel = link.append('text').text(function (d) {
+    return d.name;
+  });
+  const lineLabel2 = link
     .append('text')
+    .style('font-size', 16)
     .text(function (d) {
-      const txt = [];
-      if (OPTIONS.lineDisplayText.name) {
-        txt.push(d.name);
-      }
-      if (OPTIONS.lineDisplayText.linkType) {
-        txt.push(d.linkType);
-      }
-      return txt.join(': ');
-    })
-    .attr('class', 'nodeNm');
-  // Need to add x and y to line to get this to display properly
-  /*  var lineg = link
-    .append("g")
-    .append("text")
-    .style("font-size", 16)
-    .text(function(d) {
-      if (d.linkType) {
-        return d.linkType;
-      }
-    }); */
+      return d.linkType;
+    });
 
   const nodeg = node
     .append('g')
@@ -212,6 +213,29 @@ D3_NetworkTopology.create = (el, data, configuration) => {
     }
   });
 
+  link.on('mouseover', function (e) {
+    mouseOverHandler(e);
+  });
+  link.on('mouseout', function (e) {
+    mouseOutHandler(e);
+  });
+  node.on('mouseover', function (e) {
+    mouseOverHandler(e);
+    // d3.select(this).moveToFront(); //d3 extended needed
+    d3.select(this)
+      .select('circle')
+      .attr('r', 20);
+  });
+  node.on('mouseout', e => {
+    mouseOutHandler(e);
+    d3.selectAll('g.node').each(function (d) {
+      if (d.name === e.name) {
+        d3.select(this)
+          .select('circle')
+          .attr('r', 10);
+      }
+    });
+  });
   force
     .nodes(graph.nodes)
     .links(graph.links)
@@ -227,16 +251,16 @@ D3_NetworkTopology.create = (el, data, configuration) => {
     lineLabel
       .attr('x', d => (d.source.x + d.target.x) / 2 + 8)
       .attr('y', d => (d.source.y + d.target.y) / 2 + 20);
+    lineLabel2
+      .attr('x', function (d) {
+        return (d.source.x + d.target.x) / 2 + 8;
+      })
+      .attr('y', function (d) {
+        return (d.source.y + d.target.y) / 2 + 40;
+      });
     circle.attr('cx', d => d.x).attr('cy', d => d.y);
     label.attr('x', d => d.x + 8).attr('y', d => d.y);
     nodeg.attr('x', d => d.x + 8).attr('y', d => d.y + 20);
-    /*     lineg
-      .attr("x", function(d) {
-        return d.x + 8;
-      })
-      .attr("y", function(d) {
-        return d.y + 20;
-      }); */
   });
   // });
 
@@ -357,12 +381,6 @@ function nodeSelect(targetNodeName, selection) {
       console.log('Found', d, d.name);
       console.log('Selecting', d3.select(this));
       d3.select(this).classed('highlight', true);
-      // Highlight the node text too
-      /*       d3.select(this)
-        .selectAll("text,line")
-        .each(function () {
-          d3.select(this).classed('highlight', true);
-        }); */
     } else {
       nodeUnselectBySelection(d3.select(this));
     }
@@ -389,10 +407,17 @@ function changeGravity() {
   force.gravity(Number(document.getElementById('gravityVal').value));
 }
 function changeCharge() {
+  /*  */
   force.charge(Number(document.getElementById('chargeVal').value));
 }
+function registerMouseOverHandler(handler) {
+  mouseOverHandler = handler;
+}
+function registerMouseOutHandler(handler) {
+  mouseOutHandler = handler;
+}
 
-D3_NetworkTopology.update = (el, data, configuration, chart, options) => {
+D3_NetworkTopology.update = (el, data, configuration, chart) => {
   console.log('D3_NetworkTopology update');
   // d3 Code to update the chart
   console.log('update el', el);
@@ -403,7 +428,7 @@ D3_NetworkTopology.update = (el, data, configuration, chart, options) => {
     console.log('update chart', chart);
     chart.remove();
   }
-  return D3_NetworkTopology.create(el, data, configuration, options);
+  return D3_NetworkTopology.create(el, data, configuration);
 };
 
 D3_NetworkTopology.destroy = chart => {
@@ -412,6 +437,14 @@ D3_NetworkTopology.destroy = chart => {
   chart.remove();
 };
 
+D3_NetworkTopology.registerMouseOverHandler = registerMouseOverHandler;
+D3_NetworkTopology.registerMouseOutHandler = registerMouseOutHandler;
 D3_NetworkTopology.nodeSelect = nodeSelect;
+
+D3_NetworkTopology.saveXY = saveXY;
+D3_NetworkTopology.saveXYfixed = saveXYfixed;
+D3_NetworkTopology.removePrefix = removePrefix;
+D3_NetworkTopology.handleNodeSearch = handleNodeSearch;
+D3_NetworkTopology.changeGravity = changeGravity;
 
 export default D3_NetworkTopology;
