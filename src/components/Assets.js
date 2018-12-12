@@ -28,7 +28,7 @@ const title = () => 'Assets';
 const showHeader = true;
 const footer = () => 'Here is footer';
 const scroll = { y: 240 };
-const pagination = { position: 'bottom' };
+const pagination = { position: 'bottom', defaultPageSize: 5 };
 
 // TODO: Delete this after swapping in the table
 /* const renderAssets = (data, handleAssetClick) => {
@@ -64,9 +64,9 @@ const getAssets = data => {
       id: asset.id,
       name: asset.name || '-',
       type: asset.properties.class || '-',
-      substation: asset.properties.substation || '-',
-      feeder: asset.properties.feeder || '-',
-      status: asset.properties.pole_status || '-',
+      // substation: asset.properties.substation || '-',
+      // feeder: asset.properties.feeder || '-',
+      // status: asset.properties.pole_status || '-',
       peak_vulnerability: peak_vulnerability_value || '-',
       power_out_real: asset.properties.power_out_real || '-'
     };
@@ -91,7 +91,7 @@ class Assets extends Component {
       showHeader,
       // footer,
       // rowSelection: {},
-      scroll: { x: '155%' },
+      // scroll: { x: '155%' },
       hasData: true
     };
   }
@@ -148,12 +148,12 @@ class Assets extends Component {
   }
 
   clearAssetTableHighlights() {
-    console.log('clearAssetTableHighlights')
+    console.log('clearAssetTableHighlights');
     const allRows = document.querySelectorAll('.ant-table-tbody tr');
     if (allRows) {
-      //allRows.forEach(row => row.classList.remove('asset-table-highlight'));
-      for (let i=0; i< allRows.length; i++) {
-        console.log('clearAssetTableHighlights','clearing',i)
+      // allRows.forEach(row => row.classList.remove('asset-table-highlight'));
+      for (let i = 0; i < allRows.length; i++) {
+        console.log('clearAssetTableHighlights', 'clearing', i);
         allRows[i].classList.remove('asset-table-highlight');
       }
     }
@@ -229,7 +229,7 @@ class Assets extends Component {
         dataIndex: 'name',
         key: 'name',
         // width: 200
-        width: '12%',
+        width: '15%',
         sorter: (a, b) => this.stringSorter(a.name, b.name)
       },
       {
@@ -237,7 +237,7 @@ class Assets extends Component {
         dataIndex: 'type',
         key: 'type',
         // width: 80
-        width: '14%',
+        width: '12%',
         sorter: (a, b) => this.stringSorter(a.type, b.type),
         defaultSortOrder: 'ascend',
         filteredValue: this.props.assetsList,
@@ -258,7 +258,7 @@ class Assets extends Component {
         filters: this.props.assetsList.map(assetName => ({ text: assetName, value: assetName })),
         onFilter: (value, record) => this.stringFilterer(value, record, 'type')
       },
-      {
+      /* {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
@@ -275,13 +275,13 @@ class Assets extends Component {
           }
         ],
         onFilter: (value, record) => this.stringFilterer(value, record, 'status')
-      },
+      }, */
       {
         title: 'Vulnerability',
         key: 'peak_vulnerability',
         dataIndex: 'peak_vulnerability',
         sorter: (a, b) => this.numberWithDashSorter(a.peak_vulnerability, b.peak_vulnerability),
-        width: '20%'
+        width: '14%'
       },
       {
         title: 'Power\
@@ -291,8 +291,8 @@ class Assets extends Component {
         dataIndex: 'power_out_real',
         sorter: (a, b) => this.stringSorter(a.power_out_real, b.power_out_real),
         width: '15%'
-      },
-      {
+      }
+      /* {
         title: 'Substation',
         dataIndex: 'substation',
         key: 'substation',
@@ -308,7 +308,7 @@ class Assets extends Component {
         width: '16%',
         sorter: (a, b) => this.stringSorter(a.feeder, b.feeder)
         // TODO: Add Filtering by Feeder
-      }
+      } */
     ];
 
     {
@@ -323,7 +323,7 @@ class Assets extends Component {
         size="small"
         onRow={record => ({
           onMouseEnter: e => {
-            this.clearAssetTableHighlights(); //For highlights resulting from network topology hover.
+            this.clearAssetTableHighlights(); // For highlights resulting from network topology hover.
             this.props.handleAssetRowMouseEnter(record);
           },
           onMouseOut: e => {
@@ -341,7 +341,7 @@ class Assets extends Component {
     // console.log('!!Table', table);
     this.hoverOverTableRow(this.props.selectNode);
     return (
-      <div>
+      <div className="border">
         {/*         <div className="components-table-demo-control-bar">
           <Form layout="inline">
             <FormItem label="Bordered">

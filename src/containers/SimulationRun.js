@@ -574,7 +574,7 @@ class SimulationRun extends Component {
         >
           {linesToRender}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <XAxis interval={0} tick={{ dy: 40 }} angle={-65} dataKey="timestamp" />
+          <XAxis interval={0} tick={{ dy: 40 }} angle={-30} dataKey="timestamp" />
           {leftYAxis}
           <Legend verticalAlign="top" height={36} />
           <Tooltip />
@@ -624,7 +624,7 @@ class SimulationRun extends Component {
       return lineToAdd;
     });
     // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
-    const bottomMargin = 100;
+    const bottomMargin = 60;
 
     console.log('***bottomMargin', bottomMargin);
     return (
@@ -633,17 +633,17 @@ class SimulationRun extends Component {
           style={{ margin: '0 auto' }}
           margin={{
             top: 5,
-            right: 60,
+            right: 40,
             bottom: bottomMargin,
-            left: 40
+            left: 20
           }}
           width={1300}
-          height={650}
+          height={260}
           data={data}
         >
           {linesToRender}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <XAxis interval={0} tick={{ dy: 40 }} angle={-65} dataKey="timestamp" />
+          <XAxis interval={0} tick={{ dy: 40 }} angle={-30} dataKey="timestamp" />
           <YAxis
             domain={domain}
             yAxisId="left"
@@ -667,9 +667,9 @@ class SimulationRun extends Component {
   }
 
   filterAssetsTable(assets) {
-    console.log('**assets', assets);
+    //console.log('**assets', assets);
     return assets.filter(asset => {
-      console.log('**asset', asset);
+      //console.log('**asset', asset);
       return FILTERED_ASSETS.includes(asset.properties.class) ? asset.properties.class : null;
     });
   }
@@ -677,6 +677,8 @@ class SimulationRun extends Component {
   renderPoleVulnerabilityTable() {
     return (
       <Assets
+       //className="border"
+       //style={{height:'468px'}}
         data={this.filterAssetsTable(this.state.allRunAssets)}
         handleAssetClick={this.handleAssetClick}
         assetsList={FILTERED_ASSETS}
@@ -693,7 +695,6 @@ class SimulationRun extends Component {
       // nodeUnselect: this.state.unselectNode
     };
     return (
-      <div>
         <NetworkTopology
           style={{ marginTop: '20px' }}
           // handleError={this.renderErrorMessage}
@@ -702,7 +703,6 @@ class SimulationRun extends Component {
           configuration={configuration}
           handleTopologyMapAssetHover={this.handleTopologyMapAssetHover}
         />
-      </div>
     );
   }
 
@@ -779,10 +779,14 @@ class SimulationRun extends Component {
 
     const mainItems = (
       <div>
-        <Title
+        {/* <Title
           text={`${this.state.currentAsset.name} (${
             this.state.currentAsset.properties.class
           }) - ${defaultMeasurement}`}
+        /> */}
+        <Title
+          text="
+          Network Power and Vulnerability"
         />
         <div>
           {this.renderLineChartSimulationRun({
@@ -796,8 +800,10 @@ class SimulationRun extends Component {
           })}
         </div>
         <div
+        className="border"
           style={{
-            marginTop: '30px',
+            height: '448px',
+            marginTop: '10px',
             display: 'flex',
             flexWrap: 'wrap',
             WebkitFlexWrap: 'wrap' /* Safari 6.1+ */

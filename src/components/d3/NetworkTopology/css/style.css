@@ -1,9 +1,9 @@
 /* General formatting */
-.col {
+/* .col {
   width: 960px;
   margin: 0 auto;
   border: solid 1px #eee;
-}
+} */
 
 #main {
   position: relative;
@@ -49,7 +49,7 @@ circle.node {
   fill: rgb(255, 169, 44);
 }
 .node.substation circle {
-  fill: rgb(255, 255, 0);
+  fill: rgb(199, 0, 57);
 }
 .node.pole circle {
   fill: rgb(244, 113, 66);
