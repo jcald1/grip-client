@@ -26,15 +26,15 @@ import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
-const FILTERED_ASSETS = ['meter', 'overhead_line', 'pole'];
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
-const VULNERABILITY_MEASUREMENT = 'vulnerability';
 
 class SimulationRun extends Component {
   constructor(props) {
     super(props);
 
     const chartsConfiguration = {
+      filtered_assets: ['meter', 'overhead_line', 'pole'],
+      vulnerability_measurement: 'vulnerability',
       // The substation has to be mapped here
       selectionMappings: {
         substation_meter: 'node_14', // Asset List to Network Topology
@@ -486,8 +486,10 @@ class SimulationRun extends Component {
         const vulnDataforTimestep = aggResultsValues.find(o => o.timestamp === row.timestamp);
         console.log('vuln timestamp', row.timestamp);
         if (vulnDataforTimestep) {
-          newRow[VULNERABILITY_MEASUREMENT] = vulnDataforTimestep.pole_stress;
-          newRow[`${VULNERABILITY_MEASUREMENT}_recording`] = vulnDataforTimestep.recording;
+          newRow[this.state.chartsConfiguration.vulnerability_measurement] =
+            vulnDataforTimestep.pole_stress;
+          newRow[`${this.state.chartsConfiguration.vulnerability_measurement}_recording`] =
+            vulnDataforTimestep.recording;
         }
       }
       return newRow;
@@ -584,7 +586,7 @@ class SimulationRun extends Component {
   }
 
   renderLineChartSimulationRun({
-    data, lines, domain, renderXaxis, chartsConfiguration
+    data, lines, domain, yAxisLeft, chartsConfiguration
   }) {
     if (!data || !data.length || data.length === 0) {
       return null;
@@ -647,7 +649,12 @@ class SimulationRun extends Component {
           <YAxis
             domain={domain}
             yAxisId="left"
-            label={{ value: 'Vulnerability Index', angle: -90, position: 'insideLeft' }}
+            label={{
+              value: 'Vulnerability Index',
+              dy: yAxisLeft.dy,
+              angle: -90,
+              position: 'insideLeft'
+            }}
           />
           <YAxis
             yAxisId="right"
@@ -668,10 +675,9 @@ class SimulationRun extends Component {
 
   filterAssetsTable(assets) {
     //console.log('**assets', assets);
-    return assets.filter(asset => {
-      //console.log('**asset', asset);
-      return FILTERED_ASSETS.includes(asset.properties.class) ? asset.properties.class : null;
-    });
+    return assets.filter(asset => (this.state.chartsConfiguration.filtered_assets.includes(asset.properties.class)
+      ? asset.properties.class
+      : null));
   }
 
   renderPoleVulnerabilityTable() {
@@ -681,7 +687,7 @@ class SimulationRun extends Component {
        //style={{height:'468px'}}
         data={this.filterAssetsTable(this.state.allRunAssets)}
         handleAssetClick={this.handleAssetClick}
-        assetsList={FILTERED_ASSETS}
+        assetsList={this.state.chartsConfiguration.filtered_assets}
         handleAssetRowMouseEnter={this.handleAssetRowMouseEnter}
         handleAssetRowMouseOut={this.handleAssetRowMouseOut}
         selectNode={this.state.topologyMapSelectNode}
@@ -722,7 +728,9 @@ class SimulationRun extends Component {
 
   handleAssetRowMouseOut(record) {
     console.log('handleAssetRowMouseOut', 'record', record);
-    // this.setState({ unselectNode: record.name });
+    this.setState({
+      selectNode: null
+    });
   }
 
   handleTopologyMapAssetHover(assetNode) {
@@ -763,13 +771,13 @@ class SimulationRun extends Component {
         assetMeasurement,
         measurement: defaultMeasurement,
         fill: '#4682b4',
-        barSize: '20',
+        //barSize: '20',
         type: 'Bar',
         fillOpacity: '.7'
       },
       {
-        assetMeasurement: VULNERABILITY_MEASUREMENT,
-        measurement: VULNERABILITY_MEASUREMENT,
+        assetMeasurement: this.state.chartsConfiguration.vulnerability_measurement,
+        measurement: this.state.chartsConfiguration.vulnerability_measurement,
         stroke: '#008000',
         strokeWidth: 3,
         yAxisId: 'left',
@@ -796,7 +804,8 @@ class SimulationRun extends Component {
             // TODO: In the API, calculate the max values for each asset,
             // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
             domain: DEFAULT_YAXIS_DOMAIN,
-            chartsConfiguration: this.state.chartsConfiguration
+            chartsConfiguration: this.state.chartsConfiguration,
+            yAxisLeft: { dy: 40 }
           })}
         </div>
         <div
