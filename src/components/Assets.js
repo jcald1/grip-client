@@ -28,7 +28,7 @@ const title = () => 'Assets';
 const showHeader = true;
 const footer = () => 'Here is footer';
 const scroll = { y: 240 };
-const pagination = { position: 'bottom', defaultPageSize: 5 };
+const pagination = { position: 'bottom', defaultPageSize: 7 };
 
 // TODO: Delete this after swapping in the table
 /* const renderAssets = (data, handleAssetClick) => {
@@ -238,6 +238,7 @@ class Assets extends Component {
         key: 'type',
         // width: 80
         width: '12%',
+
         sorter: (a, b) => this.stringSorter(a.type, b.type),
         defaultSortOrder: 'ascend',
         filteredValue: this.props.assetsList,
@@ -262,7 +263,7 @@ class Assets extends Component {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
-        width: '14%',
+        width: '7%',
         sorter: (a, b) => this.stringSorter(a.status, b.status),
         filters: [
           {
@@ -320,7 +321,7 @@ class Assets extends Component {
 
     this.table = (
       <Table
-        size="small"
+        size="middle"
         onRow={record => ({
           onMouseEnter: e => {
             this.clearAssetTableHighlights(); // For highlights resulting from network topology hover.

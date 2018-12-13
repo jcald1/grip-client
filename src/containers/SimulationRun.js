@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
+import { Tabs } from 'antd';
 import moment from 'moment';
 import {
   LineChart,
@@ -17,6 +18,7 @@ import {
 } from 'recharts';
 import './App.css';
 import Layout from '../components/Layout';
+import SimpleMap from '../components/SimpleMap';
 import Asset from './Asset';
 import Assets from '../components/Assets';
 import Title from '../components/Title';
@@ -28,6 +30,7 @@ const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
 
+const TabPane = Tabs.TabPane;
 class SimulationRun extends Component {
   constructor(props) {
     super(props);
@@ -263,11 +266,13 @@ class SimulationRun extends Component {
         this.setState({ currentAsset, allRunAssets, selectedAssetDetailId });
         return null;
       })
-      .then(() => simulationRuns.getSimulationRunResults({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
-        simulationRunId
-      }))
+      .then(() =>
+        simulationRuns.getSimulationRunResults({
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion: DEFAULT_API_VERSION,
+          simulationRunId
+        })
+      )
       // TODO: This may belong in the API container
       .then(runResultsData => {
         console.log(
@@ -288,10 +293,12 @@ class SimulationRun extends Component {
         });
         return runResultsData;
       })
-      .then(() => networkTopology.getNetworkTopology({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION
-      }))
+      .then(() =>
+        networkTopology.getNetworkTopology({
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion: DEFAULT_API_VERSION
+        })
+      )
       .then(topologyData => {
         console.log('Topology network data', topologyData);
         if (!topologyData) {
@@ -301,11 +308,30 @@ class SimulationRun extends Component {
         this.setState({ networkTopologyData: topologyData });
         return null;
       })
-      .then(() => simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
-        simulationRunId
-      }))
+      .then(() =>
+        simulationRuns.getSimulationRunAllModelAssets({
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion: DEFAULT_API_VERSION,
+          simulationRunId
+        })
+      )
+      // TODO: This may belong in the API container
+      .then(allModelAssets => {
+        console.log('SimulationRun allModelAssets ', allModelAssets);
+        if (!allModelAssets) {
+          return Promise.reject(new Error('No data received from the API.'));
+        }
+        this.setState({
+          allModelAssets
+        });
+      })
+      .then(() =>
+        simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion: DEFAULT_API_VERSION,
+          simulationRunId
+        })
+      )
       // TODO: This may belong in the API container
       .then(runAggResultsResponseData => {
         console.log(
@@ -702,7 +728,7 @@ class SimulationRun extends Component {
     };
     return (
         <NetworkTopology
-          style={{ marginTop: '20px' }}
+          style={{ marginTop: '0px' }}
           // handleError={this.renderErrorMessage}
           commonProps={this.props.commonProps}
           data={this.state.networkTopologyData}
@@ -811,18 +837,29 @@ class SimulationRun extends Component {
         <div
         className="border"
           style={{
-            height: '448px',
-            marginTop: '10px',
+            height: '532px',
+            marginTop: '0px',
             display: 'flex',
             flexWrap: 'wrap',
+            textAlign: 'left',
             WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
           }}
         >
-          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '600px' }}>
+          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '800px', minHeight: '600px', maxHeight: '600px', maxWidth: '800px' }}>
             {this.renderPoleVulnerabilityTable()}
           </div>
-          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '600px' }}>
-            {this.renderNetworkTopologyGraph()}
+          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '800px', minHeight: '600px', maxHeight: '600px', maxWidth: '800px'}}>
+            <Tabs tabPosition="top" type="card" style={{ textAlign: 'left'}}>
+              <TabPane tab="Map" key="1">
+                <SimpleMap allModelAssets={this.state.allModelAssets} />    
+              </TabPane>
+              <TabPane tab="Network" key="2">
+                {this.renderNetworkTopologyGraph()}
+              </TabPane>
+              <TabPane tab="OMF" key="3">
+              &nbsp;&nbsp;&nbsp;OMF Rendered Image goes here
+              </TabPane>
+            </Tabs>
           </div>
         </div>
       </div>

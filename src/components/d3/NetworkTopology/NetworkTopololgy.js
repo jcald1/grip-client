@@ -12,7 +12,7 @@ class NetworkTopology extends PureComponent {
     super(props);
 
     this.configuration = {
-      width: 632.5,
+      width: 732.5,
       height: 460
     };
 
@@ -102,6 +102,7 @@ class NetworkTopology extends PureComponent {
     console.log('handleTopologyMapMouseOver', node);
     this.props.handleTopologyMapAssetHover(node);
   }
+
   handleTopologyMapMouseOut(node) {
     console.log('handleTopologyMapMouseOut', node);
     this.props.handleTopologyMapAssetHover(null);
