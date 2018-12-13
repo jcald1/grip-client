@@ -278,7 +278,7 @@ class Assets extends Component {
         onFilter: (value, record) => this.stringFilterer(value, record, 'status')
       }, */
       {
-        title: 'Vulnerability',
+        title: 'Peak Vulnerability',
         key: 'peak_vulnerability',
         dataIndex: 'peak_vulnerability',
         sorter: (a, b) => this.numberWithDashSorter(a.peak_vulnerability, b.peak_vulnerability),

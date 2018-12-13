@@ -91,7 +91,7 @@ class SimulationRun extends Component {
       recordingLabels: [
         {
           name: 'vulnerability',
-          label: 'Vulnerability Index  - pu',
+          label: 'Peak Vulnerability  - pu',
           YAxisPosition: 'left'
         },
         {
@@ -668,7 +668,7 @@ class SimulationRun extends Component {
             domain={domain}
             yAxisId="left"
             label={{
-              value: 'Vulnerability Index',
+              value: 'Peak Vulnerability',
               dy: yAxisLeft.dy,
               angle: -90,
               position: 'insideLeft'
