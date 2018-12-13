@@ -28,7 +28,7 @@ const title = () => 'Assets';
 const showHeader = true;
 const footer = () => 'Here is footer';
 const scroll = { y: 240 };
-const pagination = { position: 'bottom', defaultPageSize: 7 };
+const pagination = { position: 'bottom', defaultPageSize: 5 };
 
 // TODO: Delete this after swapping in the table
 /* const renderAssets = (data, handleAssetClick) => {
@@ -342,7 +342,7 @@ class Assets extends Component {
     // console.log('!!Table', table);
     this.hoverOverTableRow(this.props.selectNode);
     return (
-      <div className="border">
+      <div className="">
         {/*         <div className="components-table-demo-control-bar">
           <Form layout="inline">
             <FormItem label="Bordered">

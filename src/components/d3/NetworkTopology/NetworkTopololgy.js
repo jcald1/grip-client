@@ -12,7 +12,7 @@ class NetworkTopology extends PureComponent {
     super(props);
 
     this.configuration = {
-      width: 732.5,
+      width: 632.5,
       height: 460
     };
 

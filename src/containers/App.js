@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import Explore from '../components/Explore';
-import BarChart from '../components/d3/BarChart/BarChart';
 import { resetErrorMessage } from '../actions';
 
 import Button from 'antd/lib/button';

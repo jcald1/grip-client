@@ -266,13 +266,11 @@ class SimulationRun extends Component {
         this.setState({ currentAsset, allRunAssets, selectedAssetDetailId });
         return null;
       })
-      .then(() =>
-        simulationRuns.getSimulationRunResults({
-          baseUrl: this.props.commonProps.apiPath,
-          apiVersion: DEFAULT_API_VERSION,
-          simulationRunId
-        })
-      )
+      .then(() => simulationRuns.getSimulationRunResults({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION,
+        simulationRunId
+      }))
       // TODO: This may belong in the API container
       .then(runResultsData => {
         console.log(
@@ -293,12 +291,10 @@ class SimulationRun extends Component {
         });
         return runResultsData;
       })
-      .then(() =>
-        networkTopology.getNetworkTopology({
-          baseUrl: this.props.commonProps.apiPath,
-          apiVersion: DEFAULT_API_VERSION
-        })
-      )
+      .then(() => networkTopology.getNetworkTopology({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION
+      }))
       .then(topologyData => {
         console.log('Topology network data', topologyData);
         if (!topologyData) {
@@ -308,13 +304,11 @@ class SimulationRun extends Component {
         this.setState({ networkTopologyData: topologyData });
         return null;
       })
-      .then(() =>
-        simulationRuns.getSimulationRunAllModelAssets({
-          baseUrl: this.props.commonProps.apiPath,
-          apiVersion: DEFAULT_API_VERSION,
-          simulationRunId
-        })
-      )
+      .then(() => simulationRuns.getSimulationRunAllModelAssets({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION,
+        simulationRunId
+      }))
       // TODO: This may belong in the API container
       .then(allModelAssets => {
         console.log('SimulationRun allModelAssets ', allModelAssets);
@@ -325,13 +319,11 @@ class SimulationRun extends Component {
           allModelAssets
         });
       })
-      .then(() =>
-        simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
-          baseUrl: this.props.commonProps.apiPath,
-          apiVersion: DEFAULT_API_VERSION,
-          simulationRunId
-        })
-      )
+      .then(() => simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION,
+        simulationRunId
+      }))
       // TODO: This may belong in the API container
       .then(runAggResultsResponseData => {
         console.log(
@@ -580,9 +572,9 @@ class SimulationRun extends Component {
         orientation="left"
         label={{
           value: measureLabelLeft,
-          angle: -90,
+          angle: 90,
           position: 'outside',
-          dx: -40
+          dx: -50
         }}
       />
     );
@@ -596,7 +588,7 @@ class SimulationRun extends Component {
             bottom: bottomMargin,
             left: 40
           }}
-          width={1100}
+          width={1300}
           height={600}
           data={data}
         >
@@ -671,7 +663,7 @@ class SimulationRun extends Component {
         >
           {linesToRender}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <XAxis interval={0} tick={{ dy: 40 }} angle={-30} dataKey="timestamp" />
+          <XAxis interval={0} tick={{ dy: 20 }} angle={-90} dataKey="timestamp" />
           <YAxis
             domain={domain}
             yAxisId="left"
@@ -700,7 +692,7 @@ class SimulationRun extends Component {
   }
 
   filterAssetsTable(assets) {
-    //console.log('**assets', assets);
+    // console.log('**assets', assets);
     return assets.filter(asset => (this.state.chartsConfiguration.filtered_assets.includes(asset.properties.class)
       ? asset.properties.class
       : null));
@@ -709,8 +701,8 @@ class SimulationRun extends Component {
   renderPoleVulnerabilityTable() {
     return (
       <Assets
-       //className="border"
-       //style={{height:'468px'}}
+        // className="border"
+        // style={{height:'468px'}}
         data={this.filterAssetsTable(this.state.allRunAssets)}
         handleAssetClick={this.handleAssetClick}
         assetsList={this.state.chartsConfiguration.filtered_assets}
@@ -727,14 +719,14 @@ class SimulationRun extends Component {
       // nodeUnselect: this.state.unselectNode
     };
     return (
-        <NetworkTopology
-          style={{ marginTop: '0px' }}
-          // handleError={this.renderErrorMessage}
-          commonProps={this.props.commonProps}
-          data={this.state.networkTopologyData}
-          configuration={configuration}
-          handleTopologyMapAssetHover={this.handleTopologyMapAssetHover}
-        />
+      <NetworkTopology
+        style={{ marginTop: '0px' }}
+        // handleError={this.renderErrorMessage}
+        commonProps={this.props.commonProps}
+        data={this.state.networkTopologyData}
+        configuration={configuration}
+        handleTopologyMapAssetHover={this.handleTopologyMapAssetHover}
+      />
     );
   }
 
@@ -797,7 +789,7 @@ class SimulationRun extends Component {
         assetMeasurement,
         measurement: defaultMeasurement,
         fill: '#4682b4',
-        //barSize: '20',
+        // barSize: '20',
         type: 'Bar',
         fillOpacity: '.7'
       },
@@ -835,9 +827,9 @@ class SimulationRun extends Component {
           })}
         </div>
         <div
-        className="border"
+          className="border"
           style={{
-            height: '532px',
+            height: '460px',
             marginTop: '0px',
             display: 'flex',
             flexWrap: 'wrap',
@@ -845,19 +837,23 @@ class SimulationRun extends Component {
             WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
           }}
         >
-          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '800px', minHeight: '600px', maxHeight: '600px', maxWidth: '800px' }}>
+          <div style={{
+            flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
+          }}>
             {this.renderPoleVulnerabilityTable()}
           </div>
-          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '800px', minHeight: '600px', maxHeight: '600px', maxWidth: '800px'}}>
-            <Tabs tabPosition="top" type="card" style={{ textAlign: 'left'}}>
+          <div style={{
+            flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
+          }}>
+            <Tabs tabPosition="top" type="card">
               <TabPane tab="Map" key="1">
-                <SimpleMap allModelAssets={this.state.allModelAssets} />    
+                <SimpleMap allModelAssets={this.state.allModelAssets} />
               </TabPane>
-              <TabPane tab="Network" key="2">
+              <TabPane tab="Network" key="2" style={{ textAlign: 'left ' }}>
                 {this.renderNetworkTopologyGraph()}
               </TabPane>
-              <TabPane tab="OMF" key="3">
-              &nbsp;&nbsp;&nbsp;OMF Rendered Image goes here
+              <TabPane tab="OMF" key="3" style={{ textAlign: 'left' }}>
+                &nbsp;&nbsp;&nbsp;OMF Rendered Image goes here
               </TabPane>
             </Tabs>
           </div>
