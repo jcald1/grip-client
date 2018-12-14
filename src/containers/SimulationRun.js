@@ -38,6 +38,7 @@ class SimulationRun extends Component {
     const chartsConfiguration = {
       filtered_assets: ['meter', 'overhead_line', 'pole'],
       vulnerability_measurement: 'vulnerability',
+      criticalVulnerability: 1,
       // The substation has to be mapped here
       selectionMappings: {
         substation_meter: 'node_14', // Asset List to Network Topology
@@ -803,6 +804,29 @@ class SimulationRun extends Component {
       }
     ];
 
+    console.log('this.state.currentAsset.calculated_recordings' , this.state.currentAsset.calculated_recordings);
+    const poleStaticValues = [
+      {
+        name: 'critical_pole_stress',
+        value: this.state.chartsConfiguration.criticalVulnerability,
+      }
+    ];
+    const combinedData = this.mapResponseToChartData(
+      chartData,
+      poleStaticValues
+    );
+    const criticalPoleStressLine = {
+      yAxisId: 'left',
+      assetMeasurement: 'critical_pole_stress',
+      measurement: 'critical_pole_stress',
+      stroke: '#008000',
+      strokeDasharray: '5 5',
+      strokeWidth: 3,
+      type: 'Line'
+    };
+
+    linesToAdd.push(criticalPoleStressLine);
+
     const mainItems = (
       <div>
         {/* <Title
@@ -817,7 +841,7 @@ class SimulationRun extends Component {
         <div>
           {this.renderLineChartSimulationRun({
             // data: renderPoleData,
-            data: chartData,
+            data: combinedData,
             lines: linesToAdd,
             // TODO: In the API, calculate the max values for each asset,
             // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
