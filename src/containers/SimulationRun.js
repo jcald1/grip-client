@@ -572,7 +572,7 @@ class SimulationRun extends Component {
         orientation="left"
         label={{
           value: measureLabelLeft,
-          angle: 90,
+          angle: -90,
           position: 'outside',
           dx: -50
         }}
@@ -594,7 +594,7 @@ class SimulationRun extends Component {
         >
           {linesToRender}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <XAxis interval={0} tick={{ dy: 40 }} angle={-30} dataKey="timestamp" />
+          <XAxis interval={0} tick={{ dy: 40 }} angle={-90} dataKey="timestamp" />
           {leftYAxis}
           <Legend verticalAlign="top" height={36} />
           <Tooltip />
@@ -833,7 +833,6 @@ class SimulationRun extends Component {
             marginTop: '0px',
             display: 'flex',
             flexWrap: 'wrap',
-            textAlign: 'left',
             WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
           }}
         >
@@ -845,7 +844,7 @@ class SimulationRun extends Component {
           <div style={{
             flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
           }}>
-            <Tabs tabPosition="top" type="card">
+            <Tabs tabPosition="top" type="card" style={{textAlign: 'left'}}>
               <TabPane tab="Map" key="1">
                 <SimpleMap allModelAssets={this.state.allModelAssets} />
               </TabPane>

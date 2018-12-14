@@ -290,11 +290,12 @@ class Asset extends Component {
       <div>
         <Row>
           <Col span={24}>
-            <Title
-              text={`${title} - ${this.props.getAliasForRecording(
+            {/* `- ${this.props.getAliasForRecording(
                 this.state.selectedMeasurement,
                 this.props.chartsConfiguration
-              )}`}
+              )` */}
+            <Title
+              text={`${title}`}
             />
             {poleVulnerabilitySubTitle}
             <div>

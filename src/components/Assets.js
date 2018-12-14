@@ -240,7 +240,7 @@ class Assets extends Component {
         width: '12%',
 
         sorter: (a, b) => this.stringSorter(a.type, b.type),
-        defaultSortOrder: 'ascend',
+        //defaultSortOrder: 'ascend',
         filteredValue: this.props.assetsList,
         /*         filters: [
           {
@@ -281,6 +281,7 @@ class Assets extends Component {
         title: 'Vulnerability',
         key: 'peak_vulnerability',
         dataIndex: 'peak_vulnerability',
+        defaultSortOrder: 'descend',
         sorter: (a, b) => this.numberWithDashSorter(a.peak_vulnerability, b.peak_vulnerability),
         width: '14%'
       },
