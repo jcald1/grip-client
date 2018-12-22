@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-import { assetDefaultStyle, assetStyleHover, assetDefaultTxtStyle, assetTxtStyleHover } from './AssetRenderOnMapStyles';
-
 export default class AssetRenderOnMap extends Component {
   // eslint-disable-next-line no-useless-constructor
   constructor(props) {
@@ -9,11 +7,15 @@ export default class AssetRenderOnMap extends Component {
   }
 
   render() {
-    const style = this.props.$hover ? assetStyleHover : assetDefaultStyle;
-    const txtstyle = this.props.$hover ? assetTxtStyleHover : assetDefaultTxtStyle;
+    const style = this.props.$hover ? 'map-asset-hover' : 'map-asset';
+    const txtstyle = this.props.$hover ? 'map-asset-txt-hover' : 'map-asset-txt';
 
-    return <div style={style}>
-    <div style={txtstyle}>{this.props.text}</div>
-    </div>;
+    return (
+      <div id={`${this.props.text}-map`} className={style}>
+        <div id={`${this.props.text}-txt`} className={txtstyle}>
+          {this.props.text}
+        </div>
+      </div>
+    );
   }
 }
