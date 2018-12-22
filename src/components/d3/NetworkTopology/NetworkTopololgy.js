@@ -43,6 +43,7 @@ class NetworkTopology extends PureComponent {
           d3
         );
         console.log('componentDidMount this.d3_NetworkTopology', this.d3_NetworkTopology);
+                  
       } catch (err) {
         this.props.commonProps.handleError(err);
       }
@@ -77,6 +78,7 @@ class NetworkTopology extends PureComponent {
       if (this.props.configuration && this.props.configuration.nodeSelect) {
         D3_NetworkTopology.nodeSelect(this.props.configuration.nodeSelect);
       }
+
     }
   }
 

@@ -36,6 +36,14 @@ class SimulationRun extends Component {
     super(props);
 
     const chartsConfiguration = {
+      vulnerabilityBands: {
+         low: 0.8,
+        medium: 1,
+        high: null // infinite 
+/*         low: 0.005,
+        medium: 0.01,
+        high: null // infinite */
+      },
       filtered_assets: ['meter', 'overhead_line', 'pole'],
       vulnerability_measurement: 'vulnerability',
       criticalVulnerability: 1,
@@ -176,7 +184,12 @@ class SimulationRun extends Component {
       chartVulrunAggResultsResponseDatanerabilityAggData: [],
       chartData: [],
       chartsConfiguration,
-      topologyMapSelectNode: null
+      topologyMapSelectNode: null,
+      vulnerabilityBands: {
+        low : [],
+        medium: [],
+        high: []
+      }
     };
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
@@ -254,6 +267,7 @@ class SimulationRun extends Component {
         if (!allRunAssets) {
           return Promise.reject(new Error('No simulation run data received from the API.'));
         }
+        this.createVulnerabilityBands(allRunAssets);
         console.log(
           ' this.state.chartsConfiguration',
           this.state.chartsConfiguration,
@@ -353,6 +367,41 @@ class SimulationRun extends Component {
       .finally(() => {
         this.setState({ getingSimulationRun: false });
       });
+  }
+
+  createVulnerabilityBands(allRunAssets) {
+    console.log('SimulationRun createVulnerabilityBands allRunAssets', allRunAssets);
+    const vulnerabilityBands = {
+      low : [],
+      medium: [],
+      high: []
+    };
+    allRunAssets.forEach(asset => {
+      //console.log('1Adding asset',asset)
+      const peakVulnerabilityObj = asset.calculated_recordings.find(obj => { 
+        if (obj.name === 'peak_vulnerability') {
+          return obj
+        };
+      });
+      console.log('1Adding peakVulnerabilityObj',peakVulnerabilityObj)
+      if (!peakVulnerabilityObj || !peakVulnerabilityObj.value) {
+        //console.log('1Adding no vulnerability', asset, asset.name);
+        return;
+      }
+      if ( peakVulnerabilityObj.value < this.state.chartsConfiguration.vulnerabilityBands.low) {
+        //vulnerabilityBands.low.push(asset.name);
+      }
+      else if ( peakVulnerabilityObj.value  < this.state.chartsConfiguration.vulnerabilityBands.medium) {
+        //console.log('1Adding medium asset',asset, asset.name)
+        vulnerabilityBands.medium.push(asset.name);
+      }
+      else {
+        //console.log('1Adding high asset',asset, asset.name)
+        vulnerabilityBands.high.push(asset.name);
+      }
+    });
+    console.log('1Adding Setting state vulnerabilityBands', vulnerabilityBands);
+    this.setState({vulnerabilityBands});
   }
 
   getAssetMeasurement(asset, measurement) {
@@ -710,14 +759,15 @@ class SimulationRun extends Component {
         handleAssetRowMouseEnter={this.handleAssetRowMouseEnter}
         handleAssetRowMouseOut={this.handleAssetRowMouseOut}
         selectNode={this.state.topologyMapSelectNode}
+        selectionBands={this.state.vulnerabilityBands}
       />
     );
   }
 
   renderNetworkTopologyGraph() {
     const configuration = {
-      nodeSelect: this.state.selectNode
-      // nodeUnselect: this.state.unselectNode
+      nodeSelect: this.state.selectNode,
+      selectionBands: this.state.vulnerabilityBands
     };
     return (
       <NetworkTopology
@@ -759,6 +809,7 @@ class SimulationRun extends Component {
       assetNodeName =
         this.state.chartsConfiguration.selectionMappings[assetNode.name] || assetNode.name;
     }
+    console.log('handleTopologyMapAssetHover setting topologyMapSelectNode assetNodeName', assetNodeName);
     this.setState({ topologyMapSelectNode: assetNodeName });
   }
 

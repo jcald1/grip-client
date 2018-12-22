@@ -159,12 +159,35 @@ class Assets extends Component {
     }
   }
 
+  colorVulnerabilityBands() {
+    console.log('colorVulnerabilityBands this.props.selectionBands',this.props.selectionBands);
+    if (!this.props.selectionBands) {
+      return
+    }
+    const levels = ['medium','high'];
+    this.table.props.dataSource.forEach(data => {
+      levels.forEach( level => {
+      this.props.selectionBands[level].forEach(item => {
+        if (data.name === item) {
+        
+          console.log('coloring', data, 'data.id', data.id);
+  
+          const row = document.querySelector(`.ant-table-tbody tr[data-row-key='${data.id}']`);
+          if (row) {
+            row.classList.add(`asset-table-${level}`);
+          }
+        }
+      })
+    })
+    })
+  }
+
   hoverOverTableRow(nodeName) {
+    console.log('hoverOverTableRow nodeName', nodeName);
+    this.clearAssetTableHighlights();
     if (!nodeName) {
       return null;
     }
-    console.log('hoverOverTableRow nodeName', nodeName);
-    this.clearAssetTableHighlights();
     this.table.props.dataSource.forEach(data => {
       if (data.name === nodeName) {
         console.log('hoverOverTableRow found', data, 'data.id', data.id);
@@ -341,6 +364,7 @@ class Assets extends Component {
       />
     );
     // console.log('!!Table', table);
+    this.colorVulnerabilityBands();
     this.hoverOverTableRow(this.props.selectNode);
     return (
       <div className="">

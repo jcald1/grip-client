@@ -54,6 +54,14 @@
   background-color: rgb(230, 247, 255);
 }
 
+.asset-table-medium {
+  background-color: orange;
+}
+
+.asset-table-high {
+  background-color: red;
+}
+
 .border {
   border: 1px solid #e8e8e8;
 }
