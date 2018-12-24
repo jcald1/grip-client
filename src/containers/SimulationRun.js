@@ -922,7 +922,8 @@ class SimulationRun extends Component {
             <Tabs tabPosition="top" type="card" style={{textAlign: 'left'}}>
               <TabPane tab="Map" key="1">
                 <SimpleMap allModelAssets={this.state.allModelAssets}
-                selectedNode={this.state.selectNode} />
+                selectedNode={this.state.selectNode}
+                selectionBands={this.state.vulnerabilityBands} />
               </TabPane>
               <TabPane tab="Network" key="2" style={{ textAlign: 'left ' }}>
                 {this.renderNetworkTopologyGraph()}

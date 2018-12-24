@@ -75,9 +75,31 @@ class SimpleMap extends Component {
       infoWindowToClose.close();
       this.currentInfoWindow = null;
     }
-
     // reselect the assets in vuln state
+    this.colorVulnerabilityBands();
+  }
 
+  colorVulnerabilityBands() {
+    console.log('colorVulnerabilityBands SimpleMap this.props.selectionBands',this.props.selectionBands);
+    if (!this.props.selectionBands) {
+      return;
+    }
+    const levels = ['medium','high']; 
+    levels.forEach( level => {
+      console.log('selectionbands level', level);
+      this.props.selectionBands[level].forEach(item => {
+        console.log('selectionbands item', item, level);
+        const row = document.querySelector(`[id$=${item}-map]`);
+        console.log('selectionbands row', row);
+        if (row) {
+          row.classList.add(`map-asset-hover-vuln-${level}`);
+        } 
+        const rowtxt = document.querySelector(`[id$=${item}-txt]`);
+        if (rowtxt) {
+          rowtxt.classList.add('map-asset-txt-hover-vuln');
+        }
+      });
+    });
   }
 
   nodeSelect(nodeName) {
@@ -205,6 +227,7 @@ class SimpleMap extends Component {
 
       }
     });
+    this.colorVulnerabilityBands();
     this.setState({ polyLinesMap });
   }
 

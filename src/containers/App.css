@@ -96,12 +96,54 @@
   z-index: 9998;
 }
 
+.map-asset-hover-vuln-high {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  color: black;
+  background: red;
+  display: inline-flex;
+  justify-content: center;
+  border-radius: 100%;
+  transform: translate(-50%, -50%);
+  z-index: 9998;
+}
+
+.map-asset-hover-vuln-medium {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+  color: black;
+  display: inline-flex;
+  justify-content: center;
+  border-radius: 100%;
+  transform: translate(-50%, -50%);
+  background: orange;
+  width: 10;
+  height: 10;
+  z-index: 9998;
+}
+
 .map-asset-txt {
   visibility: hidden;
 }
 
 .map-asset-txt-hover {
   font-size: 25px;
+  font-weight: bold;
+  visibility: visible;
+  padding: 5px 5px;
+  z-index: 9999;
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.map-asset-txt-hover-vuln {
+  font-size: 30px;
   font-weight: bold;
   visibility: visible;
   padding: 5px 5px;
