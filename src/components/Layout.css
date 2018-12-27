@@ -1,4 +1,37 @@
-.Layout {
+/* .Layout {
   text-align: center;
-  padding: 15px;
+} */
+
+.left-navbar {
+  margin-top: 50px;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #0050b3;
+  /* padding: 10px; */
+  width: 130px;
+  height: 100%;
+}
+
+.top-navbar {
+  height: 50px;
+  z-index: 2;
+  top: 0;
+  left: 100px;
+  background-color: #0050b3;
+  /* padding-top: 10px; */
+  width: 100%;
+}
+
+.nav-text {
+  color: white;
+}
+
+.nav-text-inactive {
+  color: darkgray;
+}
+
+.nav-item:hover {
+  background-color: #030852;
 }

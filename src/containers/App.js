@@ -16,8 +16,11 @@ import Layout from '../components/Layout';
 import Admin from './Admin';
 import { Redirect } from 'react-router-dom';
 import './App.css';
-
+import Category from '../components/Category';
+import CategoryItem from '../components/CategoryItem';
 import simulationRuns from '../actions/simulationRuns';
+import moment from 'moment';
+
 var qs = require('qs');
 const { Header } = Layout;
 
@@ -211,52 +214,46 @@ class App extends Component {
 
     return (
       <div
-        style={{ width: '100%', backgroundColor: 'red', color: 'white', fontSize: '30px' }}
+        style={{ width: '100%', backgroundColor: 'red', color: 'white', fontSize: '30px', paddingLeft: '130px' }}
         className="logo"
       >
-        Error Occured - {this.state.error.message}
+        <div style={{ paddingLeft: '20px'}}> Error Occured - {this.state.error.message}</div>
       </div>
     );
   }
 
+  getSimulationRunMenuItems() {
+    if (!this.state.simulationRunRequestsMetadata) {
+      return null;
+    }
+
+    return this.state.simulationRunRequestsMetadata.map(run => {
+      const runDate = moment(run.created_at).format('HH:mm:ss MM/DD/YY');
+      const details = (<div className="nav-item" style={{overflowWrap: 'break-word'}} data-row-key={run.id} onClick={this.handleSimulationRunRequestClick}>{runDate}<br/>{run.simulation_filename}</div>);
+      return (<CategoryItem>{details}</CategoryItem>);
+    })
+    
+  }
   render() {
     console.log('App render this.commonProps', this.commonProps, 'this.state', this.state);
     const { children, inputValue } = this.props;
-    // TODO: Move to Redux
+
+    const simulationRuns =  this.getSimulationRunMenuItems();
 
     const simulationRunRequestsLeftNavItems = [
-      <div key="left-nav-1">
-        <Button
-          className="nav-button"
-          style={{ height: '55px', display: 'block' }}
-          type="primary"
-          onClick={this.handleRunSimulationClick}
-        >
-          Run
-          <br />
-          Simulation
-        </Button>
-        <Button className="nav-button"
-          style={{ height: '82px', display: 'block' }}
-          type="primary"
-          onClick={this.handleGetSimulationRunsClick}
-        >
-          Refresh
-          <br />
-          Simulation
-          <br />
-          Runs
-        </Button>
-      </div>
-    ];
+      <Category key="anticipation" name='Anticipation' items={simulationRuns}/>,
+      <Category key="absorption" name='Absorption' style={{marginTop: '20px'}} active={false}/>,
+      <Category key="recovery" name='Recovery' style={{marginTop: '20px'}} active={false}/>,
+      <Category key="settings" name='Settings' style={{marginTop: '20px'}}/>
+    ]
 
-    const simulationRunRequestsMainItems = [
+    /* const simulationRunRequestsMainItems = [
       <SimulationRunRequests
         data={this.state.simulationRunRequestsMetadata}
         handleSimulationRunRequestClick={this.handleSimulationRunRequestClick}
         key="main-items-1"
       />
-    ];
+    ]; */
 
     const mainItems = <div />;
 
@@ -269,7 +266,8 @@ class App extends Component {
           render={props => (
             <Layout
               leftNavItems={simulationRunRequestsLeftNavItems}
-              mainItems={simulationRunRequestsMainItems}
+              /* mainItems={simulationRunRequestsMainItems} */
+              mainItems={null}
             />
           )}
         />

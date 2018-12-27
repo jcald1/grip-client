@@ -13,9 +13,10 @@ class Layout extends Component {
 
   handleButtonClick(e) {
     console.log('e.currentTarget.getAttribute...', e.currentTarget.getAttribute('path'));
+    const path = e.currentTarget.getAttribute('path') ? e.currentTarget.getAttribute('path') : '/';
     const { history } = this.props;
     history.push({
-      pathname: e.currentTarget.getAttribute('path')
+      pathname: path
     });
   }
 
@@ -34,41 +35,53 @@ class Layout extends Component {
           WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
         }}
       >
-        <div style={{ marginRight: '20px', width: '100px' }} className="left-nav-items">
-          <Button
-            style={{ display: 'block' }}
-            type="primary"
-            onClick={this.handleButtonClick}
-            history={history}
-            path="/"
-          >
-            Home
-          </Button>
-          <Button className="nav-button"
-            style={{ display: 'block' }}
-            type="primary"
-            onClick={this.handleButtonClick}
-            history={history}
-            path="/admin"
-          >
-            Admin
-          </Button>
 
+
+        <div className="left-navbar">
           {leftNavItems}
+          <div style={{ margin: '0 auto', padding: '10px' }}>
+            <Button
+              className="nav-button"
+              style={{ display: 'block', margin: '0 auto' }}
+              type="primary"
+              onClick={this.handleButtonClick}
+              history={history}
+              path="/admin"
+            >
+              Admin
+            </Button>
+          </div>
         </div>
-        {/*         <div
-          className="main-body"
-          style={{
-            flexGrow: 1
-            // paddingRight: '10px'
-          }} */}
+
+        <div className="top-navbar" style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div
+            className="nav-text"
+            style={{
+              display: 'inline-block',
+              fontSize: '28px',
+              width: '100px',
+              padding: '10px 30px'
+            }}
+            onClick={this.handleButtonClick}
+          >
+            GRIP
+          </div>
+          <div
+            className="nav-text"
+            style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}
+          >
+            jane.doe@slac.stanford.edu
+          </div>
+        </div>
+
         <div
           className="main-body"
           style={{
             minWidth: '1200px',
             flexGrow: 1,
             flexBasis: 0,
-            paddingRight: '10px'
+            padding: '20px',
+            marginLeft: '130px'
           }}
         >
           {mainItems}
