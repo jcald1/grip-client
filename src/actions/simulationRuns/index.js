@@ -165,7 +165,7 @@ const postSimulationRunSubmission = ({ baseUrl, apiVersion }) => {
   return axios
     .post(urlPath, {
       name: 'submission1',
-      duration: 1000000,
+      duration: 24,
       interval: 3600,
       weather_datasource_id: 1,
       network_datasource_id: 2
