@@ -19,10 +19,12 @@ import {
 import './App.css';
 import Layout from '../components/Layout';
 import SimpleMap from '../components/SimpleMap';
+import OMFTopologyMap from '../components/OMFTopologyMap';
 import Asset from './Asset';
 import Assets from '../components/Assets';
 import Title from '../components/Title';
 import simulationRuns from '../actions/simulationRuns';
+import omf from '../actions/omf';
 import networkTopology from '../actions/networkTopology';
 import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
 
@@ -37,7 +39,7 @@ class SimulationRun extends Component {
 
     const chartsConfiguration = {
       vulnerabilityBands: {
-         low: 0.8,
+        low: 0.8,
         medium: 1,
         high: null // infinite 
 /*         low: 0.005,
@@ -185,6 +187,7 @@ class SimulationRun extends Component {
       chartData: [],
       chartsConfiguration,
       topologyMapSelectNode: null,
+      omfTopologyImage: null,
       vulnerabilityBands: {
         low : [],
         medium: [],
@@ -253,6 +256,38 @@ class SimulationRun extends Component {
     this.setState({ getingSimulationRun: true });
     // TODO: Some of these calls may be able to be done in parallel.
 
+    omf.getOMFTopologyImage({
+      baseUrl: this.props.commonProps.apiPath,
+      apiVersion: DEFAULT_API_VERSION,
+      simulationRunId
+    })
+    // TODO: This may belong in the API container
+      .then(omfTopologyImage => {
+        console.log('SimulationRun omfTopologyImage ', omfTopologyImage);
+        if (!omfTopologyImage) {
+          return Promise.reject(new Error('No data received from the API.'));
+        }
+        this.setState({
+          omfTopologyImage
+        });
+      });
+
+    simulationRuns.getSimulationRunAllModelAssets({
+      baseUrl: this.props.commonProps.apiPath,
+      apiVersion: DEFAULT_API_VERSION,
+      simulationRunId
+    })
+    // TODO: This may belong in the API container
+      .then(allModelAssets => {
+        console.log('SimulationRun allModelAssets ', allModelAssets);
+        if (!allModelAssets) {
+          return Promise.reject(new Error('No data received from the API.'));
+        }
+        this.setState({
+          allModelAssets
+        });
+      });
+
     simulationRuns
       .getSimulationRunAssets({
         baseUrl: this.props.commonProps.apiPath,
@@ -318,21 +353,6 @@ class SimulationRun extends Component {
 
         this.setState({ networkTopologyData: topologyData });
         return null;
-      })
-      .then(() => simulationRuns.getSimulationRunAllModelAssets({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
-        simulationRunId
-      }))
-      // TODO: This may belong in the API container
-      .then(allModelAssets => {
-        console.log('SimulationRun allModelAssets ', allModelAssets);
-        if (!allModelAssets) {
-          return Promise.reject(new Error('No data received from the API.'));
-        }
-        this.setState({
-          allModelAssets
-        });
       })
       .then(() => simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
         baseUrl: this.props.commonProps.apiPath,
@@ -929,7 +949,9 @@ class SimulationRun extends Component {
                 {this.renderNetworkTopologyGraph()}
               </TabPane>
               <TabPane tab="OMF" key="3" style={{ textAlign: 'left' }}>
-                &nbsp;&nbsp;&nbsp;OMF Rendered Image goes here
+                <OMFTopologyMap
+                simulationRunId={this.state.simulationRunId}
+                omfTopologyImage={this.state.omfTopologyImage}/>
               </TabPane>
             </Tabs>
           </div>
