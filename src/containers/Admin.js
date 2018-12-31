@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import Title from '../components/Title';
 import TestPage from './TestPage';
 import './App.css';
+import path from 'path'
 
 class Admin extends Component {
   constructor(props) {
@@ -14,7 +15,7 @@ class Admin extends Component {
 
   handleTestPageClick(e) {
     this.props.history.push({
-      pathname: `${this.props.location.pathname}/test`
+      pathname:path.join(this.props.location.pathname, 'test')
     });
   }
 
@@ -36,11 +37,11 @@ class Admin extends Component {
       <div>
         <Route
           exact
-          path={`${this.props.match.url}`}
+          path={`${this.props.match.path}`}
           render={props => <Layout leftNavItems={leftNavItems} mainItems={mainItems} />}
         />
         <Route
-          path={`${this.props.match.url}/test`}
+          path={`${this.props.match.path}/test`}
           render={props => (
             <div>
               <TestPage commonProps={this.props.commonProps} />

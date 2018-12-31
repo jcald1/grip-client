@@ -20,6 +20,7 @@ import Category from '../components/Category';
 import CategoryItem from '../components/CategoryItem';
 import simulationRuns from '../actions/simulationRuns';
 import moment from 'moment';
+import path from 'path'
 
 var qs = require('qs');
 const { Header } = Layout;
@@ -52,8 +53,6 @@ class App extends Component {
     this.state = {
       error: null,
       simulationRunRequestsMetadata: [],
-
-      sendingSimulationRunRequest: false,
       getingSimulationRuns: true
     };
 
@@ -108,20 +107,10 @@ class App extends Component {
 
   handleRunSimulationClick(e) {
     console.log('App handleRunSimulationClick e.target', e.target);
-    // TODO: Add message to user
-    this.setState({ sendingSimulationRunRequest: true });
-    simulationRuns
-      .postSimulationRunSubmission({
-        baseUrl: this.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION
-      })
-      // TODO: Add error to page
-      .catch(err => {
-        this.handleError(err);
-      })
-      .finally(() => {
-        this.setState({ sendingSimulationRunRequest: false });
-      });
+    console.log('e.currentTarget',e.currentTarget);
+    this.props.history.push({
+      pathname: path.join(this.props.location.pathname, 'simulation-runs')
+    });
   }
 
   navigateToSimulationRun(simulationRunId) {
@@ -230,7 +219,7 @@ class App extends Component {
     return this.state.simulationRunRequestsMetadata.map(run => {
       const runDate = moment(run.created_at).format('HH:mm:ss MM/DD/YY');
       const details = (<div className="nav-item" style={{overflowWrap: 'break-word'}} data-row-key={run.id} onClick={this.handleSimulationRunRequestClick}>{runDate}<br/>{run.simulation_filename}</div>);
-      return (<CategoryItem>{details}</CategoryItem>);
+      return (<CategoryItem key={run.id}>{details}</CategoryItem>);
     })
     
   }
@@ -241,7 +230,7 @@ class App extends Component {
     const simulationRuns =  this.getSimulationRunMenuItems();
 
     const simulationRunRequestsLeftNavItems = [
-      <Category key="anticipation" name='Anticipation' items={simulationRuns}/>,
+      <Category key="anticipation" name='Anticipation' items={simulationRuns} handlePlusClick={this.handleRunSimulationClick}/>,
       <Category key="absorption" name='Absorption' style={{marginTop: '20px'}} active={false}/>,
       <Category key="recovery" name='Recovery' style={{marginTop: '20px'}} active={false}/>,
       <Category key="settings" name='Settings' style={{marginTop: '20px'}}/>
@@ -269,6 +258,15 @@ class App extends Component {
               /* mainItems={simulationRunRequestsMainItems} */
               mainItems={null}
             />
+          )}
+        />
+        <Route
+          exact
+          path="/simulation-runs"
+          render={props => (
+            <div>
+              <SimulationRun commonProps={this.commonProps} />
+            </div>
           )}
         />
         <Route

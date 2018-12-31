@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
-import { Tabs } from 'antd';
+import { Tabs, Divider} from 'antd';
 import moment from 'moment';
 import {
   LineChart,
@@ -27,6 +27,8 @@ import simulationRuns from '../actions/simulationRuns';
 import omf from '../actions/omf';
 import networkTopology from '../actions/networkTopology';
 import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
+import SimulationRunHeader from './SimulationRunHeader';
+import path from 'path'
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
@@ -188,6 +190,7 @@ class SimulationRun extends Component {
       chartsConfiguration,
       topologyMapSelectNode: null,
       omfTopologyImage: null,
+      simulationRunStatus: null,
       vulnerabilityBands: {
         low : [],
         medium: [],
@@ -209,14 +212,15 @@ class SimulationRun extends Component {
     this.getLabelForRecording = this.getLabelForRecording.bind(this);
     this.getGlobalMeasurement = this.getGlobalMeasurement.bind(this);
     this.addGlobalMeasurements = this.addGlobalMeasurements.bind(this);
+    this.postSimulationSubmission = this.postSimulationSubmission.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+ /*  shouldComponentUpdate(nextProps, nextState) {
     if (!this.props || !this.props.commonProps) {
       return false;
     }
     return true;
-  }
+  } */
 
   componentDidMount() {
     console.log(
@@ -226,9 +230,9 @@ class SimulationRun extends Component {
       this.props.commonProps
     );
 
-    if (this.props.commonProps) {
-      this.populateSimulationRun(this.props.match.params.simulationRunId);
-    }
+     if (this.props.commonProps) {
+      this.populateSimulationRun();
+    } 
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -242,20 +246,23 @@ class SimulationRun extends Component {
       return;
     }
 
-    this.populateSimulationRun(this.props.match.params.simulationRunId);
+    this.populateSimulationRun();
   }
 
-  populateSimulationRun(simulationRunId) {
-    console.log('1populateSimulationRun', simulationRunId, 'this.props.', this.props);
-
+  populateSimulationRun() {
     // TODO: Move this into Redux / Thunk actions
-    console.log('commonProps.apiPath', this.props.commonProps.apiPath);
 
     let currentAsset;
     let selectedAssetDetailId;
     this.setState({ getingSimulationRun: true });
     // TODO: Some of these calls may be able to be done in parallel.
 
+    if (!this.props.match.params.simulationRunId) {
+      return;
+    }
+
+    const simulationRunId = this.props.match.params.simulationRunId;
+    console.log('1populateSimulationRun', simulationRunId, 'this.props.', this.props);
     omf.getOMFTopologyImage({
       baseUrl: this.props.commonProps.apiPath,
       apiVersion: DEFAULT_API_VERSION,
@@ -271,7 +278,8 @@ class SimulationRun extends Component {
           omfTopologyImage
         });
       });
-
+    // TODO: Get the Simulation Run / Update the Status/details
+    //this.setState({simulationRunStatus: response.status});
     simulationRuns.getSimulationRunAllModelAssets({
       baseUrl: this.props.commonProps.apiPath,
       apiVersion: DEFAULT_API_VERSION,
@@ -425,6 +433,9 @@ class SimulationRun extends Component {
   }
 
   getAssetMeasurement(asset, measurement) {
+    if (!asset || ! measurement) {
+      return null;
+    }
     return `${asset.name}${DEFAULT_DIVIDER}${measurement}`;
   }
 
@@ -477,6 +488,31 @@ class SimulationRun extends Component {
 
   addGlobalMeasurements(measurements, chartsConfiguration) {
     return measurements.concat(chartsConfiguration.globalRecordings);
+  }
+
+  postSimulationSubmission(data) {
+        // TODO: Add message to user
+        this.setState({ sendingSimulationRunRequest: true });
+        simulationRuns
+          .postSimulationRunSubmission({
+            baseUrl: this.props.commonProps.apiPath,
+            apiVersion: DEFAULT_API_VERSION,
+            data,
+          })
+          .then((response) => {
+            console.log('Simulation Run Submission Response',response);
+            /* this.setState({simulationRunStatus: response.status}); */
+            this.props.history.push({
+              pathname: path.join(this.props.location.pathname, response.simulation_run_id.toString())
+            });
+          })
+          // TODO: Add error to page
+          .catch(err => {
+            this.props.commonProps.handleError(err);
+          })
+          .finally(() => {
+            this.setState({ sendingSimulationRunRequest: false });
+          });
   }
 
   handleAssetClick(e) {
@@ -762,6 +798,7 @@ class SimulationRun extends Component {
   }
 
   filterAssetsTable(assets) {
+
     // console.log('**assets', assets);
     return assets.filter(asset => (this.state.chartsConfiguration.filtered_assets.includes(asset.properties.class)
       ? asset.properties.class
@@ -769,6 +806,9 @@ class SimulationRun extends Component {
   }
 
   renderPoleVulnerabilityTable() {
+    if (!this.state.allRunAssets || !this.state.chartsConfiguration.filtered_assets) {
+      return null;
+    }
     return (
       <Assets
         // className="border"
@@ -785,6 +825,9 @@ class SimulationRun extends Component {
   }
 
   renderNetworkTopologyGraph() {
+    if (!this.state.networkTopologyData) {
+      return null;
+    }
     const configuration = {
       nodeSelect: this.state.selectNode,
       selectionBands: this.state.vulnerabilityBands
@@ -833,6 +876,50 @@ class SimulationRun extends Component {
     this.setState({ topologyMapSelectNode: assetNodeName });
   }
 
+  renderSimulationRunHeader() {
+    return ( <SimulationRunHeader postSimulationSubmission={this.postSimulationSubmission} simulationRunStatus={this.state.simulationRunStatus}/>)
+  }
+
+  renderAssetDetails() {
+    if (!this.state.allModelAssets || !this.state.simulationRunId) {
+      return null;
+    }
+    return (<div
+    className="border"
+    style={{
+      height: '460px',
+      marginTop: '0px',
+      display: 'flex',
+      flexWrap: 'wrap',
+      WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
+    }}
+  >
+    <div style={{
+      flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
+    }}>
+      {this.renderPoleVulnerabilityTable()}
+    </div>
+    <div style={{
+      flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
+    }}>
+      <Tabs tabPosition="top" type="card" style={{textAlign: 'left'}}>
+        <TabPane tab="Map" key="1">
+          <SimpleMap allModelAssets={this.state.allModelAssets}
+          selectedNode={this.state.selectNode}
+          selectionBands={this.state.vulnerabilityBands} />
+        </TabPane>
+        <TabPane tab="Network" key="2" style={{ textAlign: 'left ' }}>
+          {this.renderNetworkTopologyGraph()}
+        </TabPane>
+        <TabPane tab="OMF" key="3" style={{ textAlign: 'left' }}>
+          <OMFTopologyMap
+          simulationRunId={this.state.simulationRunId}
+          omfTopologyImage={this.state.omfTopologyImage}/>
+        </TabPane>
+      </Tabs>
+    </div>
+  </div>)
+  }
   render() {
     console.log('render============================================================SimulationRun');
     console.log('SimulationRun render props', this.props);
@@ -840,13 +927,14 @@ class SimulationRun extends Component {
 
     const { chartData } = this.state;
 
-    if (!chartData || !chartData.length || chartData.length === 0) {
+/*     if (!chartData || !chartData.length || chartData.length === 0) {
       return null;
     }
-
+ */
     const leftNavItems = null;
 
     const defaultMeasurement =
+      this.state.currentAsset &&
       this.state.currentAsset.recordings &&
       this.state.currentAsset.recordings[0] &&
       this.state.chartsConfiguration.defaultFirstMetricSelected;
@@ -875,7 +963,7 @@ class SimulationRun extends Component {
       }
     ];
 
-    console.log('this.state.currentAsset.calculated_recordings' , this.state.currentAsset.calculated_recordings);
+    console.log('this.state.currentAsset.calculated_recordings' , this.state.currentAsset && this.state.currentAsset.calculated_recordings);
     const poleStaticValues = [
       {
         name: 'critical_pole_stress',
@@ -900,15 +988,12 @@ class SimulationRun extends Component {
 
     const mainItems = (
       <div>
-        {/* <Title
-          text={`${this.state.currentAsset.name} (${
-            this.state.currentAsset.properties.class
-          }) - ${defaultMeasurement}`}
-        /> */}
-        <Title
+        {this.renderSimulationRunHeader()}
+        <Divider/>
+{/*         <Title
           text="
           Network Power and Vulnerability"
-        />
+        /> */}
         <div>
           {this.renderLineChartSimulationRun({
             // data: renderPoleData,
@@ -921,41 +1006,7 @@ class SimulationRun extends Component {
             yAxisLeft: { dy: 40 }
           })}
         </div>
-        <div
-          className="border"
-          style={{
-            height: '460px',
-            marginTop: '0px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
-          }}
-        >
-          <div style={{
-            flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
-          }}>
-            {this.renderPoleVulnerabilityTable()}
-          </div>
-          <div style={{
-            flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
-          }}>
-            <Tabs tabPosition="top" type="card" style={{textAlign: 'left'}}>
-              <TabPane tab="Map" key="1">
-                <SimpleMap allModelAssets={this.state.allModelAssets}
-                selectedNode={this.state.selectNode}
-                selectionBands={this.state.vulnerabilityBands} />
-              </TabPane>
-              <TabPane tab="Network" key="2" style={{ textAlign: 'left ' }}>
-                {this.renderNetworkTopologyGraph()}
-              </TabPane>
-              <TabPane tab="OMF" key="3" style={{ textAlign: 'left' }}>
-                <OMFTopologyMap
-                simulationRunId={this.state.simulationRunId}
-                omfTopologyImage={this.state.omfTopologyImage}/>
-              </TabPane>
-            </Tabs>
-          </div>
-        </div>
+          {this.renderAssetDetails()}
       </div>
     );
 
@@ -963,12 +1014,12 @@ class SimulationRun extends Component {
       <div>
         <Route
           exact
-          path={`${this.props.match.url}`}
+          path={`${this.props.match.path}`}
           render={props => <Layout leftNavItems={leftNavItems} mainItems={mainItems} />}
         />
         <Route
           exact
-          path={`${this.props.match.url}/assets/:assetId`}
+          path={`${this.props.match.path}/assets/:assetId`}
           render={props => (
             <div>
               <Asset

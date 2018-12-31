@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import Title from '../components/Title';
 import './App.css';
 import NetworkTopologyTest from './TestPages/NetworkTopologyTest';
+import path from 'path'
 
 class TestPage extends Component {
   constructor(props) {
@@ -14,7 +15,7 @@ class TestPage extends Component {
 
   handleNetworkTopologyTestPageClick(e) {
     this.props.history.push({
-      pathname: `${this.props.location.pathname}/network-topology`
+      pathname: path.join(this.props.location.pathname, 'network-topology')
     });
   }
 
@@ -36,11 +37,11 @@ class TestPage extends Component {
       <div>
         <Route
           exact
-          path={`${this.props.match.url}`}
+          path={`${this.props.match.path}`}
           render={props => <Layout leftNavItems={leftNavItems} mainItems={mainItems} />}
         />
         <Route
-          path={`${this.props.match.url}/network-topology`}
+          path={`${this.props.match.path}/network-topology`}
           render={props => (
             <div>
               <NetworkTopologyTest commonProps={this.props.commonProps} />

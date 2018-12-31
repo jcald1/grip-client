@@ -155,7 +155,7 @@ const getSimulationRunAllModelAssets = ({
     });
 };
 
-const postSimulationRunSubmission = ({ baseUrl, apiVersion }) => {
+const postSimulationRunSubmission = ({ baseUrl, apiVersion, data }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-run-submissions`;
 
   const context = `POST Simulation Run Submission: ${urlPath}`;
@@ -163,13 +163,7 @@ const postSimulationRunSubmission = ({ baseUrl, apiVersion }) => {
   // datasource_ids are hardcoded to what is seeded in the DB.
   // will use user input values in next iteration of feature.
   return axios
-    .post(urlPath, {
-      name: 'submission1',
-      duration: 24,
-      interval: 3600,
-      weather_datasource_id: 1,
-      network_datasource_id: 2
-    })
+    .post(urlPath, data)
     .then(res => {
       console.log('POST Simulation Request Response', res);
       if (res.status !== 201) {
