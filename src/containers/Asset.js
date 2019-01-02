@@ -199,8 +199,23 @@ class Asset extends Component {
     console.log('Continue Rendering', this.props);
     const leftNavItems = null;
     const columnStyle = {
-      border: '3px solid white',
-      backgroundColor: '#d3d3d3'
+      backgroundColor: '#ffffff'
+    };
+
+
+    const innerColumnStyle = {
+      border: '1px solid #000000',
+      backgroundColor: '#ffffff',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      paddingTop: '30px',
+      width: '75%'
+    };
+
+    const measurementColumnStyle = {
+      backgroundColor: '#ffffff',
+      paddingTop: '100px',
+      width: '100%'
     };
 
     let assetMeasurement = '';
@@ -289,7 +304,7 @@ class Asset extends Component {
     const mainItems = (
       <div>
         <Row>
-          <Col span={24}>
+          <Col span={18}>
             {/* `- ${this.props.getAliasForRecording(
                 this.state.selectedMeasurement,
                 this.props.chartsConfiguration
@@ -310,24 +325,33 @@ class Asset extends Component {
               })}
             </div>
           </Col>
+          <Col span={6}>
+          <div style={measurementColumnStyle}>
+            <Measurements
+                measurements={measurements}
+                handleMeasurementClick={this.handleMeasurementClick}
+                getAliasForRecording={this.props.getAliasForRecording}
+                chartsConfiguration={this.props.chartsConfiguration}
+              />
+            </div>
+          </Col>
         </Row>
         <Row>
           <Col span={8} style={columnStyle}>
+          <div style={innerColumnStyle}>
             <AssetProperties asset={this.state.asset} />
+          </div>
           </Col>
           <Col span={8} style={columnStyle}>
-            <Measurements
-              measurements={measurements}
-              handleMeasurementClick={this.handleMeasurementClick}
-              getAliasForRecording={this.props.getAliasForRecording}
-              chartsConfiguration={this.props.chartsConfiguration}
-            />
-          </Col>
-          <Col span={8} style={columnStyle}>
+          <div style={innerColumnStyle}>
             <AssetRelationships
               asset={this.state.asset}
               handleSimulationRunAssetRequestClick={this.handleSimulationRunAssetRequestClick}
             />
+           </div>
+          </Col>
+          <Col span={8} style={columnStyle}>
+                Asset Map Goes here
           </Col>
         </Row>
       </div>

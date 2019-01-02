@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
 
 import React from 'react';
-import SubTitle from './SubTitle';
-
+import { Radio } from 'antd';
+const RadioGroup = Radio.Group;
 const renderMeasurements = (
   handleMeasurementClick,
   measurements,
@@ -13,14 +13,14 @@ const renderMeasurements = (
   const MeasurementsToRender = measurements.map(measurement => {
     // console.log('renderMeasurements', data, 'asset', asset);
     const measurementDiv = (
-      <div
+      <Radio
         style={{ display: 'block' }}
         onClick={handleMeasurementClick}
         value={measurement.name}
         key={measurement.id}
       >
         {getAliasForRecording(measurement.name, chartsConfiguration)}
-      </div>
+      </Radio>
     );
 
     return measurementDiv;
@@ -50,15 +50,17 @@ const Measurements = ({
   */
 
   return (
-    <div style={{ marginLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
-      <SubTitle text="Measurements" />
+    <div style={{ marginLeft: '0px',  textAlign: 'left' }}>
+    
       <div>
+      <RadioGroup>
         {renderMeasurements(
           handleMeasurementClick,
           measurements,
           chartsConfiguration,
           getAliasForRecording
         )}
+      </RadioGroup>
       </div>
     </div>
   );

@@ -694,7 +694,7 @@ class SimulationRun extends Component {
             bottom: bottomMargin,
             left: 40
           }}
-          width={1300}
+          width={1200}
           height={600}
           data={data}
         >
@@ -763,7 +763,7 @@ class SimulationRun extends Component {
             bottom: bottomMargin,
             left: 20
           }}
-          width={1300}
+          width={1200}
           height={260}
           data={data}
         >
