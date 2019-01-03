@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
-import { Tabs, Divider} from 'antd';
+import { Tabs, Divider } from 'antd';
 import moment from 'moment';
 import {
   LineChart,
@@ -30,8 +30,6 @@ import networkTopology from '../actions/networkTopology';
 import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
 import SimulationRunHeader from './SimulationRunHeader';
 
-
-const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
 
@@ -41,11 +39,14 @@ class SimulationRun extends Component {
     super(props);
 
     const chartsConfiguration = {
+      api: {
+        version: 'v1'
+      },
       vulnerabilityBands: {
         low: 0.8,
         medium: 1,
-        high: null // infinite 
-/*         low: 0.005,
+        high: null // infinite
+        /*         low: 0.005,
         medium: 0.01,
         high: null // infinite */
       },
@@ -192,7 +193,7 @@ class SimulationRun extends Component {
       omfTopologyImage: null,
       simulationRunStatus: null,
       vulnerabilityBands: {
-        low : [],
+        low: [],
         medium: [],
         high: []
       }
@@ -216,7 +217,7 @@ class SimulationRun extends Component {
     this.postSimulationSubmission = this.postSimulationSubmission.bind(this);
   }
 
- /*  shouldComponentUpdate(nextProps, nextState) {
+  /*  shouldComponentUpdate(nextProps, nextState) {
     if (!this.props || !this.props.commonProps) {
       return false;
     }
@@ -231,9 +232,9 @@ class SimulationRun extends Component {
       this.props.commonProps
     );
 
-     if (this.props.commonProps) {
+    if (this.props.commonProps) {
       this.populateSimulationRun();
-    } 
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -273,15 +274,15 @@ class SimulationRun extends Component {
     console.log('1populateSimulationRun', simulationRunId, 'this.props.', this.props);
     omf
       .getOMFTopologyImage({
-      baseUrl: this.props.commonProps.apiPath,
-      apiVersion: DEFAULT_API_VERSION,
-      simulationRunId
-    })
-    // TODO: This may belong in the API container
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion:  this.state.chartsConfiguration.api.version,
+        simulationRunId
+      })
+      // TODO: This may belong in the API container
       .then(omfTopologyImage => {
-        console.log('SimulationRun omfTopologyImage ');
+        console.log('SimulationRun omfTopologyImage1', omfTopologyImage);
         if (!omfTopologyImage) {
-          return Promise.reject(new Error('No data received from the API.'));
+          return Promise.reject(new Error('No data received from the API for the OMF Topology graph.'));
         }
         this.setState({
           omfTopologyImage
@@ -296,14 +297,14 @@ class SimulationRun extends Component {
         this.props.commonProps.handleError(err);
       });
     // TODO: Get the Simulation Run / Update the Status/details
-    //this.setState({simulationRunStatus: response.status});
+    // this.setState({simulationRunStatus: response.status});
     simulationRuns
       .getSimulationRunAllModelAssets({
-      baseUrl: this.props.commonProps.apiPath,
-      apiVersion: DEFAULT_API_VERSION,
-      simulationRunId
-    })
-    // TODO: This may belong in the API container
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion:  this.state.chartsConfiguration.api.version,
+        simulationRunId
+      })
+      // TODO: This may belong in the API container
       .then(allModelAssets => {
         console.log('SimulationRun allModelAssets ', allModelAssets);
         if (!allModelAssets) {
@@ -325,7 +326,7 @@ class SimulationRun extends Component {
     simulationRuns
       .getSimulationRunAssets({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
+        apiVersion:  this.state.chartsConfiguration.api.version,
         simulationRunId
       })
       .then(allRunAssets => {
@@ -362,7 +363,7 @@ class SimulationRun extends Component {
     simulationRuns
       .getSimulationRunResults({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
+        apiVersion:  this.state.chartsConfiguration.api.version,
         simulationRunId
       })
       // TODO: This may belong in the API container
@@ -382,9 +383,9 @@ class SimulationRun extends Component {
       })
       .then(runResultsData => simulationRuns
         .getSimulationRunVulnerabilityAggByTimeStepResults({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION,
-        simulationRunId
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion:  this.state.chartsConfiguration.api.version,
+          simulationRunId
         })
         .then(runAggResultsResponseData => ({ runAggResultsResponseData, runResultsData })))
       // TODO: This may belong in the API container
@@ -419,7 +420,7 @@ class SimulationRun extends Component {
     networkTopology
       .getNetworkTopology({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION
+        apiVersion:  this.state.chartsConfiguration.api.version
       })
       .then(topologyData => {
         console.log('Topology network data', topologyData);
@@ -443,40 +444,40 @@ class SimulationRun extends Component {
   createVulnerabilityBands(allRunAssets) {
     console.log('SimulationRun createVulnerabilityBands allRunAssets', allRunAssets);
     const vulnerabilityBands = {
-      low : [],
+      low: [],
       medium: [],
       high: []
     };
     allRunAssets.forEach(asset => {
-      //console.log('1Adding asset',asset)
-      const peakVulnerabilityObj = asset.calculated_recordings.find(obj => { 
+      // console.log('1Adding asset',asset)
+      const peakVulnerabilityObj = asset.calculated_recordings.find(obj => {
         if (obj.name === 'peak_vulnerability') {
           return obj;
         }
       });
       console.log('1Adding peakVulnerabilityObj', peakVulnerabilityObj);
       if (!peakVulnerabilityObj || !peakVulnerabilityObj.value) {
-        //console.log('1Adding no vulnerability', asset, asset.name);
+        // console.log('1Adding no vulnerability', asset, asset.name);
         return;
       }
-      if ( peakVulnerabilityObj.value < this.state.chartsConfiguration.vulnerabilityBands.low) {
-        //vulnerabilityBands.low.push(asset.name);
+      if (peakVulnerabilityObj.value < this.state.chartsConfiguration.vulnerabilityBands.low) {
+        // vulnerabilityBands.low.push(asset.name);
       } else if (
         peakVulnerabilityObj.value < this.state.chartsConfiguration.vulnerabilityBands.medium
       ) {
-        //console.log('1Adding medium asset',asset, asset.name)
+        // console.log('1Adding medium asset',asset, asset.name)
         vulnerabilityBands.medium.push(asset.name);
       } else {
-        //console.log('1Adding high asset',asset, asset.name)
+        // console.log('1Adding high asset',asset, asset.name)
         vulnerabilityBands.high.push(asset.name);
       }
     });
     console.log('1Adding Setting state vulnerabilityBands', vulnerabilityBands);
-    this.setState({vulnerabilityBands});
+    this.setState({ vulnerabilityBands });
   }
 
   getAssetMeasurement(asset, measurement) {
-    if (!asset || ! measurement) {
+    if (!asset || !measurement) {
       return null;
     }
     return `${asset.name}${DEFAULT_DIVIDER}${measurement}`;
@@ -534,31 +535,31 @@ class SimulationRun extends Component {
   }
 
   postSimulationSubmission(data) {
-        // TODO: Add message to user
-        this.setState({ sendingSimulationRunRequest: true });
-        simulationRuns
-          .postSimulationRunSubmission({
-            baseUrl: this.props.commonProps.apiPath,
-            apiVersion: DEFAULT_API_VERSION,
+    // TODO: Add message to user
+    this.setState({ sendingSimulationRunRequest: true });
+    simulationRuns
+      .postSimulationRunSubmission({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion:  this.state.chartsConfiguration.api.version,
         data
-          })
+      })
       .then(response => {
         this.props.refreshSimulationRuns();
         return response;
       })
       .then(response => {
-            console.log('Simulation Run Submission Response',response);
-            this.props.history.push({
-              pathname: path.join(this.props.location.pathname, response.simulation_run_id.toString())
-            });
-          })
-          // TODO: Add error to page
-          .catch(err => {
-            this.props.commonProps.handleError(err);
-          })
-          .finally(() => {
-            this.setState({ sendingSimulationRunRequest: false });
-          });
+        console.log('Simulation Run Submission Response', response);
+        this.props.history.push({
+          pathname: `/simulation-runs/${response.simulation_run_id.toString()}`
+        });
+      })
+      // TODO: Add error to page
+      .catch(err => {
+        this.props.commonProps.handleError(err);
+      })
+      .finally(() => {
+        this.setState({ sendingSimulationRunRequest: false });
+      });
   }
 
   handleAssetClick(e) {
@@ -849,7 +850,6 @@ class SimulationRun extends Component {
   }
 
   filterAssetsTable(assets) {
-
     // console.log('**assets', assets);
     return assets.filter(asset => (this.state.chartsConfiguration.filtered_assets.includes(asset.properties.class)
       ? asset.properties.class
@@ -935,6 +935,7 @@ class SimulationRun extends Component {
     // console.log('!renderSimulationRunHeader',this.props.simulationRunRequestsMetadata);
     return (
       <SimulationRunHeader
+        commonProps={this.props.commonProps}
         postSimulationSubmission={this.postSimulationSubmission}
         simulationRunStatus={this.state.simulationRunStatus}
         simulationRunRequestsMetadata={this.props.simulationRunRequestsMetadata}
@@ -949,15 +950,15 @@ class SimulationRun extends Component {
     }
     return (
       <div
-    className="border"
-    style={{
-      height: '460px',
-      marginTop: '0px',
-      display: 'flex',
-      flexWrap: 'wrap',
-      WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
-    }}
-  >
+        className="border"
+        style={{
+          height: '460px',
+          marginTop: '0px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
+        }}
+      >
         <div
           style={{
             flexGrow: 1,
@@ -966,8 +967,8 @@ class SimulationRun extends Component {
             height: '460px'
           }}
         >
-      {this.renderPoleVulnerabilityTable()}
-    </div>
+          {this.renderPoleVulnerabilityTable()}
+        </div>
         <div
           style={{
             flexGrow: 1,
@@ -976,28 +977,29 @@ class SimulationRun extends Component {
             height: '460px'
           }}
         >
-      <Tabs tabPosition="top" type="card" style={{textAlign: 'left'}}>
-        <TabPane tab="Map" key="1">
+          <Tabs tabPosition="top" type="card" style={{ textAlign: 'left' }}>
+            <TabPane tab="Map" key="1">
               <SimpleMap
                 allModelAssets={this.state.allModelAssets}
-          selectedNode={this.state.selectNode}
+                selectedNode={this.state.selectNode}
                 selectionBands={this.state.vulnerabilityBands}
               />
-        </TabPane>
-        <TabPane tab="Network" key="2" style={{ textAlign: 'left ' }}>
-          {this.renderNetworkTopologyGraph()}
-        </TabPane>
-        <TabPane tab="OMF" key="3" style={{ textAlign: 'left' }}>
-          <OMFTopologyMap
+            </TabPane>
+            <TabPane tab="Network" key="2" style={{ textAlign: 'left ' }}>
+              {this.renderNetworkTopologyGraph()}
+            </TabPane>
+            <TabPane tab="OMF" key="3" style={{ textAlign: 'left' }}>
+              <OMFTopologyMap
                 simulationRunId={this.props.match.params.simulationRunId}
                 omfTopologyImage={this.state.omfTopologyImage}
               />
-        </TabPane>
-      </Tabs>
-    </div>
+            </TabPane>
+          </Tabs>
+        </div>
       </div>
     );
   }
+
   render() {
     console.log('render============================================================SimulationRun');
     console.log('SimulationRun render props', this.props);
@@ -1005,7 +1007,7 @@ class SimulationRun extends Component {
 
     const { chartData } = this.state;
 
-/*     if (!chartData || !chartData.length || chartData.length === 0) {
+    /*     if (!chartData || !chartData.length || chartData.length === 0) {
       return null;
     }
  */
@@ -1067,8 +1069,8 @@ class SimulationRun extends Component {
     const mainItems = (
       <div>
         {this.renderSimulationRunHeader()}
-        <Divider/>
-{/*         <Title
+        <Divider />
+        {/*         <Title
           text="
           Network Power and Vulnerability"
         /> */}
@@ -1084,7 +1086,7 @@ class SimulationRun extends Component {
             yAxisLeft: { dy: 40 }
           })}
         </div>
-          {this.renderAssetDetails()}
+        {this.renderAssetDetails()}
       </div>
     );
 

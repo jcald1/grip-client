@@ -3,8 +3,14 @@ import React, { Component } from 'react';
 import {
   Menu, Dropdown, Button, Icon, message, Input, Form, Select
 } from 'antd';
+import _ from 'lodash';
+import simulationRuns from '../actions/simulationRuns';
 
 const Option = Select.Option;
+
+const DEFAULT_API_VERSION = 'v1';
+const DEFAULT_MODEL_TYPE_WEATHER = 1;
+const DEFAULT_MODEL_TYPE_NETWORK = 2;
 
 class SimulationRunHeader extends Component {
   constructor(props) {
@@ -15,7 +21,10 @@ class SimulationRunHeader extends Component {
       interval: null,
       networkModel: null,
       weatherModel: null,
-      simulation_name: null
+      simulation_name: null,
+
+      networkModelItems: [],
+      weatherModelItems: []
     };
 
     this.handleDurationEnter = this.handleDurationEnter.bind(this);
@@ -23,6 +32,79 @@ class SimulationRunHeader extends Component {
     this.handleOptionChange = this.handleOptionChange.bind(this);
     this.handleRun = this.handleRun.bind(this);
     this.handleSimulationNameEnter = this.handleSimulationNameEnter.bind(this);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // TODO: Speed this up, probably by passing in the current simulation as a prop
+    const simulationRunMetadata = this.getCurrentSimulationRunMetadata(
+      this.props.simulationRunRequestsMetadata
+    );
+    if (_.isEmpty(simulationRunMetadata)) {
+      return;
+    }
+
+    console.log(
+      'SimulationRunHeader componentDidUpdate simulationRunMetadata',
+      simulationRunMetadata,
+      'prevProps.simulation_name',
+      prevProps.simulation_name,
+      'this.state',
+      this.state,
+      'this.props',
+      this.props
+    );
+
+  /*  simulationRuns
+       .getSimulationRunDataSource({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION
+      })
+      .then(dataSources => {
+        console.log('SimulationRunHeader dataSources', dataSources);
+
+        const networkModelItems = [];
+        const weatherModelItems = [];
+        dataSources.forEach(dataSource => {
+          if (dataSource.type === DEFAULT_MODEL_TYPE_WEATHER) {
+            networkModelItems.push(dataSource);
+          } else if (dataSource.type === DEFAULT_MODEL_TYPE_NETWORK) {
+            weatherModelItems.push(dataSource);
+          }
+        });
+        console.log('SimulationRunHeader datasource items', networkModelItems, weatherModelItems);
+
+        this.setState({ networkModelItems, weatherModelItems });
+      })
+      .catch(err => {
+        console.error(err);
+        if (err.response && err.response.data && err.response.data.message) {
+          err = new verror.VError(err, err.response.data.message);
+        }
+        this.props.commonProps.handleError(err);
+      }); */
+
+    const initialSimulationName =
+      simulationRunMetadata && simulationRunMetadata.simulation_submission.name;
+    const initialNetworkModel =
+      simulationRunMetadata && simulationRunMetadata.simulation_submission.network_datasource_id;
+    const initialWeatherModel =
+      simulationRunMetadata && simulationRunMetadata.simulation_submission.weather_datasource_id;
+    const initialInterval =
+      simulationRunMetadata && simulationRunMetadata.simulation_submission.interval;
+    const initialDuration =
+      simulationRunMetadata && simulationRunMetadata.simulation_submission.duration;
+    // Only set the state here when the metadata is initially passed in as a props, then just set state based on user input,
+    if (this.state.simulation_name) {
+      return;
+    }
+    console.log('setting state', initialSimulationName);
+    this.setState({
+      simulation_name: initialSimulationName,
+/*       networkModel: initialNetworkModel.toString(),
+      weatherModel: initialWeatherModel.toString(),
+      duration: initialDuration,
+      interval: initialInterval */
+    });
   }
 
   handleDurationEnter(e) {
@@ -107,7 +189,9 @@ class SimulationRunHeader extends Component {
       simulationRunRequestsMetadata,
       this.props.simulationRunId
     );
-    return simulationRunRequestsMetadata.find(metadata => metadata.id === this.props.simulationRunId);
+    return simulationRunRequestsMetadata.find(
+      metadata => metadata.id === this.props.simulationRunId
+    );
   }
 
   render() {
@@ -116,16 +200,9 @@ class SimulationRunHeader extends Component {
     const networkItems = [{ id: 2, name: 'IEEE123 pole vulnerability' }];
 
     const { style } = this.props;
-    const simulationRunMetadata = this.getCurrentSimulationRunMetadata(
-      this.props.simulationRunRequestsMetadata
-    );
 
     const status = this.props.status ? this.props.status : '';
-    console.log(
-      'SimulationRunHeader simulationRunMetadata',
-      simulationRunMetadata,
-      this.props.simulationRunRequestsMetadata
-    );
+
     /* const simulationRunName = simulationRunMetadata && simulationRunMetadata.simulation_submission.name;
     console.log('SimulationRunHeader name', simulationRunName); */
     return (
@@ -146,7 +223,7 @@ class SimulationRunHeader extends Component {
                 onChange={this.handleSimulationNameEnter}
                 placeholder="New Simulation 1"
                 style={{ width: 250 }}
-                value={simulationRunMetadata && simulationRunMetadata.simulation_submission.name}
+                value={this.state.simulation_name}
               />
             </Form.Item>
           </div>
@@ -174,7 +251,12 @@ class SimulationRunHeader extends Component {
           <div style={{ flexGrow: 1, flexBasis: 0 }}>Duration (hours): </div>
           <div style={{ flexGrow: 3, flexBasis: 0, minWidth: '150px' }}>
             <Form.Item style={{ display: 'inline-block' }}>
-              <Input onChange={this.handleDurationEnter} placeholder="24" style={{ width: 60 }} />
+              <Input
+                onChange={this.handleDurationEnter}
+                placeholder="24"
+                style={{ width: 60 }}
+                value={this.state.duration}
+              />
             </Form.Item>
 
             <div style={{ display: 'inline-block', marginLeft: '10px' }}>
@@ -184,6 +266,7 @@ class SimulationRunHeader extends Component {
                   onChange={this.handleIntervalEnter}
                   placeholder="3600"
                   style={{ width: 60 }}
+                  value={this.state.interval}
                 />
               </Form.Item>
             </div>
