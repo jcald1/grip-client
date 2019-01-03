@@ -15,7 +15,7 @@ class NetworkTopologyTest extends Component {
 
     const apiPath = process.env.REACT_APP_API_PATH;
 
-    const leftNavItems = null;
+    const leftNavItems = this.props.commonProps.leftNavItems;
 
     const mainItems = (
       <div>

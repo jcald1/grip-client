@@ -10,13 +10,12 @@ const getOMFTopologyImage = ({ baseUrl, apiVersion, simulationRunId }) => {
   return axios
     .get(urlPath)
     .then(res => {
-      console.log('GET Simulation Run oneLineGridlab Response', res);
+      console.log('GET Simulation Run oneLineGridlab Response');
       if (res.status !== 200) {
         const err = new Error('Error retrieving simulation run oneLineGridlab');
         err.response = res;
         throw err;
       }
-      console.log('res.data', res.data);
       return res.data;
     })
     .catch(err => {

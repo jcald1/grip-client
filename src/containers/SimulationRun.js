@@ -17,6 +17,7 @@ import {
   Legend
 } from 'recharts';
 import './App.css';
+import path from 'path';
 import Layout from '../components/Layout';
 import SimpleMap from '../components/SimpleMap';
 import OMFTopologyMap from '../components/OMFTopologyMap';
@@ -28,7 +29,7 @@ import omf from '../actions/omf';
 import networkTopology from '../actions/networkTopology';
 import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
 import SimulationRunHeader from './SimulationRunHeader';
-import path from 'path'
+
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_DIVIDER = '__';
@@ -176,8 +177,7 @@ class SimulationRun extends Component {
         }
       ]
     };
-    this.state = {
-      simulationRunId: null,
+    this.emptyState = {
       currentAsset: null,
       selectedAssetDetailId: null,
       allRunAssets: null,
@@ -197,6 +197,7 @@ class SimulationRun extends Component {
         high: []
       }
     };
+    this.state = { ...this.emptyState };
 
     this.handleAssetClick = this.handleAssetClick.bind(this);
     this.renderCharts = this.renderCharts.bind(this);
@@ -237,14 +238,21 @@ class SimulationRun extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     console.log(
-      'SimulationRun componentDidUpdate this.props.match',
-      this.props.match,
+      'SimulationRun componentDidUpdate this.props',
+      this.props,
       'this.state.currentAsset',
-      this.state.currentAsset
+      this.state.currentAsset,
+      'this.state',
+      this.state
     );
-    if (this.props.commonProps.shallowEquals(this.props.commonProps, prevProps.commonProps)) {
+    /* if (this.props.commonProps.shallowEquals(this.props.commonProps, prevProps.commonProps)) {
+      return;
+    } */
+    if (this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId) {
       return;
     }
+    // Clear out the state to remove everything from the page right away
+    this.setState({ ...this.emptyState });
 
     this.populateSimulationRun();
   }
@@ -254,33 +262,43 @@ class SimulationRun extends Component {
 
     let currentAsset;
     let selectedAssetDetailId;
-    this.setState({ getingSimulationRun: true });
+    this.setState({ gettingSimulationRun: true });
     // TODO: Some of these calls may be able to be done in parallel.
 
     if (!this.props.match.params.simulationRunId) {
       return;
     }
 
-    const simulationRunId = this.props.match.params.simulationRunId;
+    const { simulationRunId } = this.props.match.params;
     console.log('1populateSimulationRun', simulationRunId, 'this.props.', this.props);
-    omf.getOMFTopologyImage({
+    omf
+      .getOMFTopologyImage({
       baseUrl: this.props.commonProps.apiPath,
       apiVersion: DEFAULT_API_VERSION,
       simulationRunId
     })
     // TODO: This may belong in the API container
       .then(omfTopologyImage => {
-        console.log('SimulationRun omfTopologyImage ', omfTopologyImage);
+        console.log('SimulationRun omfTopologyImage ');
         if (!omfTopologyImage) {
           return Promise.reject(new Error('No data received from the API.'));
         }
         this.setState({
           omfTopologyImage
         });
+      })
+      .catch(err => {
+        console.error(err);
+        console.log('Error', err);
+        if (err.response && err.response.data && err.response.data.message) {
+          err = new verror.VError(err, err.response.data.message);
+        }
+        this.props.commonProps.handleError(err);
       });
     // TODO: Get the Simulation Run / Update the Status/details
     //this.setState({simulationRunStatus: response.status});
-    simulationRuns.getSimulationRunAllModelAssets({
+    simulationRuns
+      .getSimulationRunAllModelAssets({
       baseUrl: this.props.commonProps.apiPath,
       apiVersion: DEFAULT_API_VERSION,
       simulationRunId
@@ -294,6 +312,14 @@ class SimulationRun extends Component {
         this.setState({
           allModelAssets
         });
+      })
+      .catch(err => {
+        console.error(err);
+        console.log('Error', err);
+        if (err.response && err.response.data && err.response.data.message) {
+          err = new verror.VError(err, err.response.data.message);
+        }
+        this.props.commonProps.handleError(err);
       });
 
     simulationRuns
@@ -324,51 +350,45 @@ class SimulationRun extends Component {
         this.setState({ currentAsset, allRunAssets, selectedAssetDetailId });
         return null;
       })
-      .then(() => simulationRuns.getSimulationRunResults({
+      .catch(err => {
+        console.error(err);
+        console.log('Error', err);
+        if (err.response && err.response.data && err.response.data.message) {
+          err = new verror.VError(err, err.response.data.message);
+        }
+        this.props.commonProps.handleError(err);
+      });
+
+    simulationRuns
+      .getSimulationRunResults({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationRunId
-      }))
+      })
       // TODO: This may belong in the API container
       .then(runResultsData => {
         console.log(
-          'SimulationRun populateSimulationRun get simulation run originalData',
+          'SimulationRun populateSimulationRun get simulation run results',
           runResultsData
         );
         if (!runResultsData) {
           return Promise.reject(new Error('No data received from the API.'));
         }
-        console.log('populateSimulationRun asset', currentAsset);
-        return { runResultsData };
-      })
-      .then(({ runResultsData }) => {
-        console.log('Get Simulation Run Results data', 'simulationRunId', simulationRunId);
+
         this.setState({
-          runResultsData,
-          simulationRunId
+          runResultsData
         });
         return runResultsData;
       })
-      .then(() => networkTopology.getNetworkTopology({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: DEFAULT_API_VERSION
-      }))
-      .then(topologyData => {
-        console.log('Topology network data', topologyData);
-        if (!topologyData) {
-          return Promise.reject(new Error('No network topology data received from the API.'));
-        }
-
-        this.setState({ networkTopologyData: topologyData });
-        return null;
-      })
-      .then(() => simulationRuns.getSimulationRunVulnerabilityAggByTimeStepResults({
+      .then(runResultsData => simulationRuns
+        .getSimulationRunVulnerabilityAggByTimeStepResults({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION,
         simulationRunId
-      }))
+        })
+        .then(runAggResultsResponseData => ({ runAggResultsResponseData, runResultsData })))
       // TODO: This may belong in the API container
-      .then(runAggResultsResponseData => {
+      .then(({ runAggResultsResponseData, runResultsData }) => {
         console.log(
           'SimulationRun getSimulationRunVulnerabilityAggByTimeStepResults ',
           runAggResultsResponseData
@@ -377,7 +397,7 @@ class SimulationRun extends Component {
           return Promise.reject(new Error('No data received from the API.'));
         }
         const chartData = this.mapResultsAndVulnerabilityToChartData(
-          this.state.runResultsData,
+          runResultsData,
           runAggResultsResponseData
         );
         this.setState({
@@ -393,7 +413,30 @@ class SimulationRun extends Component {
         this.props.commonProps.handleError(err);
       })
       .finally(() => {
-        this.setState({ getingSimulationRun: false });
+        this.setState({ gettingSimulationRun: false });
+      });
+
+    networkTopology
+      .getNetworkTopology({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION
+      })
+      .then(topologyData => {
+        console.log('Topology network data', topologyData);
+        if (!topologyData) {
+          return Promise.reject(new Error('No network topology data received from the API.'));
+        }
+
+        this.setState({ networkTopologyData: topologyData });
+        return null;
+      })
+      .catch(err => {
+        console.error(err);
+        console.log('Error', err);
+        if (err.response && err.response.data && err.response.data.message) {
+          err = new verror.VError(err, err.response.data.message);
+        }
+        this.props.commonProps.handleError(err);
       });
   }
 
@@ -408,22 +451,22 @@ class SimulationRun extends Component {
       //console.log('1Adding asset',asset)
       const peakVulnerabilityObj = asset.calculated_recordings.find(obj => { 
         if (obj.name === 'peak_vulnerability') {
-          return obj
-        };
+          return obj;
+        }
       });
-      console.log('1Adding peakVulnerabilityObj',peakVulnerabilityObj)
+      console.log('1Adding peakVulnerabilityObj', peakVulnerabilityObj);
       if (!peakVulnerabilityObj || !peakVulnerabilityObj.value) {
         //console.log('1Adding no vulnerability', asset, asset.name);
         return;
       }
       if ( peakVulnerabilityObj.value < this.state.chartsConfiguration.vulnerabilityBands.low) {
         //vulnerabilityBands.low.push(asset.name);
-      }
-      else if ( peakVulnerabilityObj.value  < this.state.chartsConfiguration.vulnerabilityBands.medium) {
+      } else if (
+        peakVulnerabilityObj.value < this.state.chartsConfiguration.vulnerabilityBands.medium
+      ) {
         //console.log('1Adding medium asset',asset, asset.name)
         vulnerabilityBands.medium.push(asset.name);
-      }
-      else {
+      } else {
         //console.log('1Adding high asset',asset, asset.name)
         vulnerabilityBands.high.push(asset.name);
       }
@@ -497,11 +540,14 @@ class SimulationRun extends Component {
           .postSimulationRunSubmission({
             baseUrl: this.props.commonProps.apiPath,
             apiVersion: DEFAULT_API_VERSION,
-            data,
+        data
           })
-          .then((response) => {
+      .then(response => {
+        this.props.refreshSimulationRuns();
+        return response;
+      })
+      .then(response => {
             console.log('Simulation Run Submission Response',response);
-            /* this.setState({simulationRunStatus: response.status}); */
             this.props.history.push({
               pathname: path.join(this.props.location.pathname, response.simulation_run_id.toString())
             });
@@ -579,7 +625,7 @@ class SimulationRun extends Component {
 
   // TODO: Probably should be doing this in the API
   mapResponseToChartData(data, staticValues) {
-    console.log('App data', data, 'staticValues', staticValues);
+    console.log('SimulationRun mapResponseToChartData data', data, 'staticValues', staticValues);
     const mappedData = data.map(row => {
       const newRow = {
         ...row,
@@ -600,7 +646,12 @@ class SimulationRun extends Component {
   // we might be coupling what the line chart woudl need with
   // what the API on the server is for.
   mapResultsAndVulnerabilityToChartData(data, aggResultsValues) {
-    console.log('App data', data, 'aggResultsValues', aggResultsValues);
+    console.log(
+      'SimulationRun mapResultsAndVulnerabilityToChartData data',
+      data,
+      'aggResultsValues',
+      aggResultsValues
+    );
     const mappedData = data.map(row => {
       const newRow = {
         ...row,
@@ -752,7 +803,7 @@ class SimulationRun extends Component {
     // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
     const bottomMargin = 60;
 
-    console.log('***bottomMargin', bottomMargin);
+    // console.log('***bottomMargin', bottomMargin);
     return (
       <div>
         <ComposedChart
@@ -872,19 +923,32 @@ class SimulationRun extends Component {
       assetNodeName =
         this.state.chartsConfiguration.selectionMappings[assetNode.name] || assetNode.name;
     }
-    console.log('handleTopologyMapAssetHover setting topologyMapSelectNode assetNodeName', assetNodeName);
+    console.log(
+      'handleTopologyMapAssetHover setting topologyMapSelectNode assetNodeName',
+      assetNodeName
+    );
     this.setState({ topologyMapSelectNode: assetNodeName });
   }
 
   renderSimulationRunHeader() {
-    return ( <SimulationRunHeader postSimulationSubmission={this.postSimulationSubmission} simulationRunStatus={this.state.simulationRunStatus}/>)
+    const simulationRunId = parseInt(this.props.match.params.simulationRunId, 10);
+    // console.log('!renderSimulationRunHeader',this.props.simulationRunRequestsMetadata);
+    return (
+      <SimulationRunHeader
+        postSimulationSubmission={this.postSimulationSubmission}
+        simulationRunStatus={this.state.simulationRunStatus}
+        simulationRunRequestsMetadata={this.props.simulationRunRequestsMetadata}
+        simulationRunId={simulationRunId}
+      />
+    );
   }
 
   renderAssetDetails() {
-    if (!this.state.allModelAssets || !this.state.simulationRunId) {
+    if (!this.state.allModelAssets || !this.props.match.params.simulationRunId) {
       return null;
     }
-    return (<div
+    return (
+      <div
     className="border"
     style={{
       height: '460px',
@@ -894,31 +958,45 @@ class SimulationRun extends Component {
       WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
     }}
   >
-    <div style={{
-      flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
-    }}>
+        <div
+          style={{
+            flexGrow: 1,
+            flexBasis: 0,
+            minWidth: '600px',
+            height: '460px'
+          }}
+        >
       {this.renderPoleVulnerabilityTable()}
     </div>
-    <div style={{
-      flexGrow: 1, flexBasis: 0, minWidth: '600px', height: '460px'
-    }}>
+        <div
+          style={{
+            flexGrow: 1,
+            flexBasis: 0,
+            minWidth: '600px',
+            height: '460px'
+          }}
+        >
       <Tabs tabPosition="top" type="card" style={{textAlign: 'left'}}>
         <TabPane tab="Map" key="1">
-          <SimpleMap allModelAssets={this.state.allModelAssets}
+              <SimpleMap
+                allModelAssets={this.state.allModelAssets}
           selectedNode={this.state.selectNode}
-          selectionBands={this.state.vulnerabilityBands} />
+                selectionBands={this.state.vulnerabilityBands}
+              />
         </TabPane>
         <TabPane tab="Network" key="2" style={{ textAlign: 'left ' }}>
           {this.renderNetworkTopologyGraph()}
         </TabPane>
         <TabPane tab="OMF" key="3" style={{ textAlign: 'left' }}>
           <OMFTopologyMap
-          simulationRunId={this.state.simulationRunId}
-          omfTopologyImage={this.state.omfTopologyImage}/>
+                simulationRunId={this.props.match.params.simulationRunId}
+                omfTopologyImage={this.state.omfTopologyImage}
+              />
         </TabPane>
       </Tabs>
     </div>
-  </div>)
+      </div>
+    );
   }
   render() {
     console.log('render============================================================SimulationRun');
@@ -931,7 +1009,7 @@ class SimulationRun extends Component {
       return null;
     }
  */
-    const leftNavItems = null;
+    const leftNavItems = this.props.commonProps.leftNavItems;
 
     const defaultMeasurement =
       this.state.currentAsset &&
@@ -963,17 +1041,17 @@ class SimulationRun extends Component {
       }
     ];
 
-    console.log('this.state.currentAsset.calculated_recordings' , this.state.currentAsset && this.state.currentAsset.calculated_recordings);
+    console.log(
+      'this.state.currentAsset.calculated_recordings',
+      this.state.currentAsset && this.state.currentAsset.calculated_recordings
+    );
     const poleStaticValues = [
       {
         name: 'critical_pole_stress',
-        value: this.state.chartsConfiguration.criticalVulnerability,
+        value: this.state.chartsConfiguration.criticalVulnerability
       }
     ];
-    const combinedData = this.mapResponseToChartData(
-      chartData,
-      poleStaticValues
-    );
+    const combinedData = this.mapResponseToChartData(chartData, poleStaticValues);
     const criticalPoleStressLine = {
       yAxisId: 'left',
       assetMeasurement: 'critical_pole_stress',

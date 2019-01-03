@@ -101,14 +101,33 @@ class SimulationRunHeader extends Component {
     this.props.postSimulationSubmission(data);
   }
 
+  getCurrentSimulationRunMetadata(simulationRunRequestsMetadata) {
+    console.log(
+      'SimulationRunHeader getCurrentSimulationRunMetadata',
+      simulationRunRequestsMetadata,
+      this.props.simulationRunId
+    );
+    return simulationRunRequestsMetadata.find(metadata => metadata.id === this.props.simulationRunId);
+  }
+
   render() {
-    // console.log('SimulationRunHeader render');
+    console.log('SimulationRunHeader render this.props', this.props, 'this.state', this.state);
     const weatherItems = [{ id: 1, name: 'High Winds' }];
     const networkItems = [{ id: 2, name: 'IEEE123 pole vulnerability' }];
 
     const { style } = this.props;
+    const simulationRunMetadata = this.getCurrentSimulationRunMetadata(
+      this.props.simulationRunRequestsMetadata
+    );
 
     const status = this.props.status ? this.props.status : '';
+    console.log(
+      'SimulationRunHeader simulationRunMetadata',
+      simulationRunMetadata,
+      this.props.simulationRunRequestsMetadata
+    );
+    /* const simulationRunName = simulationRunMetadata && simulationRunMetadata.simulation_submission.name;
+    console.log('SimulationRunHeader name', simulationRunName); */
     return (
       <Form onSubmit={this.handleRun}>
         <div
@@ -127,6 +146,7 @@ class SimulationRunHeader extends Component {
                 onChange={this.handleSimulationNameEnter}
                 placeholder="New Simulation 1"
                 style={{ width: 250 }}
+                value={simulationRunMetadata && simulationRunMetadata.simulation_submission.name}
               />
             </Form.Item>
           </div>

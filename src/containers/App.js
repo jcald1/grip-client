@@ -50,18 +50,24 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    this.handleError = this.handleError.bind(this);
     this.state = {
       error: null,
       simulationRunRequestsMetadata: [],
-      getingSimulationRuns: true
+      getingSimulationRuns: true,
+      commonProps: {
+        apiPath: process.env.REACT_APP_API_PATH,
+        handleError: this.handleError,
+        shallowEquals
+      }
     };
 
     this.handleSimulationRunRequestClick = this.handleSimulationRunRequestClick.bind(this);
 
-    this.handleGetSimulationRunsClick = this.handleGetSimulationRunsClick.bind(this);
     this.handleRunSimulationClick = this.handleRunSimulationClick.bind(this);
     this.handleError = this.handleError.bind(this);
     this.renderErrorMessage = this.renderErrorMessage.bind(this);
+    this.refreshSimulationRuns = this.refreshSimulationRuns.bind(this);
 
     if (!process.env.REACT_APP_API_PATH) {
       const err = Error('Configuration file has not been set up.');
@@ -69,25 +75,51 @@ class App extends Component {
       throw err;
     }
 
-    this.commonProps = {
-      apiPath: process.env.REACT_APP_API_PATH,
-      handleError: this.handleError,
-      shallowEquals
-    };
+
   }
 
   // TODO: Refactor App so that the dashboard elements are rendered in a different container.
   // Get simulation runs should not be getting run on subroutes.  App.js should be very light
   // and only have common functionality.
   componentDidMount() {
-    console.log('BarChart componentDidMount');
+    console.log('App componentDidMount');
 
     this.setState({ getingSimulationRuns: true, getingSimulationRun: true });
 
-    this.getSimulationRuns()
+    this.refreshSimulationRuns()
       // TODO: We need to add the simulation run request fetch first.  Going straight for the Simulation Runs for now
       // but keeping the UI references the Requests to avoid having to change the UI later.saI
-      .then(simulationRuns => this.getLatestSimulationRun(simulationRuns))
+      //.then(simulationRuns => this.getLatestSimulationRun(simulationRuns))
+      .catch(err => {
+        this.handleError(err);
+      })
+      .finally(() => {
+        this.setState({ getingSimulationRuns: false, getingSimulationRun: false });
+        // To continue the promise chain in componentDidMount
+        return null;
+      });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log(
+      'App componentDidUpdate this.props',
+      this.props,
+      'componentDidUpdate',
+      'this.state',
+      this.state,
+      'prevState',
+      prevState
+    );
+
+    if (
+      _.isEqual(prevState.simulationRunRequestsMetadata, this.state.simulationRunRequestsMetadata)
+    ) {
+      return;
+    }
+
+    this.setState({ getingSimulationRuns: true, getingSimulationRun: true });
+
+    this.refreshSimulationRuns()
       .catch(err => {
         this.handleError(err);
       })
@@ -109,12 +141,14 @@ class App extends Component {
     console.log('App handleRunSimulationClick e.target', e.target);
     console.log('e.currentTarget', e.currentTarget);
     this.props.history.push({
-      pathname: path.join(this.props.location.pathname, 'simulation-runs')
+      pathname: '/simulation-runs'
     });
   }
 
   navigateToSimulationRun(simulationRunId) {
     console.log('navigateToSimulationRun', simulationRunId);
+    // Clear out simulation runs, force whole new re-render of app
+    /* const newState = {simulationRunRequestsMetadata:[] }; */
     this.props.history.push({
       pathname: `/simulation-runs/${simulationRunId}`
     });
@@ -133,20 +167,46 @@ class App extends Component {
     return max;
   }
 
-  getSimulationRuns() {
-    console.log('App getSimulationRuns');
+  refreshSimulationRuns() {
+    console.log('App refreshSimulationRuns');
     // TODO: Add message to user
     this.setState({ getingSimulationRuns: true });
     return (
       simulationRuns
         .getSimulationRuns({
-          baseUrl: this.commonProps.apiPath,
+          baseUrl: this.state.commonProps.apiPath,
           apiVersion: DEFAULT_API_VERSION
         })
         // TODO: For now, just passing the simulation runs directly. EventSoon we'll neeed to submit the call to get simulation run request here that has more data such as request time and eventually possible grouping of multiple simulation runs in a single request (Monte Carlo method)
         .then(data => {
+          const simulationRuns = this.getSimulationRunMenuItems(data);
+          const simulationRunRequestsLeftNavItems = [
+            <Category
+              key="anticipation"
+              name="Anticipation"
+              items={simulationRuns}
+              handlePlusClick={this.handleRunSimulationClick}
+            />,
+            <Category
+              key="absorption"
+              name="Absorption"
+              style={{ marginTop: '20px' }}
+              active={false}
+            />,
+            <Category
+              key="recovery"
+              name="Recovery"
+              style={{ marginTop: '20px' }}
+              active={false}
+            />,
+            <Category key="settings" name="Settings" style={{ marginTop: '20px' }} />
+          ];
           this.setState({
-            simulationRunRequestsMetadata: data
+            simulationRunRequestsMetadata: data,
+            commonProps: {
+              ...this.state.commonProps,
+              leftNavItems: simulationRunRequestsLeftNavItems
+            }
           });
           return data;
         })
@@ -157,17 +217,7 @@ class App extends Component {
           this.setState({ getingSimulationRuns: false });
         })
     );
-  }
 
-  handleGetSimulationRunsClick() {
-    console.log('App handlegetingSimulationRuns');
-    this.getSimulationRuns()
-      // End the promise chain
-      .then(simulationRuns => {})
-      // TODO: Add error to page
-      .catch(err => {
-        this.handleError(err);
-      });
   }
 
   // TODO: Display Error
@@ -217,12 +267,12 @@ class App extends Component {
     );
   }
 
-  getSimulationRunMenuItems() {
-    if (!this.state.simulationRunRequestsMetadata) {
+  getSimulationRunMenuItems(simulationRunRequestsMetadata) {
+    if (!simulationRunRequestsMetadata) {
       return null;
     }
 
-    return this.state.simulationRunRequestsMetadata.map(run => {
+    return simulationRunRequestsMetadata.map(run => {
       const runDate = moment(run.created_at).format('HH:mm:ss MM/DD/YY');
       const details = (
         <div
@@ -240,22 +290,14 @@ class App extends Component {
     });
   }
   render() {
-    console.log('App render this.commonProps', this.commonProps, 'this.state', this.state);
+    console.log(
+      'App render this.state.commonProps',
+      this.state.commonProps,
+      'this.state',
+      this.state
+    );
     const { children, inputValue } = this.props;
 
-    const simulationRuns = this.getSimulationRunMenuItems();
-
-    const simulationRunRequestsLeftNavItems = [
-      <Category
-        key="anticipation"
-        name="Anticipation"
-        items={simulationRuns}
-        handlePlusClick={this.handleRunSimulationClick}
-      />,
-      <Category key="absorption" name="Absorption" style={{ marginTop: '20px' }} active={false} />,
-      <Category key="recovery" name="Recovery" style={{ marginTop: '20px' }} active={false} />,
-      <Category key="settings" name="Settings" style={{ marginTop: '20px' }} />
-    ];
 
     /* const simulationRunRequestsMainItems = [
       <SimulationRunRequests
@@ -275,7 +317,7 @@ class App extends Component {
           path="/"
           render={props => (
             <Layout
-              leftNavItems={simulationRunRequestsLeftNavItems}
+              leftNavItems={this.state.commonProps.leftNavItems}
               /* mainItems={simulationRunRequestsMainItems} */
               mainItems={null}
             />
@@ -286,7 +328,11 @@ class App extends Component {
           path="/simulation-runs"
           render={props => (
             <div>
-              <SimulationRun commonProps={this.commonProps} />
+              <SimulationRun
+                commonProps={this.state.commonProps}
+                refreshSimulationRuns={this.refreshSimulationRuns}
+                simulationRunRequestsMetadata={this.state.simulationRunRequestsMetadata}
+              />
             </div>
           )}
         />
@@ -294,7 +340,11 @@ class App extends Component {
           path="/simulation-runs/:simulationRunId"
           render={props => (
             <div>
-              <SimulationRun commonProps={this.commonProps} />
+              <SimulationRun
+                commonProps={this.state.commonProps}
+                refreshSimulationRuns={this.refreshSimulationRuns}
+                simulationRunRequestsMetadata={this.state.simulationRunRequestsMetadata}
+              />
             </div>
           )}
         />
@@ -302,7 +352,7 @@ class App extends Component {
           path="/admin"
           render={props => (
             <div>
-              <Admin commonProps={this.commonProps} />
+              <Admin commonProps={this.state.commonProps} />
             </div>
           )}
         />

@@ -160,26 +160,25 @@ class Assets extends Component {
   }
 
   colorVulnerabilityBands() {
-    console.log('colorVulnerabilityBands this.props.selectionBands',this.props.selectionBands);
+    console.log('colorVulnerabilityBands this.props.selectionBands', this.props.selectionBands);
     if (!this.props.selectionBands) {
-      return
+      return;
     }
-    const levels = ['medium','high'];
+    const levels = ['medium', 'high'];
     this.table.props.dataSource.forEach(data => {
-      levels.forEach( level => {
-      this.props.selectionBands[level].forEach(item => {
-        if (data.name === item) {
-        
-          console.log('coloring', data, 'data.id', data.id);
-  
-          const row = document.querySelector(`.ant-table-tbody tr[data-row-key='${data.id}']`);
-          if (row) {
-            row.classList.add(`asset-table-${level}`);
+      levels.forEach(level => {
+        this.props.selectionBands[level].forEach(item => {
+          if (data.name === item) {
+            console.log('coloring', data, 'data.id', data.id);
+
+            const row = document.querySelector(`.ant-table-tbody tr[data-row-key='${data.id}']`);
+            if (row) {
+              row.classList.add(`asset-table-${level}`);
+            }
           }
-        }
-      })
-    })
-    })
+        });
+      });
+    });
   }
 
   hoverOverTableRow(nodeName) {
@@ -263,7 +262,7 @@ class Assets extends Component {
         width: '12%',
 
         sorter: (a, b) => this.stringSorter(a.type, b.type),
-        //defaultSortOrder: 'ascend',
+        // defaultSortOrder: 'ascend',
         filteredValue: this.props.assetsList,
         /*         filters: [
           {

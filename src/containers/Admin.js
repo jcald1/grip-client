@@ -6,14 +6,14 @@ import TestPage from './TestPage';
 import './App.css';
 import path from 'path';
 
-class Admin extends Component {
+  class Admin extends Component {
   constructor(props) {
     super(props);
 
     this.handleTestPageClick = this.handleTestPageClick.bind(this);
   }
 
-  handleTestPageClick(e) {
+    handleTestPageClick(e) {
     this.props.history.push({
       pathname: path.join(this.props.location.pathname, 'test')
     });
@@ -21,7 +21,7 @@ class Admin extends Component {
 
   render() {
     console.log('Admin render');
-    const leftNavItems = null;
+    const leftNavItems = this.props.commonProps.leftNavItems;
 
     const mainItems = (
       <div>

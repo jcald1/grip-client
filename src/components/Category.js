@@ -20,7 +20,9 @@ class Category extends Component {
       items, name, style, active
     } = this.props;
 
-    const block = items ? items.map(item => <div key={item.key}>{item}</div>) : null;
+    const block = items
+      ? items.map(item => <div key={item.key}>{item}</div>)
+      : null;
 
     const clazz = active === false ? 'nav-text-inactive' : 'nav-text';
 

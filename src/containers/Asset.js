@@ -196,7 +196,7 @@ class Asset extends Component {
     measurements = this.props.addGlobalMeasurements(measurements, this.props.chartsConfiguration);
 
     console.log('Continue Rendering', this.props);
-    const leftNavItems = null;
+    const leftNavItems = this.props.commonProps.leftNavItems;
     const columnStyle = {
       backgroundColor: '#ffffff'
     };

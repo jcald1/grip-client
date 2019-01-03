@@ -23,7 +23,15 @@ class Layout extends Component {
   render() {
     const { leftNavItems, mainItems, history } = this.props;
 
-    console.log('Layout', 'leftNavItems', leftNavItems, 'mainItems', mainItems, history, 'history');
+    console.log(
+      'Layout',
+      'leftNavItems',
+      leftNavItems,
+      'mainItems',
+      mainItems,
+      'this.props',
+      this.props
+    );
 
     return (
       <div

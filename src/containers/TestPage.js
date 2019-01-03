@@ -21,7 +21,7 @@ class TestPage extends Component {
 
   render() {
     console.log('TestPage render');
-    const leftNavItems = null;
+    const leftNavItems = this.props.commonProps.leftNavItems;
 
     const mainItems = (
       <div>

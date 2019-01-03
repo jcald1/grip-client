@@ -122,6 +122,35 @@ const getSimulationRunVulnerabilityAggByTimeStepResults = ({
     });
 };
 
+const getSimulationRunDataSource = ({ baseUrl, apiVersion, dataSourceId }) => {
+  const urlPath = dataSourceId
+    ? `${baseUrl}${apiVersion}/datasources/dataSourceId`
+    : `${baseUrl}${apiVersion}/datasources`;
+
+  const context = `GET Simulation Run Data Source API Call: ${urlPath}`;
+  console.log(context);
+
+  return axios
+    .get(urlPath)
+    .then(res => {
+      console.log('GET Simulation getSimulationRunDataSource', res);
+      if (res.status !== 200) {
+        const err = new Error('Error retrieving data source');
+        err.response = res;
+        throw err;
+      }
+
+      return res.data;
+    })
+    .catch(err => {
+      console.error(err);
+      if (err.response && err.response.data && err.response.data.message) {
+        err = new verror.VError(err, err.response.data.message);
+      }
+      console.log(`Rejecting GET getSimulationRunDataSource: ${context}`);
+      return Promise.reject(new verror.VError(err, context));
+    });
+};
 const getSimulationRunAllModelAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/all_model_assets`;
 
@@ -212,5 +241,6 @@ export default {
   getSimulationRunAsset,
   getSimulationRunAssets,
   getSimulationRunVulnerabilityAggByTimeStepResults,
-  getSimulationRunAllModelAssets
+  getSimulationRunAllModelAssets,
+  getSimulationRunDataSource
 };
