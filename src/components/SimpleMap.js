@@ -143,12 +143,8 @@ class SimpleMap extends Component {
 
       infoWindow.setPosition({ lat: parseFloat(asset.latitude), lng: parseFloat(asset.longitude) });
       const content =
-        `<div id=popup-${
-          asset.name
-        } className=map-asset-hover>` +
-        `<div id=popup-${
-          asset.name
-        }-txt  className=map-asset-hover-txt><b>${
+        `<div id=popup-${asset.name} className=map-asset-hover>` +
+        `<div id=popup-${asset.name}-txt  className=map-asset-hover-txt><b>${
           asset.name
         }</b></div>` +
         '</div>';
@@ -207,18 +203,14 @@ class SimpleMap extends Component {
         polyLinesMap[asset.name] = nonGeodesicPolyline;
 
         const infoWindow = new maps.InfoWindow();
-        maps.event.addListener(nonGeodesicPolyline, 'mouseover', (e) => {
+        maps.event.addListener(nonGeodesicPolyline, 'mouseover', e => {
           infoWindow.setPosition({
             lat: parseFloat(asset.latitude),
             lng: parseFloat(asset.longitude)
           });
           const content =
-            `<div id=popup-${
-              asset.name
-            } className=map-asset-hover>` +
-            `<div id=popup-${
-              asset.name
-            }-txt  className=map-asset-hover-txt><b>${
+            `<div id=popup-${asset.name} className=map-asset-hover>` +
+            `<div id=popup-${asset.name}-txt  className=map-asset-hover-txt><b>${
               asset.name
             }</b></div>` +
             '</div>';

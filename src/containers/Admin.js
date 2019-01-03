@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import Title from '../components/Title';
 import TestPage from './TestPage';
 import './App.css';
-import path from 'path'
+import path from 'path';
 
 class Admin extends Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class Admin extends Component {
 
   handleTestPageClick(e) {
     this.props.history.push({
-      pathname:path.join(this.props.location.pathname, 'test')
+      pathname: path.join(this.props.location.pathname, 'test')
     });
   }
 

@@ -20,7 +20,7 @@ import Category from '../components/Category';
 import CategoryItem from '../components/CategoryItem';
 import simulationRuns from '../actions/simulationRuns';
 import moment from 'moment';
-import path from 'path'
+import path from 'path';
 
 var qs = require('qs');
 const { Header } = Layout;
@@ -107,7 +107,7 @@ class App extends Component {
 
   handleRunSimulationClick(e) {
     console.log('App handleRunSimulationClick e.target', e.target);
-    console.log('e.currentTarget',e.currentTarget);
+    console.log('e.currentTarget', e.currentTarget);
     this.props.history.push({
       pathname: path.join(this.props.location.pathname, 'simulation-runs')
     });
@@ -203,10 +203,16 @@ class App extends Component {
 
     return (
       <div
-        style={{ width: '100%', backgroundColor: 'red', color: 'white', fontSize: '30px', paddingLeft: '130px' }}
+        style={{
+          width: '100%',
+          backgroundColor: 'red',
+          color: 'white',
+          fontSize: '30px',
+          paddingLeft: '130px'
+        }}
         className="logo"
       >
-        <div style={{ paddingLeft: '20px'}}> Error Occured - {this.state.error.message}</div>
+        <div style={{ paddingLeft: '20px' }}> Error Occured - {this.state.error.message}</div>
       </div>
     );
   }
@@ -218,23 +224,38 @@ class App extends Component {
 
     return this.state.simulationRunRequestsMetadata.map(run => {
       const runDate = moment(run.created_at).format('HH:mm:ss MM/DD/YY');
-      const details = (<div className="nav-item" style={{overflowWrap: 'break-word'}} data-row-key={run.id} onClick={this.handleSimulationRunRequestClick}>{runDate}<br/>{run.simulation_filename}</div>);
-      return (<CategoryItem key={run.id}>{details}</CategoryItem>);
-    })
-    
+      const details = (
+        <div
+          className="nav-item"
+          style={{ overflowWrap: 'break-word' }}
+          data-row-key={run.id}
+          onClick={this.handleSimulationRunRequestClick}
+        >
+          {runDate}
+          <br />
+          {run.simulation_filename}
+        </div>
+      );
+      return <CategoryItem key={run.id}>{details}</CategoryItem>;
+    });
   }
   render() {
     console.log('App render this.commonProps', this.commonProps, 'this.state', this.state);
     const { children, inputValue } = this.props;
 
-    const simulationRuns =  this.getSimulationRunMenuItems();
+    const simulationRuns = this.getSimulationRunMenuItems();
 
     const simulationRunRequestsLeftNavItems = [
-      <Category key="anticipation" name='Anticipation' items={simulationRuns} handlePlusClick={this.handleRunSimulationClick}/>,
-      <Category key="absorption" name='Absorption' style={{marginTop: '20px'}} active={false}/>,
-      <Category key="recovery" name='Recovery' style={{marginTop: '20px'}} active={false}/>,
-      <Category key="settings" name='Settings' style={{marginTop: '20px'}}/>
-    ]
+      <Category
+        key="anticipation"
+        name="Anticipation"
+        items={simulationRuns}
+        handlePlusClick={this.handleRunSimulationClick}
+      />,
+      <Category key="absorption" name="Absorption" style={{ marginTop: '20px' }} active={false} />,
+      <Category key="recovery" name="Recovery" style={{ marginTop: '20px' }} active={false} />,
+      <Category key="settings" name="Settings" style={{ marginTop: '20px' }} />
+    ];
 
     /* const simulationRunRequestsMainItems = [
       <SimulationRunRequests

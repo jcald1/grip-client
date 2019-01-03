@@ -1,9 +1,7 @@
 import axios from 'axios';
 import verror from 'verror';
 
-const getOMFTopologyImage = ({
-  baseUrl, apiVersion, simulationRunId
-}) => {
+const getOMFTopologyImage = ({ baseUrl, apiVersion, simulationRunId }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/oneLineGridlab`;
 
   const context = `GET Simulation Run Asset API Call: ${urlPath}`;
@@ -30,7 +28,6 @@ const getOMFTopologyImage = ({
       return Promise.reject(new verror.VError(err, context));
     });
 };
-
 
 export default {
   getOMFTopologyImage

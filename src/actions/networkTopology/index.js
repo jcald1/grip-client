@@ -6,7 +6,7 @@ const getNetworkTopology = ({ baseUrl, apiVersion }) => {
   // override it with our own path, while still being able to use the index.html as a test tool.
   // const urlPath = `${baseUrl}${apiVersion}/network-topology`;
   const urlPath = `${baseUrl}data`;
-  
+
   const context = `GET Network Topology API Call: ${urlPath}`;
   console.log(context);
 

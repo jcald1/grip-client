@@ -26,17 +26,17 @@ class SimulationRunHeader extends Component {
   }
 
   handleDurationEnter(e) {
-    //console.log('handleDurationEnter', e.currentTarget.value);
+    // console.log('handleDurationEnter', e.currentTarget.value);
     this.setState({ duration: e.currentTarget.value });
   }
 
   handleIntervalEnter(e) {
-    //console.log('handleIntervalEnter', e.currentTarget.value);
+    // console.log('handleIntervalEnter', e.currentTarget.value);
     this.setState({ interval: e.currentTarget.value });
   }
 
   handleSimulationNameEnter(e) {
-    //console.log('handleSimulationNameEnter', e.currentTarget.value);
+    // console.log('handleSimulationNameEnter', e.currentTarget.value);
     this.setState({ simulation_name: e.currentTarget.value });
   }
 
@@ -69,18 +69,18 @@ class SimulationRunHeader extends Component {
     // TOOD: Implement better error handling using the built-in Ant Form functionality
     let error = null;
     const parsedDuration = Number(this.state.duration);
-    if (isNaN(parsedDuration)) { 
-      this.setState({duration: null})
+    if (isNaN(parsedDuration)) {
+      this.setState({ duration: null });
       error = true;
-     }
+    }
     const parsedInterval = parseInt(this.state.interval, 10);
-    if (isNaN(parsedInterval)) { 
-      this.setState({interval: null})
+    if (isNaN(parsedInterval)) {
+      this.setState({ interval: null });
       error = true;
-     }
-     if (error) {
-       return;
-     }
+    }
+    if (error) {
+      return;
+    }
 
     console.log(
       'click',
@@ -96,19 +96,19 @@ class SimulationRunHeader extends Component {
       interval: parsedInterval,
       network_datasource_id: this.state.networkModel,
       weather_datasource_id: this.state.weatherModel,
-      name: this.state.simulation_name,
+      name: this.state.simulation_name
     };
     this.props.postSimulationSubmission(data);
   }
 
   render() {
-    //console.log('SimulationRunHeader render');
+    // console.log('SimulationRunHeader render');
     const weatherItems = [{ id: 1, name: 'High Winds' }];
     const networkItems = [{ id: 2, name: 'IEEE123 pole vulnerability' }];
 
     const { style } = this.props;
 
-    const status = this.props.status ? this.props.status: '';
+    const status = this.props.status ? this.props.status : '';
     return (
       <Form onSubmit={this.handleRun}>
         <div
@@ -136,7 +136,7 @@ class SimulationRunHeader extends Component {
           </div>
           <div style={{ flexGrow: 2, flexBasis: 0 }}>{`Status: ${status}`}</div>
         </div>
-        
+
         <div
           style={{
             display: 'flex',
@@ -158,13 +158,16 @@ class SimulationRunHeader extends Component {
             </Form.Item>
 
             <div style={{ display: 'inline-block', marginLeft: '10px' }}>
-            Interval (secs):
-            <Form.Item style={{ display: 'inline-block' }}>
-              <Input onChange={this.handleIntervalEnter} placeholder="3600" style={{ width: 60 }} />
-            </Form.Item>
+              Interval (secs):
+              <Form.Item style={{ display: 'inline-block' }}>
+                <Input
+                  onChange={this.handleIntervalEnter}
+                  placeholder="3600"
+                  style={{ width: 60 }}
+                />
+              </Form.Item>
+            </div>
           </div>
-          </div>
-
 
           <div style={{ flexGrow: 2, flexBasis: 0 }}>
             <Button htmlType="submit">Run</Button>

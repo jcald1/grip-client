@@ -189,7 +189,6 @@ class Asset extends Component {
 
     console.log('Asset render data', runResultsData);
 
-
     if (!asset || !asset.recordings) {
       return null;
     }
@@ -201,7 +200,6 @@ class Asset extends Component {
     const columnStyle = {
       backgroundColor: '#ffffff'
     };
-
 
     const innerColumnStyle = {
       border: '1px solid #000000',
@@ -309,9 +307,7 @@ class Asset extends Component {
                 this.state.selectedMeasurement,
                 this.props.chartsConfiguration
               )` */}
-            <Title
-              text={`${title}`}
-            />
+            <Title text={`${title}`} />
             {poleVulnerabilitySubTitle}
             <div>
               {this.props.renderLineChartAssetDetail({
@@ -326,8 +322,8 @@ class Asset extends Component {
             </div>
           </Col>
           <Col span={6}>
-          <div style={measurementColumnStyle}>
-            <Measurements
+            <div style={measurementColumnStyle}>
+              <Measurements
                 measurements={measurements}
                 handleMeasurementClick={this.handleMeasurementClick}
                 getAliasForRecording={this.props.getAliasForRecording}
@@ -338,20 +334,20 @@ class Asset extends Component {
         </Row>
         <Row>
           <Col span={8} style={columnStyle}>
-          <div style={innerColumnStyle}>
-            <AssetProperties asset={this.state.asset} />
-          </div>
+            <div style={innerColumnStyle}>
+              <AssetProperties asset={this.state.asset} />
+            </div>
           </Col>
           <Col span={8} style={columnStyle}>
-          <div style={innerColumnStyle}>
-            <AssetRelationships
-              asset={this.state.asset}
-              handleSimulationRunAssetRequestClick={this.handleSimulationRunAssetRequestClick}
-            />
-           </div>
+            <div style={innerColumnStyle}>
+              <AssetRelationships
+                asset={this.state.asset}
+                handleSimulationRunAssetRequestClick={this.handleSimulationRunAssetRequestClick}
+              />
+            </div>
           </Col>
           <Col span={8} style={columnStyle}>
-                Asset Map Goes here
+            Asset Map Goes here
           </Col>
         </Row>
       </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Radio } from 'antd';
+
 const RadioGroup = Radio.Group;
 const renderMeasurements = (
   handleMeasurementClick,
@@ -50,17 +51,16 @@ const Measurements = ({
   */
 
   return (
-    <div style={{ marginLeft: '0px',  textAlign: 'left' }}>
-    
+    <div style={{ marginLeft: '0px', textAlign: 'left' }}>
       <div>
-      <RadioGroup>
-        {renderMeasurements(
-          handleMeasurementClick,
-          measurements,
-          chartsConfiguration,
-          getAliasForRecording
-        )}
-      </RadioGroup>
+        <RadioGroup>
+          {renderMeasurements(
+            handleMeasurementClick,
+            measurements,
+            chartsConfiguration,
+            getAliasForRecording
+          )}
+        </RadioGroup>
       </div>
     </div>
   );

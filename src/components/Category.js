@@ -11,7 +11,7 @@ class Category extends Component {
   handleClick(e) {
     console.log('Category handleClick', e.currentTarget);
     if (this.props.handlePlusClick) {
-        this.props.handlePlusClick(e);
+      this.props.handlePlusClick(e);
     }
   }
 
@@ -19,9 +19,8 @@ class Category extends Component {
     const {
       items, name, style, active
     } = this.props;
-   
-    const block = items ? items.map(item => {
-        return (<div key={item.key}>{item}</div>)}) : null;
+
+    const block = items ? items.map(item => <div key={item.key}>{item}</div>) : null;
 
     const clazz = active === false ? 'nav-text-inactive' : 'nav-text';
 

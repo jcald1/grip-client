@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { Provider } from "react-redux";
-import RootRoutes from "./RootRoutes";
-import DevTools from "./DevTools";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Provider } from 'react-redux';
+import RootRoutes from './RootRoutes';
+import DevTools from './DevTools';
 
 const Root = ({ store }) => (
   <Provider store={store}>

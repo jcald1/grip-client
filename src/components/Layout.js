@@ -35,8 +35,6 @@ class Layout extends Component {
           WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
         }}
       >
-
-
         <div className="left-navbar">
           {leftNavItems}
           <div style={{ margin: '0 auto', padding: '10px' }}>

@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import Title from '../components/Title';
 import './App.css';
 import NetworkTopologyTest from './TestPages/NetworkTopologyTest';
-import path from 'path'
+import path from 'path';
 
 class TestPage extends Component {
   constructor(props) {

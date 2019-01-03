@@ -122,12 +122,7 @@ const getSimulationRunVulnerabilityAggByTimeStepResults = ({
     });
 };
 
-
-const getSimulationRunAllModelAssets = ({
-  baseUrl,
-  apiVersion,
-  simulationRunId
-}) => {
+const getSimulationRunAllModelAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
   const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/all_model_assets`;
 
   const context = `GET Simulation Run AllModelAssets API Call: ${urlPath}`;

@@ -1,9 +1,9 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 const User = ({ user }) => {
-  const { login, avatarUrl, name } = user
+  const { login, avatarUrl, name } = user;
 
   return (
     <div className="User">
@@ -14,8 +14,8 @@ const User = ({ user }) => {
         </h3>
       </Link>
     </div>
-  )
-}
+  );
+};
 
 User.propTypes = {
   user: PropTypes.shape({
@@ -23,6 +23,6 @@ User.propTypes = {
     avatarUrl: PropTypes.string.isRequired,
     name: PropTypes.string
   }).isRequired
-}
+};
 
-export default User
+export default User;
