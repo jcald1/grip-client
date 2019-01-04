@@ -1069,7 +1069,7 @@ class SimulationRun extends Component {
     const mainItems = (
       <div>
         {this.renderSimulationRunHeader()}
-        <Divider />
+        {/* <Divider /> */}
         {/*         <Title
           text="
           Network Power and Vulnerability"

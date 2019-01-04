@@ -21,9 +21,7 @@ import CategoryItem from '../components/CategoryItem';
 import simulationRuns from '../actions/simulationRuns';
 import moment from 'moment';
 import path from 'path';
-
 var qs = require('qs');
-const { Header } = Layout;
 
 const DEFAULT_API_VERSION = 'v1';
 
@@ -74,8 +72,6 @@ class App extends Component {
       console.log(err);
       throw err;
     }
-
-
   }
 
   // TODO: Refactor App so that the dashboard elements are rendered in a different container.
@@ -167,57 +163,64 @@ class App extends Component {
     return max;
   }
 
+  /*   handleClick(e) {
+    console.log('Category handleClick', e.currentTarget);
+    if (this.props.handlePlusClick) {
+      this.props.handlePlusClick(e);
+    }
+  } */
+
   refreshSimulationRuns() {
     console.log('App refreshSimulationRuns');
     // TODO: Add message to user
     this.setState({ getingSimulationRuns: true });
-    return (
-      simulationRuns
-        .getSimulationRuns({
-          baseUrl: this.state.commonProps.apiPath,
-          apiVersion: DEFAULT_API_VERSION
-        })
-        // TODO: For now, just passing the simulation runs directly. EventSoon we'll neeed to submit the call to get simulation run request here that has more data such as request time and eventually possible grouping of multiple simulation runs in a single request (Monte Carlo method)
-        .then(data => {
-          const simulationRuns = this.getSimulationRunMenuItems(data);
-          const simulationRunRequestsLeftNavItems = [
-            <Category
-              key="anticipation"
-              name="Anticipation"
-              items={simulationRuns}
-              handlePlusClick={this.handleRunSimulationClick}
-            />,
-            <Category
-              key="absorption"
-              name="Absorption"
-              style={{ marginTop: '20px' }}
-              active={false}
-            />,
-            <Category
-              key="recovery"
-              name="Recovery"
-              style={{ marginTop: '20px' }}
-              active={false}
-            />,
-            <Category key="settings" name="Settings" style={{ marginTop: '20px' }} />
-          ];
-          this.setState({
-            simulationRunRequestsMetadata: data,
-            commonProps: {
-              ...this.state.commonProps,
-              leftNavItems: simulationRunRequestsLeftNavItems
-            }
-          });
-          return data;
-        })
-        .catch(err => {
-          this.handleError(err);
-        })
-        .finally(() => {
-          this.setState({ getingSimulationRuns: false });
-        })
-    );
-
+    return simulationRuns
+      .getSimulationRuns({
+        baseUrl: this.state.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION
+      })
+      .then(data => {
+        const simulationRuns = this.getSimulationRunMenuItems(data);
+        const simulationRunRequestsLeftNavItems = [
+          <Category
+            key="anticipation"
+            name="Anticipation"
+            items={simulationRuns}
+            /* handlePlusClick={this.handleRunSimulationClick} */
+          >
+            <div
+              className="nav-item"
+              style={{ display: 'inline-block', fontSize: '18px', fontWeight: 'bold' }}
+              onClick={this.handleRunSimulationClick}
+            >
+              +
+            </div>
+          </Category>,
+          <Category
+            key="absorption"
+            name="Absorption"
+            style={{ marginTop: '0px' }}
+            active={false}
+            tooltip="Phase 2"
+          />,
+          <Category key="recovery" name="Recovery" style={{ marginTop: '0px' }} active={false} tooltip="Phase 3"/>,
+          <Category key="settings" name="Settings" style={{ marginTop: '0px' }} />
+        ];
+        this.setState({
+          simulationRunRequestsMetadata: data,
+          commonProps: {
+            ...this.state.commonProps,
+            leftNavItems: simulationRunRequestsLeftNavItems
+          }
+        });
+        return data;
+      })
+      .catch(err => {
+        this.handleError(err);
+      })
+      .finally(() => {
+        this.setState({ getingSimulationRuns: false });
+      });
   }
 
   // TODO: Display Error
@@ -277,13 +280,14 @@ class App extends Component {
       const details = (
         <div
           className="nav-item"
-          style={{ overflowWrap: 'break-word' }}
+          style={{ overflowWrap: 'break-word', paddingTop: '0px' }}
           data-row-key={run.id}
           onClick={this.handleSimulationRunRequestClick}
         >
-          {runDate}
+          {/*           {runDate}
           <br />
-          {run.simulation_filename}
+          {run.simulation_filename} */}
+          {run.simulation_submission.name}
         </div>
       );
       return <CategoryItem key={run.id}>{details}</CategoryItem>;
@@ -297,7 +301,6 @@ class App extends Component {
       this.state
     );
     const { children, inputValue } = this.props;
-
 
     /* const simulationRunRequestsMainItems = [
       <SimulationRunRequests

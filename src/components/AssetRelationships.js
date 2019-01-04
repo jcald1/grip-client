@@ -86,7 +86,6 @@ const AssetRelationships = ({ handleSimulationRunAssetRequestClick, asset }) => 
       <div
         style={{
           marginLeft: '10px',
-          marginTop: '5px',
           display: 'inline-block',
           textAlign: 'left'
         }}

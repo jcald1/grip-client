@@ -46,7 +46,7 @@ class Layout extends Component {
         <div className="left-navbar">
           {leftNavItems}
           <div style={{ margin: '0 auto', padding: '10px' }}>
-            <Button
+            {/*             <Button
               className="nav-button"
               style={{ display: 'block', margin: '0 auto' }}
               type="primary"
@@ -55,7 +55,7 @@ class Layout extends Component {
               path="/admin"
             >
               Admin
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -66,7 +66,8 @@ class Layout extends Component {
               display: 'inline-block',
               fontSize: '28px',
               width: '100px',
-              padding: '10px 30px'
+              padding: '10px 5px',
+              fontWeight: 'bold'
             }}
             onClick={this.handleButtonClick}
           >

@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import React, { Component } from 'react';
 import {
-  Menu, Dropdown, Button, Icon, message, Input, Form, Select
+  Menu, Dropdown, Button, Icon, message, Input, Form, Select, Divider
 } from 'antd';
 import _ from 'lodash';
 import simulationRuns from '../actions/simulationRuns';
@@ -24,7 +24,9 @@ class SimulationRunHeader extends Component {
       simulation_name: null,
 
       networkModelItems: [],
-      weatherModelItems: []
+      weatherModelItems: [],
+
+      retrieveDataSourcesFailed: false
     };
 
     this.handleDurationEnter = this.handleDurationEnter.bind(this);
@@ -42,6 +44,12 @@ class SimulationRunHeader extends Component {
     if (_.isEmpty(simulationRunMetadata)) {
       return;
     }
+    if (this.state.retrieveDataSourcesFailed) {
+      return;
+    }
+    if (this.state.simulation_name) {
+      return;
+    }
 
     console.log(
       'SimulationRunHeader componentDidUpdate simulationRunMetadata',
@@ -54,8 +62,8 @@ class SimulationRunHeader extends Component {
       this.props
     );
 
-  /*  simulationRuns
-       .getSimulationRunDataSource({
+    simulationRuns
+      .getSimulationRunDataSource({
         baseUrl: this.props.commonProps.apiPath,
         apiVersion: DEFAULT_API_VERSION
       })
@@ -76,12 +84,13 @@ class SimulationRunHeader extends Component {
         this.setState({ networkModelItems, weatherModelItems });
       })
       .catch(err => {
+        this.setState({ retrieveDataSourcesFailed: true });
         console.error(err);
         if (err.response && err.response.data && err.response.data.message) {
           err = new verror.VError(err, err.response.data.message);
         }
         this.props.commonProps.handleError(err);
-      }); */
+      });
 
     const initialSimulationName =
       simulationRunMetadata && simulationRunMetadata.simulation_submission.name;
@@ -94,16 +103,14 @@ class SimulationRunHeader extends Component {
     const initialDuration =
       simulationRunMetadata && simulationRunMetadata.simulation_submission.duration;
     // Only set the state here when the metadata is initially passed in as a props, then just set state based on user input,
-    if (this.state.simulation_name) {
-      return;
-    }
+
     console.log('setting state', initialSimulationName);
     this.setState({
       simulation_name: initialSimulationName,
-/*       networkModel: initialNetworkModel.toString(),
+      networkModel: initialNetworkModel.toString(),
       weatherModel: initialWeatherModel.toString(),
       duration: initialDuration,
-      interval: initialInterval */
+      interval: initialInterval
     });
   }
 
@@ -133,15 +140,17 @@ class SimulationRunHeader extends Component {
     this.setState({ [option.props.group]: value });
   }
 
-  getSelect({ items, name }) {
+  getSelect({ items, name, selectClass }) {
     return (
-      <Select name={name} onChange={this.handleOptionChange} style={{ width: '250px' }}>
-        {items.map(item => (
-          <Option key={item.id} value={item.id} group={name}>
-            {item.name}
-          </Option>
-        ))}
-      </Select>
+      <Form.Item className={selectClass}>
+        <Select name={name} onChange={this.handleOptionChange}>
+          {items.map(item => (
+            <Option key={item.id} value={item.id} group={name}>
+              {item.name}
+            </Option>
+          ))}
+        </Select>
+      </Form.Item>
     );
   }
 
@@ -194,17 +203,10 @@ class SimulationRunHeader extends Component {
     );
   }
 
-  render() {
-    console.log('SimulationRunHeader render this.props', this.props, 'this.state', this.state);
-    const weatherItems = [{ id: 1, name: 'High Winds' }];
-    const networkItems = [{ id: 2, name: 'IEEE123 pole vulnerability' }];
-
-    const { style } = this.props;
-
-    const status = this.props.status ? this.props.status : '';
-
-    /* const simulationRunName = simulationRunMetadata && simulationRunMetadata.simulation_submission.name;
-    console.log('SimulationRunHeader name', simulationRunName); */
+  renderSimulationRunPageHeader({
+    status, weatherItems, networkItems, style
+  }) {
+    const selectClass = 'simulation-header-run-page-input';
     return (
       <Form onSubmit={this.handleRun}>
         <div
@@ -221,7 +223,7 @@ class SimulationRunHeader extends Component {
             <Form.Item>
               <Input
                 onChange={this.handleSimulationNameEnter}
-                placeholder="New Simulation 1"
+                placeholder="New Simulation"
                 style={{ width: 250 }}
                 value={this.state.simulation_name}
               />
@@ -229,7 +231,7 @@ class SimulationRunHeader extends Component {
           </div>
           <div style={{ flexGrow: 1, flexBasis: 0 }}>Weather Source:</div>
           <div style={{ flexGrow: 3, flexBasis: 0, minWidth: '150px' }}>
-            {this.getSelect({ items: weatherItems, name: 'weatherModel' })}
+            {this.getSelect({ items: weatherItems, name: 'weatherModel', selectClass })}
           </div>
           <div style={{ flexGrow: 2, flexBasis: 0 }}>{`Status: ${status}`}</div>
         </div>
@@ -276,8 +278,125 @@ class SimulationRunHeader extends Component {
             <Button htmlType="submit">Run</Button>
           </div>
         </div>
+        <Divider />
       </Form>
     );
+  }
+
+  renderCreateSimulationHeader({
+    status, weatherItems, networkItems, style
+  }) {
+    const selectClass = 'simulation-header-create-input';
+    return (
+      <Form onSubmit={this.handleRun}>
+        <div
+          className="simulation-header-create-row"
+          style={{
+            ...style
+          }}
+        >
+          <div className="simulation-header-create-first-col">Simulation Name:</div>
+          <div>
+            <Form.Item>
+              <Input
+                onChange={this.handleSimulationNameEnter}
+                placeholder="New Simulation"
+                className="simulation-header-create-input"
+                value={this.state.simulation_name}
+              />
+            </Form.Item>
+          </div>
+        </div>
+
+        <div
+          className="simulation-header-create-row"
+          style={{
+            ...style
+          }}
+        >
+          <div className="simulation-header-create-first-col">Duration (hours):</div>
+          <div>
+            <Form.Item>
+              <Input
+                onChange={this.handleDurationEnter}
+                placeholder="24"
+                className="simulation-header-create-input"
+                value={this.state.duration}
+              />
+            </Form.Item>
+          </div>
+        </div>
+
+        <div
+          className="simulation-header-create-row"
+          style={{
+            ...style
+          }}
+        >
+          <div className="simulation-header-create-first-col">Interval (seconds):</div>
+          <div>
+            <Form.Item>
+              <Input
+                onChange={this.handleIntervalEnter}
+                placeholder="3600"
+                className="simulation-header-create-input"
+                value={this.state.interval}
+              />
+            </Form.Item>
+          </div>
+        </div>
+
+        <div
+          className="simulation-header-create-row"
+          style={{
+            ...style
+          }}
+        >
+          <div className="simulation-header-create-first-col">Network Model Source:</div>
+          <div>{this.getSelect({ items: networkItems, name: 'networkModel', selectClass })}</div>
+        </div>
+
+        <div
+          className="simulation-header-create-row"
+          style={{
+            ...style
+          }}
+        >
+          <div className="simulation-header-create-first-col">Weather Source:</div>
+          <div>{this.getSelect({ items: weatherItems, name: 'weatherModel', selectClass })}</div>
+        </div>
+
+        <div style={{}}>
+          <Button htmlType="submit">Run</Button>
+        </div>
+      </Form>
+    );
+  }
+
+  render() {
+    console.log('SimulationRunHeader render this.props', this.props, 'this.state', this.state);
+    const weatherItems = [{ id: 1, name: 'High Winds' }];
+    const networkItems = [{ id: 2, name: 'IEEE123 pole vulnerability' }];
+
+    const { style } = this.props;
+
+    const status = this.props.status ? this.props.status : '';
+
+    if (this.props.simulationRunId) {
+      return this.renderSimulationRunPageHeader({
+        status,
+        weatherItems,
+        networkItems,
+        style
+      });
+    }
+
+    return this.renderCreateSimulationHeader({
+      status,
+      weatherItems,
+      networkItems,
+      style
+    });
   }
 }
 

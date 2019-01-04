@@ -50,7 +50,6 @@
   margin-top: 10px;
 }
 
-
 .asset-table-highlight {
   background-color: rgb(230, 247, 255);
 }
@@ -155,7 +154,21 @@
   left: 0;
 }
 
-/* .ant-tabs-bar {
-  margin: 0px;
+.simulation-header-create-first-col {
+  min-width: 150px;
 }
- */
+
+.simulation-header-create-row {
+  display: flex;
+  flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  /* height: 30px; */
+}
+
+.simulation-header-create-input {
+  width: 400px;
+}
+
+.simulation-header-run-page-input {
+  width: 250px;
+}
