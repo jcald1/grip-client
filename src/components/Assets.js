@@ -8,9 +8,7 @@ import React, { Component } from 'react';
 import {
   Table, Icon, Switch, Radio, Form, Divider
 } from 'antd';
-import Title from './Title';
 
-const FormItem = Form.Item;
 
 /* const data = [];
 for (let i = 1; i <= 10; i++) {

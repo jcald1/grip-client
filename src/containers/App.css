@@ -172,3 +172,41 @@
 .simulation-header-run-page-input {
   width: 250px;
 }
+
+.assetdetail-title {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.assetdetail-title .asset-title {
+  display: inline-block;
+  margin-left: 0px;
+  width: 60%
+}
+
+.assetdetail-title .asset-simulation-nav {
+  float: left;
+  margin-left: 10px;
+  margin-top: 10px;
+  width: 20%;
+}
+
+.assetdetail-title .asset-simulation-nav a {
+  color: black;
+}
+
+.recharts-layer .recharts-cartesian-axis-tick:first-child text {
+  font-size: 0;
+}
+
+/* .recharts-layer .recharts-cartesian-axis-tick:last-child text {
+  font-size: 0;
+} */
+
+.recharts-text.recharts-label {    
+  font-size: 10px;
+}
+
+.ant-radio{
+  margin: -1px;
+}

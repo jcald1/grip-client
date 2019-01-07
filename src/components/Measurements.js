@@ -8,14 +8,36 @@ const renderMeasurements = (
   handleMeasurementClick,
   measurements,
   chartsConfiguration,
-  getAliasForRecording
+  getAliasForRecording,
+  asset
 ) => {
-  console.log('renderMeasurements asset', measurements);
-  const MeasurementsToRender = measurements.map(measurement => {
+  console.log('renderMeasurements asset', measurements, 'asset', asset);
+  const { properties } = asset;
+  const assetClass = properties.class;
+  const classProperties = chartsConfiguration.primaryMetricsForClasses.find(
+    assetProperties => assetProperties.class === assetClass
+  ).properties;
+  console.log('renderMeasurements classProperties', classProperties);
+
+  const filteredAssetMeasurementsToRender = [];
+  measurements.map(measure => {
+    console.log('renderMeasurements measure', measure);
+    const propFound = classProperties.find(prop => prop.key === measure.name);
+    if (propFound) {
+      console.log('property found', measure);
+      filteredAssetMeasurementsToRender.push(measure);
+    }
+  });
+
+  const MeasurementsToRender = filteredAssetMeasurementsToRender.map(measurement => {
     // console.log('renderMeasurements', data, 'asset', asset);
     const measurementDiv = (
       <Radio
-        style={{ display: 'block' }}
+        style={{
+          display: 'block',
+          marginTop: '10px',
+          fontSize: '10px'
+        }}
         onClick={handleMeasurementClick}
         value={measurement.name}
         key={measurement.id}
@@ -34,7 +56,8 @@ const Measurements = ({
   handleMeasurementClick,
   measurements,
   chartsConfiguration,
-  getAliasForRecording
+  getAliasForRecording,
+  asset
 }) => {
   // return null;
   console.log('Measurements data', measurements, 'handleMeasurementClick', handleMeasurementClick);
@@ -51,14 +74,15 @@ const Measurements = ({
   */
 
   return (
-    <div style={{ marginLeft: '0px', textAlign: 'left' }}>
+    <div style={{ marginLeft: '0px', textAlign: 'left', marginTop: '0px' }}>
       <div>
-        <RadioGroup>
+        <RadioGroup size="small">
           {renderMeasurements(
             handleMeasurementClick,
             measurements,
             chartsConfiguration,
-            getAliasForRecording
+            getAliasForRecording,
+            asset
           )}
         </RadioGroup>
       </div>

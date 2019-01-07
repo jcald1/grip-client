@@ -14,16 +14,16 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend
+  Legend,
+  ResponsiveContainer
 } from 'recharts';
 import './App.css';
-import path from 'path';
 import Layout from '../components/Layout';
 import SimpleMap from '../components/SimpleMap';
+import CustomToolTip from '../components/CustomToolTip';
 import OMFTopologyMap from '../components/OMFTopologyMap';
 import Asset from './Asset';
 import Assets from '../components/Assets';
-import Title from '../components/Title';
 import simulationRuns from '../actions/simulationRuns';
 import omf from '../actions/omf';
 import networkTopology from '../actions/networkTopology';
@@ -34,6 +34,7 @@ const DEFAULT_DIVIDER = '__';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
 
 const TabPane = Tabs.TabPane;
+
 class SimulationRun extends Component {
   constructor(props) {
     super(props);
@@ -94,6 +95,358 @@ class SimulationRun extends Component {
           recording: 'power_out_real'
         }
       ],
+      primaryMetricsForClasses: [
+        {
+          class: 'pole',
+          properties: [
+            {
+              key: 'resisting_moment'
+            },
+            {
+              key: 'total_moment'
+            },
+            {
+              key: 'susceptibility'
+            },
+            {
+              key: 'wind_speed'
+            }
+          ]
+        },
+        {
+          class: 'line',
+          properties: [
+            {
+              key: 'power_out_real'
+            },
+            {
+              key: 'wind_speed'
+            }
+          ]
+        },
+        {
+          class: 'overhead_line',
+          properties: [
+            {
+              key: 'power_out_real'
+            },
+            {
+              key: 'wind_speed'
+            }
+          ]
+        },
+        {
+          class: 'substation_meter',
+          properties: [
+            {
+              key: 'measured_reactive_power'
+            },
+            {
+              key: 'measured_real_power'
+            },
+            {
+              key: 'wind_speed'
+            }
+          ]
+        },
+        {
+          class: 'meter',
+          properties: [
+            {
+              key: 'measured_reactive_power'
+            },
+            {
+              key: 'measured_real_power'
+            },
+            {
+              key: 'wind_speed'
+            }
+          ]
+        }
+      ],
+      primaryPropertiesForClasses: [
+        {
+          class: 'meter',
+          properties: [
+            {
+              key: 'nominal_voltage',
+              name: 'Nominal Voltage'
+            },
+            {
+              key: 'bustype',
+              name: 'Bus Type'
+            },
+            {
+              key: 'class',
+              name: 'class'
+            },
+            {
+              key: 'phases',
+              name: 'Phases'
+            },
+            {
+              key: 'service_status',
+              name: 'Service Status'
+            },
+            {
+              key: 'longitude',
+              name: 'Longitude'
+            },
+            {
+              key: 'latitude',
+              name: 'Latitude'
+            }
+          ]
+        },
+        {
+          class: 'triplex-meter',
+          properties: [
+            {
+              key: 'nominal_voltage',
+              name: 'Nominal Voltage'
+            },
+            {
+              key: 'bustype',
+              name: 'Bus Type'
+            },
+            {
+              key: 'class',
+              name: 'class'
+            },
+            {
+              key: 'phases',
+              name: 'Phases'
+            },
+            {
+              key: 'service_status',
+              name: 'Service Status'
+            }, 
+            {
+              key: 'longitude',
+              name: 'Longitude'
+            },
+            {
+              key: 'latitude',
+              name: 'Latitude'
+            }
+          ]
+        },
+        {
+          class: 'transformer',
+          properties: [
+            {
+              key: 'nominal_voltage',
+              name: 'Nominal Voltage'
+            },
+            {
+              key: 'bustype',
+              name: 'Bus Type'
+            },
+            {
+              key: 'class',
+              name: 'class'
+            },
+            {
+              key: 'phases',
+              name: 'Phases'
+            },
+            {
+              key: 'service_status',
+              name: 'Service Status'
+            }, 
+            {
+              key: 'longitude',
+              name: 'Longitude'
+            },
+            {
+              key: 'latitude',
+              name: 'Latitude'
+            }
+          ]
+        },
+        {
+          class: 'substation',
+          properties: [
+            {
+              key: 'nominal_voltage',
+              name: 'Nominal Voltage'
+            },
+            {
+              key: 'bustype',
+              name: 'Bus Type'
+            },
+            {
+              key: 'class',
+              name: 'class'
+            },
+            {
+              key: 'phases',
+              name: 'Phases'
+            },
+            {
+              key: 'service_status',
+              name: 'Service Status'
+            },
+            {
+              key: 'longitude',
+              name: 'Longitude'
+            },
+            {
+              key: 'latitude',
+              name: 'Latitude'
+            }
+          ]
+        },
+        {
+          class: 'substation_meter',
+          properties: [
+            {
+              key: 'nominal_voltage',
+              name: 'Nominal Voltage'
+            },
+            {
+              key: 'bustype',
+              name: 'Bus Type'
+            },
+            {
+              key: 'class',
+              name: 'class'
+            },
+            {
+              key: 'phases',
+              name: 'Phases'
+            },
+            {
+              key: 'service_status',
+              name: 'Service Status'
+            }, 
+            {
+              key: 'longitude',
+              name: 'Longitude'
+            },
+            {
+              key: 'latitude',
+              name: 'Latitude'
+            }
+          ]
+        },
+        {
+          class: 'pole',
+          properties: [
+            {
+              key: 'class',
+              name: 'Class'
+            },
+            {
+              key: 'pole_type',
+              name: 'Type'
+            },
+            {
+              key: 'equipment_height',
+              name: 'Height'
+            },
+            {
+              key: 'equipment_area',
+              name: 'Area'
+            },
+            {
+              key: 'latitude',
+              name: 'Latitude'
+            },
+            {
+              key: 'longitude',
+              name: 'Longitude'
+            },
+            {
+              key: 'tilt_angle',
+              name: 'Tilt Angel'
+            },
+            {
+              key: 'tilt_direction',
+              name: 'Tilt Direction'
+            }
+          ]
+        },
+        {
+          class: 'weather',
+          properties: [
+          ]
+        },
+        {
+          class: 'line',
+          properties: [
+            {
+              key: 'configuration',
+              name: 'Configurration'
+            },
+            {
+              key: 'class',
+              name: 'Class'
+            },
+            {
+              key: 'continuous_rating',
+              name: 'Continuous Rating'
+            },
+            {
+              key: 'emergency_rating',
+              name: 'Emergency Rating'
+            },
+            {
+              key: 'flow_direction',
+              name: 'Flow Direction'
+            },
+            {
+              key: 'longitude',
+              name: 'Longitude'
+            },
+            {
+              key: 'latitude',
+              name: 'Latitude'
+            },
+            {
+              key: 'length',
+              name: 'Length'
+            }
+          ]
+        },
+        {
+          class: 'overhead_line',
+          properties: [
+            {
+              key: 'configuration',
+              name: 'Configurration'
+            },
+            {
+              key: 'class',
+              name: 'Class'
+            },
+            {
+              key: 'continuous_rating',
+              name: 'Continuous Rating'
+            },
+            {
+              key: 'emergency_rating',
+              name: 'Emergency Rating'
+            },
+            {
+              key: 'flow_direction',
+              name: 'Flow Direction'
+            },
+            {
+              key: 'longitude',
+              name: 'Longitude'
+            },
+            {
+              key: 'latitude',
+              name: 'Latitude'
+            },
+            {
+              key: 'length',
+              name: 'Length'
+            }
+          ]
+        }
+      ],
       globalRecordings: [
         {
           id: 10000,
@@ -106,75 +459,93 @@ class SimulationRun extends Component {
       recordingLabels: [
         {
           name: 'vulnerability',
-          label: 'Peak Vulnerability  - pu',
+          label: 'Peak Vulnerability',
           YAxisPosition: 'left'
         },
         {
           name: 'pole_stress',
           nameAlias: 'vulnerability_index',
-          label: 'Vulnerability Index  - pu',
+          label: 'Vulnerability Index',
           YAxisPosition: 'left'
         },
         {
           name: 'critical_pole_stress',
           nameAlias: 'critical_vulnerability_index',
-          label: 'Critical Vulnerability Index - pu',
+          label: 'Critical Vulnerability Index',
+          unit: 'pu',
           YAxisPosition: 'left'
         },
         {
           name: 'measured_real_power',
-          label: 'Measured Real Power - W',
+          label: 'Measured Real Power',
+          unit: 'W',
+          YAxisPosition: 'right'
+        },
+        {
+          name: 'measured_real_power',
+          label: 'Measured Real Power',
+          unit: 'W',
           YAxisPosition: 'left'
         },
         {
           name: 'measured_real_power',
-          label: 'Measured Real Power - W',
+          label: 'Measured Real Power',
+          unit: 'W',
           YAxisPosition: 'right'
         },
         {
           name: 'measured_reactive_power',
-          label: 'Measured Reactive Power - W',
-          YAxisPosition: 'left'
+          label: 'Measured Reactive Power',
+          unit: 'W',
+          YAxisPosition: 'right'
         },
         {
           name: 'wind_speed',
-          label: 'Wind Speed - meters/sec',
-          YAxisPosition: 'left'
+          label: 'Wind Speed',
+          unit: 'meters/sec',
+          YAxisPosition: 'right'
         },
         {
           name: 'resisting_moment',
-          label: 'Resisting Moment - ft*lb',
-          YAxisPosition: 'left'
+          label: 'Resisting Moment',
+          unit: 'ft*lb',
+          YAxisPosition: 'right'
         },
         {
           name: 'total_moment',
-          label: 'Total Moment - ft*lb',
-          YAxisPosition: 'left'
+          label: 'Total Moment',
+          unit: 'ft*lb',
+          YAxisPosition: 'right'
         },
         {
           name: 'critical_wind_speed',
-          label: 'Critical Wind Speed - meters/sec',
-          YAxisPosition: 'left'
+          label: 'Critical Wind Speed',
+          unit: 'meters/sec',
+          YAxisPosition: 'right'
         },
         {
           name: 'susceptibility',
-          label: 'Susceptibility - pu*s/m',
-          YAxisPosition: 'left'
+          label: 'Susceptibility',
+          unit: 'pu*s/m',
+          YAxisPosition: 'right'
         },
         {
           name: 'pole_status',
-          label: 'Pole Status - OK/FAILED',
-          YAxisPosition: 'left'
+          label: 'Pole Status',
+          unit: 'OK/FAILED',
+          YAxisPosition: 'right'
         },
         {
           name: 'current_uptime',
-          label: 'Current Uptime in Minutes',
-          YAxisPosition: 'left'
+          label: 'Current Uptime',
+          unit: 'Minutes',
+          YAxisPosition: 'right'
         },
         {
           name: 'power_out_real',
-          label: 'Power Out Real - W',
-          YAxisPosition: 'left'
+          label: 'Power Out Real',
+          unit: 'W',
+          YAxisPosition: 'right'
         }
       ]
     };
@@ -212,17 +583,20 @@ class SimulationRun extends Component {
     this.findDefaultAsset = this.findDefaultAsset.bind(this);
     this.getDefaultMeasurementForAsset = this.getDefaultMeasurementForAsset.bind(this);
     this.getLabelForRecording = this.getLabelForRecording.bind(this);
+    this.getUnitForRecording = this.getUnitForRecording.bind(this);
     this.getGlobalMeasurement = this.getGlobalMeasurement.bind(this);
     this.addGlobalMeasurements = this.addGlobalMeasurements.bind(this);
     this.postSimulationSubmission = this.postSimulationSubmission.bind(this);
+    this.formatXAxis = this.formatXAxis.bind(this);
+    this.roundToTwo = this.roundToTwo.bind(this);
   }
 
-  /*  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     if (!this.props || !this.props.commonProps) {
       return false;
     }
     return true;
-  } */
+  }
 
   componentDidMount() {
     console.log(
@@ -253,7 +627,7 @@ class SimulationRun extends Component {
       return;
     }
     // Clear out the state to remove everything from the page right away
-    this.setState({ ...this.emptyState });
+    // this.setState({ ...this.emptyState });
 
     this.populateSimulationRun();
   }
@@ -275,7 +649,7 @@ class SimulationRun extends Component {
     omf
       .getOMFTopologyImage({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion:  this.state.chartsConfiguration.api.version,
+        apiVersion: this.state.chartsConfiguration.api.version,
         simulationRunId
       })
       // TODO: This may belong in the API container
@@ -301,7 +675,7 @@ class SimulationRun extends Component {
     simulationRuns
       .getSimulationRunAllModelAssets({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion:  this.state.chartsConfiguration.api.version,
+        apiVersion: this.state.chartsConfiguration.api.version,
         simulationRunId
       })
       // TODO: This may belong in the API container
@@ -311,7 +685,8 @@ class SimulationRun extends Component {
           return Promise.reject(new Error('No data received from the API.'));
         }
         this.setState({
-          allModelAssets
+          allModelAssets,
+          simulationRunId
         });
       })
       .catch(err => {
@@ -326,7 +701,7 @@ class SimulationRun extends Component {
     simulationRuns
       .getSimulationRunAssets({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion:  this.state.chartsConfiguration.api.version,
+        apiVersion: this.state.chartsConfiguration.api.version,
         simulationRunId
       })
       .then(allRunAssets => {
@@ -359,11 +734,30 @@ class SimulationRun extends Component {
         }
         this.props.commonProps.handleError(err);
       });
+    simulationRuns
+      .getSimulationRuns({
+        baseUrl: this.props.commonProps.apiPath,
+        apiVersion: this.state.chartsConfiguration.api.version
+      })
+      .then(data => {
+        let simulationMetaData = data.find(simulation => simulation.id === simulationRunId);
+        for (const simulation in data) {
+          if (data[simulation].id.toString() === simulationRunId.toString()) {
+            simulationMetaData = data[simulation];
+          }
+        }
+        this.setState({
+          simulationRunRequestsMetadata: data,
+          simulationMetaData
+        });
+      }).catch(err => {
+        this.handleError(err);
+      });
 
     simulationRuns
       .getSimulationRunResults({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion:  this.state.chartsConfiguration.api.version,
+        apiVersion: this.state.chartsConfiguration.api.version,
         simulationRunId
       })
       // TODO: This may belong in the API container
@@ -375,7 +769,6 @@ class SimulationRun extends Component {
         if (!runResultsData) {
           return Promise.reject(new Error('No data received from the API.'));
         }
-
         this.setState({
           runResultsData
         });
@@ -384,7 +777,7 @@ class SimulationRun extends Component {
       .then(runResultsData => simulationRuns
         .getSimulationRunVulnerabilityAggByTimeStepResults({
           baseUrl: this.props.commonProps.apiPath,
-          apiVersion:  this.state.chartsConfiguration.api.version,
+          apiVersion: this.state.chartsConfiguration.api.version,
           simulationRunId
         })
         .then(runAggResultsResponseData => ({ runAggResultsResponseData, runResultsData })))
@@ -420,7 +813,7 @@ class SimulationRun extends Component {
     networkTopology
       .getNetworkTopology({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion:  this.state.chartsConfiguration.api.version
+        apiVersion: this.state.chartsConfiguration.api.version
       })
       .then(topologyData => {
         console.log('Topology network data', topologyData);
@@ -511,6 +904,7 @@ class SimulationRun extends Component {
   }
 
   getLabelForRecording(lines, yAxisLocation, selectedMeasurement, chartConfiguration) {
+    console.log('getLabelForRecording',lines,yAxisLocation,selectedMeasurement)
     const yAxisLeftLine = lines.find(line => line.yAxisId === yAxisLocation);
     const recordingLabel = chartConfiguration.recordingLabels.find(
       labelObj => labelObj.name === selectedMeasurement && labelObj.YAxisPosition === yAxisLocation
@@ -524,6 +918,23 @@ class SimulationRun extends Component {
       return recordingLabel.label;
     }
     return selectedMeasurement;
+  }
+
+  getUnitForRecording(lines, yAxisLocation, selectedMeasurement, chartConfiguration) {
+    console.log('getLabelForRecording',lines,yAxisLocation,selectedMeasurement)
+    const yAxisLeftLine = lines.find(line => line.yAxisId === yAxisLocation);
+    const recordingLabel = chartConfiguration.recordingLabels.find(
+      labelObj => labelObj.name === selectedMeasurement && labelObj.YAxisPosition === yAxisLocation
+    );
+    console.log(
+      'getLabelForRecording default found',
+      recordingLabel,
+      yAxisLeftLine.assetMeasurement
+    );
+    if (recordingLabel && recordingLabel.unit) {
+      return ` ${  recordingLabel.unit}`;
+    }
+    return '';
   }
 
   getGlobalMeasurement(measurement, chartsConfiguration) {
@@ -540,7 +951,7 @@ class SimulationRun extends Component {
     simulationRuns
       .postSimulationRunSubmission({
         baseUrl: this.props.commonProps.apiPath,
-        apiVersion:  this.state.chartsConfiguration.api.version,
+        apiVersion: this.state.chartsConfiguration.api.version,
         data
       })
       .then(response => {
@@ -630,7 +1041,8 @@ class SimulationRun extends Component {
     const mappedData = data.map(row => {
       const newRow = {
         ...row,
-        timestamp: moment(row.timestamp).format('MM-DD-YY HH:mm')
+        timestamp: moment(row.timestamp).format('MM-DD-YY HH:mm'),
+        timestamp_unix_epoch: moment(row.timestamp).unix()
       };
       if (staticValues) {
         staticValues.forEach(valueObj => {
@@ -685,38 +1097,70 @@ class SimulationRun extends Component {
     return charts;
   }
 
+  formatXAxis(tickItem) {
+    console.log('formatXAxis');
+    return moment(tickItem).format('MMM Do YY');
+    }
+
+  roundToTwo(num) {    
+      return +(Math.round(num + "e+2")  + "e-2");
+  }
+
   renderLineChartAssetDetail({
     data,
     lines,
     domain,
     renderXaxis,
     chartsConfiguration,
-    selectedMeasurement
+    selectedMeasurement,
+    selectedRightYAxisMeasurement
   }) {
     if (!data || !data.length || data.length === 0) {
       return null;
     }
 
     console.log('renderLineChartAssetDetail', 'data', data, 'lines', lines, chartsConfiguration);
-
-    const linesToRender = lines.map(line => (
-      <Line
-        key={line.assetMeasurement}
-        type="monotone"
-        dataKey={line.assetMeasurement}
-        stroke={line.stroke}
-        strokeDasharray={line.strokeDasharray}
-        strokeWidth={line.strokeWidth}
-        yAxisId="left"
-        name={this.getLabelForRecording(lines, 'left', line.measurement, chartsConfiguration)}
-      />
-    ));
+    const linesToRender = lines.map(line => {
+      let lineToAdd = null;
+      if (line.type === 'Line') {
+        lineToAdd = (
+          <Line
+          key={line.assetMeasurement}
+          type="monotone"
+          dot={false}
+          dataKey={line.assetMeasurement}
+          stroke={line.stroke}
+          strokeDasharray={line.strokeDasharray}
+          strokeWidth={line.strokeWidth}
+          yAxisId={line.yAxisId}
+          name={this.getLabelForRecording(lines, line.yAxisId, line.measurement, chartsConfiguration)}
+        />
+        );
+      } else {
+        console.log('renderLineChartAssetDetail', 'line', line);
+        lineToAdd = (
+          <Bar
+            key={line.assetMeasurement}
+            type="monotone"
+            dataKey={line.assetMeasurement}
+            fill={line.fill}
+            barSize={20}
+            fillOpacity={line.fillOpacity}
+            yAxisId={line.yAxisId}
+            name={this.getLabelForRecording(lines, 'right', line.measurement, chartsConfiguration)}
+          />
+        );
+      }
+      return lineToAdd;
+    });
     // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
     const bottomMargin = 100;
 
     console.log('***bottomMargin', bottomMargin);
     console.log('***linesToRender', linesToRender);
     let leftYAxis = '';
+    let rightYAxis = '';
+
     const measureLabelLeft = this.getLabelForRecording(
       lines,
       'left',
@@ -724,39 +1168,123 @@ class SimulationRun extends Component {
       chartsConfiguration
     );
 
+    const measureUnitLeft = this.getUnitForRecording(
+      lines,
+      'left',
+      selectedMeasurement,
+      chartsConfiguration
+    );
+
+    console.log('***measureLabelLeft', measureLabelLeft, selectedMeasurement);
+
     leftYAxis = (
       <YAxis
         yAxisId="left"
         orientation="left"
+        unit={measureUnitLeft}
+        tick={{fontSize: 9}}
         label={{
           value: measureLabelLeft,
-          angle: -90,
-          position: 'outside',
-          dx: -50
+          position: 'top',
+          dx: 2,
+          dy: -4
         }}
       />
     );
+    let measureLabelRight = '';
+    let measureUnitRight = '';
+    if (selectedRightYAxisMeasurement) {
+      measureLabelRight = this.getLabelForRecording(
+        lines,
+        'right',
+        selectedRightYAxisMeasurement,
+        chartsConfiguration
+      );
+
+      measureUnitRight = this.getUnitForRecording(
+        lines,
+        'right',
+        selectedRightYAxisMeasurement,
+        chartsConfiguration
+      );
+
+      rightYAxis = (
+        <YAxis
+          yAxisId="right"
+          width={100} 
+          orientation="right"
+          tick={{ fontSize: 10 }}
+          unit={measureUnitRight}
+          label={{
+            value: measureLabelRight,
+            position: 'top',
+            dx: -10,
+            dy:-2
+          }}
+        />
+      );
+    } else {
+      // this is to prevent chart jumping around when we select a measure for th efirst time!
+      rightYAxis = (
+        <YAxis
+          yAxisId="right"
+          width={100} 
+          orientation="right"
+          tick={{ fontSize: 10 }}
+          label={{
+            value: '',
+            position: 'top',
+            dx: -10,
+            dy:-2
+          }}
+        />
+      );
+    }
+
+    console.log('{linesToRender}', linesToRender, 'leftYAxis', leftYAxis, 'rightYAxis', rightYAxis, 'measureLabelRight', measureLabelRight);
+    console.log('data to render', data, data.length);
+
+    // 4 ticks is the first one that is hidden plus the 3 we want to show.
+    const tickNumberToShow = 4; 
+    const tickOffset = data.length - tickNumberToShow;
+    const xaxisInterval = Math.round( tickOffset  / tickNumberToShow);
+    console.log('data to render', data, data.length, 'xaxisInterval', xaxisInterval);
     return (
       <div>
-        <LineChart
-          style={{ margin: '0 auto' }}
+        <ResponsiveContainer width="98%" height={260}>
+        <ComposedChart
           margin={{
-            top: 5,
-            right: 60,
-            bottom: bottomMargin,
-            left: 40
+            left: 15,
+            top: 20,
+            bottom: 30
           }}
-          width={1200}
-          height={600}
           data={data}
         >
           {linesToRender}
-          <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <XAxis interval={0} tick={{ dy: 40 }} angle={-90} dataKey="timestamp" />
+          {/* <CartesianGrid stroke="#ccc" strokeDasharray="5 5" /> */}
+          {/* <XAxis 
+          domain = {['auto', 'auto']}
+          name='time'
+          type='number'
+          scale="time"
+          tickCount={2}
+          tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
+          dataKey="timestamp_unix_epoch" fontSize={10} padding={{ left: 0, right: 0 }}/> */}
+          <XAxis 
+          domain = {['auto', 'auto']}
+          interval={xaxisInterval}
+          tickFormatter = {(unixTime) => +(Math.round(moment.duration(moment(unixTime).diff(moment(data[0].timestamp))).asHours() + "e+2")  + "e-2") + ' Hours'}
+          dataKey="timestamp" fontSize={10} padding={{ left: 0, right: 0 }}/>
           {leftYAxis}
-          <Legend verticalAlign="top" height={36} />
-          <Tooltip />
-        </LineChart>
+          {rightYAxis}
+          <Legend iconType='plainline' verticalAlign="bottom" align="left" height={26}
+              wrapperStyle={{
+                fontSize: '10px',
+                paddingLeft: '60px'
+              }} />
+          <Tooltip/>
+        </ComposedChart>
+      </ResponsiveContainer>
       </div>
     );
   }
@@ -1021,7 +1549,7 @@ class SimulationRun extends Component {
 
     const assetMeasurement = this.getAssetMeasurement(this.state.currentAsset, defaultMeasurement);
 
-    console.log('combinedData');
+    console.log('combinedData defaultMeasurement', defaultMeasurement);
 
     const linesToAdd = [
       {
@@ -1117,9 +1645,11 @@ class SimulationRun extends Component {
                 chartsConfiguration={this.state.chartsConfiguration}
                 getDefaultMeasurementForAsset={this.getDefaultMeasurementForAsset}
                 getLabelForRecording={this.getLabelForRecording}
+                getUnitForRecording={this.getUnitForRecording}
                 getGlobalMeasurement={this.getGlobalMeasurement}
                 addGlobalMeasurements={this.addGlobalMeasurements}
                 getAliasForRecording={this.getAliasForRecording}
+                simulationMetaData={this.state.simulationMetaData}
               />
             </div>
           )}

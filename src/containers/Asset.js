@@ -4,23 +4,17 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
 import './App.css';
-import Row from 'antd/lib/grid/row';
-import Col from 'antd/lib/grid/col';
+import { Col, Row } from 'antd';
 import Layout from '../components/Layout';
 import Measurements from '../components/Measurements';
 import AssetRelationships from '../components/AssetRelationships';
+import SimpleMapAsset from '../components/SimpleMapAsset';
 import AssetProperties from '../components/AssetProperties';
 import Title from '../components/Title';
 import SubTitle from '../components/SubTitle';
-import simulationRuns from '../actions/simulationRuns';
 
-const qs = require('qs');
-
-const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
 const DEFAULT_POLE_STRESS_MEASUREMEMENT = 'pole_stress';
-
-// TODO: Generalize
 
 class Asset extends Component {
   constructor(props) {
@@ -29,6 +23,7 @@ class Asset extends Component {
     this.state = {
       selectedMeasurement: null,
       selectedMeasurementChartData: null,
+      selectedRightYAxisMeasurement: null,
       asset: null
     };
 
@@ -38,6 +33,7 @@ class Asset extends Component {
     );
     this.navigateToSimulationRunAsset = this.navigateToSimulationRunAsset.bind(this);
     this.populateFullAsset = this.populateFullAsset.bind(this);
+    this.navigateToSimulationRun = this.navigateToSimulationRun.bind(this);
   }
 
   componentDidMount() {
@@ -72,19 +68,24 @@ class Asset extends Component {
       prevProps,
 
       'props assetid',
-      this.props.match.params.assetId
+      this.props.match.params.assetId,
+      'this.state.asset',
+      this.state.asset
     );
 
     console.log(
       'Asset change populateFullAsset updating',
       this.props.match.params.assetId,
-      this.state.asset.id
+      this.state.asset
     );
-
-    if (parseInt(this.props.match.params.assetId, 10) !== parseInt(this.state.asset.id, 10)) {
-      this.populateFullAsset(this.props.match.params.assetId);
+    if (this.state.asset) {
+      if (parseInt(this.props.match.params.assetId, 10) !== parseInt(this.state.asset.id, 10)) {
+        this.populateFullAsset(this.props.match.params.assetId);
+      } else {
+        return null;
+      }
     } else {
-      return null;
+      this.populateFullAsset(this.props.match.params.assetId);
     }
   }
 
@@ -111,6 +112,9 @@ class Asset extends Component {
   }
 
   populateFullAsset(assetDetailPageAssetId) {
+    if (!this.props.allRunAssets) {
+      return;
+    }
     assetDetailPageAssetId = parseInt(assetDetailPageAssetId, 10);
     console.log(
       'navigateToAsset assetid',
@@ -118,6 +122,7 @@ class Asset extends Component {
       'assets',
       this.props.allRunAssets
     );
+
     const assetDetailPageAsset = this.props.allRunAssets.find(
       asset => asset.id === assetDetailPageAssetId
     );
@@ -150,10 +155,10 @@ class Asset extends Component {
       this.props.match.assetId
     );
 
-    const selectedMeasurement = e.currentTarget.getAttribute('value');
+    const selectedRightYAxisMeasurement = e.currentTarget.getAttribute('value');
 
-    console.log('handleMeasurementClick setting currentMeasurement', selectedMeasurement);
-    this.setState({ selectedMeasurement });
+    console.log('handleMeasurementClick setting currentMeasurement', selectedRightYAxisMeasurement);
+    this.setState({ selectedRightYAxisMeasurement });
   }
 
   handleSimulationRunAssetRequestClick(e) {
@@ -180,6 +185,16 @@ class Asset extends Component {
     this.props.navigateToAsset(assetDetailPageAssetId);
   }
 
+  navigateToSimulationRun(e) {
+    const simulationRunId = e.currentTarget.getAttribute('value');
+    console.log('navigateToSimulationRunClicked', simulationRunId, 'this.props', this.props);
+    // Clear out simulation runs, force whole new re-render of app
+    /* const newState = {simulationRunRequestsMetadata:[] }; */
+    this.props.history.push({
+      pathname: `/simulation-runs/${simulationRunId}`
+    });
+  }
+
   render() {
     console.log('render============================================================Asset');
     console.log('Asset render props', this.props);
@@ -201,19 +216,24 @@ class Asset extends Component {
       backgroundColor: '#ffffff'
     };
 
+    const columnStyleMap = {
+      backgroundColor: '#ffffff'
+    };
+
     const innerColumnStyle = {
-      border: '1px solid #000000',
       backgroundColor: '#ffffff',
       marginLeft: 'auto',
       marginRight: 'auto',
-      paddingTop: '30px',
-      width: '75%'
+      paddingTop: '0px',
+      width: '100%'
     };
 
     const measurementColumnStyle = {
       backgroundColor: '#ffffff',
-      paddingTop: '100px',
-      width: '100%'
+      paddingTop: '20px',
+      marginLeft: '-30px',
+      width: '80%',
+      fontSize: '10px'
     };
 
     let assetMeasurement = '';
@@ -239,25 +259,76 @@ class Asset extends Component {
     );
 
     let title = this.state.asset.name;
-    let poleVulnerabilitySubTitle = null;
     let poleStaticValues = null;
     let criticalPoleStressLine = null;
 
     const linesToAdd = [];
+    let assetRightYAxisMeasurement = null;
+
+    console.log(
+      'this.state.selectedRightYAxisMeasurement',
+      this.state.selectedRightYAxisMeasurement,
+      'assetRightYAxisMeasurement',
+      assetRightYAxisMeasurement
+    );
+
+    console.log(
+      'his.state.selectedRightYAxisMeasurement',
+      this.state.selectedRightYAxisMeasurement,
+      'linesToAdd----',
+      linesToAdd
+    );
+
+    if (this.state.selectedRightYAxisMeasurement) {
+      const globalMeasurementRight = this.props.getGlobalMeasurement(
+        this.state.selectedRightYAxisMeasurement,
+        this.props.chartsConfiguration
+      );
+      console.log('globalMeasurement:', globalMeasurementRight);
+      if (globalMeasurementRight) {
+        assetRightYAxisMeasurement = globalMeasurementRight.fullName;
+      } else {
+        assetRightYAxisMeasurement = this.props.getAssetMeasurement(
+          this.state.asset,
+          this.state.selectedRightYAxisMeasurement
+        );
+      }
+      console.log(
+        'this.state.selectedRightYAxisMeasurement',
+        this.state.selectedRightYAxisMeasurement,
+        'assetRightYAxisMeasurement',
+        assetRightYAxisMeasurement
+      );
+
+      linesToAdd.push({
+        assetMeasurement: assetRightYAxisMeasurement,
+        measurement: this.state.selectedRightYAxisMeasurement,
+        stroke: '#D3D3D3',
+        strokeWidth: 3,
+        yAxisId: 'right',
+        fill: '#D3D3D3',
+        // barSize: '20',
+        type: 'Bar',
+        fillOpacity: '.6'
+      });
+    }
+
     // add primary Asset metric
     linesToAdd.push({
       assetMeasurement,
       measurement: this.state.selectedMeasurement,
-      stroke: '#8884d8',
+      stroke: '#A9A9A9',
       strokeWidth: 3,
-      yAxisId: 'left'
+      yAxisId: 'left',
+      type: 'Line'
     });
+    let poleVulnerabilitySubTitle = '';
     if (this.state.selectedMeasurement === 'pole_stress') {
-      title = `${title} (${this.state.asset.properties.class}) `;
+      title = `${title}`;
       poleVulnerabilitySubTitle = (
         <div>
           <SubTitle
-            style={{ color: '#8884d8' }}
+            style={{ color: '#A9A9A9' }}
             // style={{ color: 'blue'}}
             text="Pole Failure and Fault when Vulnerability Index >= Vulnerability Index of 1"
           />
@@ -277,68 +348,103 @@ class Asset extends Component {
         yAxisId: 'left',
         assetMeasurement: 'critical_pole_stress',
         measurement: 'critical_pole_stress',
-        stroke: '#8884d8',
+        stroke: '#A9A9A9',
         strokeDasharray: '5 5',
-        strokeWidth: 3
+        strokeWidth: 3,
+        type: 'Line'
       };
 
       if (this.state.selectedMeasurement === DEFAULT_POLE_STRESS_MEASUREMEMENT) {
         linesToAdd.push(criticalPoleStressLine);
       }
-
-      console.log('linesToAdd', linesToAdd);
     } else {
       console.log('not a pole');
-      title = `${title} (${this.state.asset.properties.class}) `;
+      title = `${title}`;
     }
 
     const combinedData = this.props.mapResponseToChartData(
       this.props.runResultsData,
       poleStaticValues
     );
+
     console.log('combinedData', combinedData, 'poleStaticValues', poleStaticValues);
 
-    console.log('combinedData', combinedData);
+    console.log(
+      'combinedData',
+      combinedData,
+      'this.props.simulationMetaData',
+      this.props.simulationMetaData
+    );
+
+    let simulationName = '';
+    let simulationId = null;
+    if (this.props.simulationMetaData) {
+      simulationName = this.props.simulationMetaData.simulation_submission.name;
+      simulationId = this.props.simulationMetaData.id;
+    }
     const mainItems = (
       <div>
         <Row>
           <Col span={18}>
+            <div className="assetdetail-title">
+              <div className="asset-simulation-nav">
+                <div onClick={this.navigateToSimulationRun} value={simulationId} key={simulationId}>
+                  {simulationName}
+                </div>
+              </div>
+              <div className="asset-title">
+                <Title text={`${title}`} />
+              </div>
+            </div>
+          </Col>
+          <Col span={6} />
+        </Row>
+        <Row>
+          <Col span={20}>
             {/* `- ${this.props.getAliasForRecording(
                 this.state.selectedMeasurement,
                 this.props.chartsConfiguration
               )` */}
-            <Title text={`${title}`} />
-            {poleVulnerabilitySubTitle}
+
+            {/* {poleVulnerabilitySubTitle} */}
             <div>
               {this.props.renderLineChartAssetDetail({
                 // data: renderPoleData,
                 data: combinedData,
                 lines: linesToAdd,
-                // TODO: In the API, calculate the max values for each asset, then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
+                // TODO: In the API, calculate the max values for each asset,
+                // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
                 domain: DEFAULT_YAXIS_DOMAIN,
                 chartsConfiguration: this.props.chartsConfiguration,
-                selectedMeasurement: this.state.selectedMeasurement
+                selectedMeasurement: this.state.selectedMeasurement,
+                selectedRightYAxisMeasurement: this.state.selectedRightYAxisMeasurement
               })}
             </div>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <div style={measurementColumnStyle}>
               <Measurements
                 measurements={measurements}
                 handleMeasurementClick={this.handleMeasurementClick}
                 getAliasForRecording={this.props.getAliasForRecording}
                 chartsConfiguration={this.props.chartsConfiguration}
+                asset={this.state.asset}
               />
             </div>
           </Col>
         </Row>
         <Row>
-          <Col span={8} style={columnStyle}>
+          <Col span={2} style={columnStyle} />
+          <Col span={7} style={columnStyle}>
             <div style={innerColumnStyle}>
-              <AssetProperties asset={this.state.asset} />
+              <AssetProperties
+                asset={this.state.asset}
+                props={this.props}
+                chartsConfiguration={this.props.chartsConfiguration}
+              />
             </div>
           </Col>
-          <Col span={8} style={columnStyle}>
+          <Col span={4} style={columnStyle}>
             <div style={innerColumnStyle}>
               <AssetRelationships
                 asset={this.state.asset}
@@ -346,8 +452,9 @@ class Asset extends Component {
               />
             </div>
           </Col>
-          <Col span={8} style={columnStyle}>
-            Asset Map Goes here
+          <Col span={11} style={columnStyleMap}>
+          Asset Location
+            <SimpleMapAsset asset={this.state.asset} />
           </Col>
         </Row>
       </div>

@@ -210,6 +210,7 @@ class App extends Component {
           simulationRunRequestsMetadata: data,
           commonProps: {
             ...this.state.commonProps,
+            simulationRunRequestsMetadata: data,
             leftNavItems: simulationRunRequestsLeftNavItems
           }
         });

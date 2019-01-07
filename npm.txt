@@ -3143,7 +3143,7 @@ real-world@0.0.1 /Users/user/Documents/GitHub/grip-client
 │ │ ├─┬ cssnano@4.1.7
 │ │ │ ├── cosmiconfig@5.0.6 deduped
 │ │ │ ├─┬ cssnano-preset-default@4.0.5
-│ │ │ │ ├─┬ css-declaration-sorter@4.0.1
+│ │ │ │ ├─┬ css-declaration-er@4.0.1
 │ │ │ │ │ ├─┬ postcss@7.0.5
 │ │ │ │ │ │ ├── chalk@2.4.1 deduped
 │ │ │ │ │ │ ├── source-map@0.6.1

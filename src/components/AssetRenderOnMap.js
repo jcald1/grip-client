@@ -8,7 +8,8 @@ export default class AssetRenderOnMap extends Component {
 
   render() {
     const style = this.props.$hover ? 'map-asset-hover' : 'map-asset';
-    const txtstyle = this.props.$hover ? 'map-asset-txt-hover' : 'map-asset-txt';
+    const txtstyle =
+      this.props.$hover || this.props.noRollovers ? 'map-asset-txt-hover' : 'map-asset-txt';
 
     return (
       <div id={`${this.props.text}-map`} className={style}>
