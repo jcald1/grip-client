@@ -220,7 +220,7 @@ class SimulationRun extends Component {
             {
               key: 'service_status',
               name: 'Service Status'
-            }, 
+            },
             {
               key: 'longitude',
               name: 'Longitude'
@@ -253,7 +253,7 @@ class SimulationRun extends Component {
             {
               key: 'service_status',
               name: 'Service Status'
-            }, 
+            },
             {
               key: 'longitude',
               name: 'Longitude'
@@ -319,7 +319,7 @@ class SimulationRun extends Component {
             {
               key: 'service_status',
               name: 'Service Status'
-            }, 
+            },
             {
               key: 'longitude',
               name: 'Longitude'
@@ -369,8 +369,7 @@ class SimulationRun extends Component {
         },
         {
           class: 'weather',
-          properties: [
-          ]
+          properties: []
         },
         {
           class: 'line',
@@ -567,7 +566,8 @@ class SimulationRun extends Component {
         low: [],
         medium: [],
         high: []
-      }
+      },
+      currentSimulationRunRequestMetadata: null
     };
     this.state = { ...this.emptyState };
 
@@ -623,7 +623,8 @@ class SimulationRun extends Component {
     /* if (this.props.commonProps.shallowEquals(this.props.commonProps, prevProps.commonProps)) {
       return;
     } */
-    if (this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId) {
+    if (this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId &&
+        this.props.commonProps.simulationRunRequestsMetadata === prevProps.commonProps.simulationRunRequestsMetadata) {
       return;
     }
     // Clear out the state to remove everything from the page right away
@@ -645,7 +646,7 @@ class SimulationRun extends Component {
     }
 
     const { simulationRunId } = this.props.match.params;
-    console.log('1populateSimulationRun', simulationRunId, 'this.props.', this.props);
+    console.log('1populateSimulationRun', simulationRunId, 'this.props.', this.props, 'this.state', this.state);
     omf
       .getOMFTopologyImage({
         baseUrl: this.props.commonProps.apiPath,
@@ -656,7 +657,9 @@ class SimulationRun extends Component {
       .then(omfTopologyImage => {
         console.log('SimulationRun omfTopologyImage1', omfTopologyImage);
         if (!omfTopologyImage) {
-          return Promise.reject(new Error('No data received from the API for the OMF Topology graph.'));
+          return Promise.reject(
+            new Error('No data received from the API for the OMF Topology graph.')
+          );
         }
         this.setState({
           omfTopologyImage
@@ -733,25 +736,6 @@ class SimulationRun extends Component {
           err = new verror.VError(err, err.response.data.message);
         }
         this.props.commonProps.handleError(err);
-      });
-    simulationRuns
-      .getSimulationRuns({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: this.state.chartsConfiguration.api.version
-      })
-      .then(data => {
-        let simulationMetaData = data.find(simulation => simulation.id === simulationRunId);
-        for (const simulation in data) {
-          if (data[simulation].id.toString() === simulationRunId.toString()) {
-            simulationMetaData = data[simulation];
-          }
-        }
-        this.setState({
-          simulationRunRequestsMetadata: data,
-          simulationMetaData
-        });
-      }).catch(err => {
-        this.handleError(err);
       });
 
     simulationRuns
@@ -832,6 +816,23 @@ class SimulationRun extends Component {
         }
         this.props.commonProps.handleError(err);
       });
+
+    this.setCurrentSimulationRunRequestMetadata();
+  }
+
+
+  setCurrentSimulationRunRequestMetadata() {
+    console.log('SimulationRun setCurrentSimulationRunRequestMetadata','this.props.commonProps.simulationRunRequestsMetadata',this.props.commonProps)
+    if (!this.props.match.params.simulationRunId) {
+      return;
+    }
+    const simulationRunIdStr = parseInt(this.props.match.params.simulationRunId, 10);
+    if (isNaN(simulationRunIdStr)) {
+      return this.props.commonProps.handleError('Simulation Run ID must be numeric');
+    }
+    const currentSimulationRunRequestMetadata = this.props.commonProps.simulationRunRequestsMetadata.find(simulation => simulation.id === simulationRunIdStr);
+
+    this.setState({ currentSimulationRunRequestMetadata });
   }
 
   createVulnerabilityBands(allRunAssets) {
@@ -904,7 +905,7 @@ class SimulationRun extends Component {
   }
 
   getLabelForRecording(lines, yAxisLocation, selectedMeasurement, chartConfiguration) {
-    console.log('getLabelForRecording',lines,yAxisLocation,selectedMeasurement)
+    console.log('getLabelForRecording', lines, yAxisLocation, selectedMeasurement);
     const yAxisLeftLine = lines.find(line => line.yAxisId === yAxisLocation);
     const recordingLabel = chartConfiguration.recordingLabels.find(
       labelObj => labelObj.name === selectedMeasurement && labelObj.YAxisPosition === yAxisLocation
@@ -921,7 +922,7 @@ class SimulationRun extends Component {
   }
 
   getUnitForRecording(lines, yAxisLocation, selectedMeasurement, chartConfiguration) {
-    console.log('getLabelForRecording',lines,yAxisLocation,selectedMeasurement)
+    console.log('getLabelForRecording', lines, yAxisLocation, selectedMeasurement);
     const yAxisLeftLine = lines.find(line => line.yAxisId === yAxisLocation);
     const recordingLabel = chartConfiguration.recordingLabels.find(
       labelObj => labelObj.name === selectedMeasurement && labelObj.YAxisPosition === yAxisLocation
@@ -932,7 +933,7 @@ class SimulationRun extends Component {
       yAxisLeftLine.assetMeasurement
     );
     if (recordingLabel && recordingLabel.unit) {
-      return ` ${  recordingLabel.unit}`;
+      return ` ${recordingLabel.unit}`;
     }
     return '';
   }
@@ -1100,10 +1101,10 @@ class SimulationRun extends Component {
   formatXAxis(tickItem) {
     console.log('formatXAxis');
     return moment(tickItem).format('MMM Do YY');
-    }
+  }
 
-  roundToTwo(num) {    
-      return +(Math.round(num + "e+2")  + "e-2");
+  roundToTwo(num) {
+    return +(`${Math.round(`${num}e+2`)}e-2`);
   }
 
   renderLineChartAssetDetail({
@@ -1125,16 +1126,21 @@ class SimulationRun extends Component {
       if (line.type === 'Line') {
         lineToAdd = (
           <Line
-          key={line.assetMeasurement}
-          type="monotone"
-          dot={false}
-          dataKey={line.assetMeasurement}
-          stroke={line.stroke}
-          strokeDasharray={line.strokeDasharray}
-          strokeWidth={line.strokeWidth}
-          yAxisId={line.yAxisId}
-          name={this.getLabelForRecording(lines, line.yAxisId, line.measurement, chartsConfiguration)}
-        />
+            key={line.assetMeasurement}
+            type="monotone"
+            dot={false}
+            dataKey={line.assetMeasurement}
+            stroke={line.stroke}
+            strokeDasharray={line.strokeDasharray}
+            strokeWidth={line.strokeWidth}
+            yAxisId={line.yAxisId}
+            name={this.getLabelForRecording(
+              lines,
+              line.yAxisId,
+              line.measurement,
+              chartsConfiguration
+            )}
+          />
         );
       } else {
         console.log('renderLineChartAssetDetail', 'line', line);
@@ -1182,7 +1188,7 @@ class SimulationRun extends Component {
         yAxisId="left"
         orientation="left"
         unit={measureUnitLeft}
-        tick={{fontSize: 9}}
+        tick={{ fontSize: 9 }}
         label={{
           value: measureLabelLeft,
           position: 'top',
@@ -1211,7 +1217,7 @@ class SimulationRun extends Component {
       rightYAxis = (
         <YAxis
           yAxisId="right"
-          width={100} 
+          width={100}
           orientation="right"
           tick={{ fontSize: 10 }}
           unit={measureUnitRight}
@@ -1219,7 +1225,7 @@ class SimulationRun extends Component {
             value: measureLabelRight,
             position: 'top',
             dx: -10,
-            dy:-2
+            dy: -2
           }}
         />
       );
@@ -1228,41 +1234,50 @@ class SimulationRun extends Component {
       rightYAxis = (
         <YAxis
           yAxisId="right"
-          width={100} 
+          width={100}
           orientation="right"
           tick={{ fontSize: 10 }}
           label={{
             value: '',
             position: 'top',
             dx: -10,
-            dy:-2
+            dy: -2
           }}
         />
       );
     }
 
-    console.log('{linesToRender}', linesToRender, 'leftYAxis', leftYAxis, 'rightYAxis', rightYAxis, 'measureLabelRight', measureLabelRight);
+    console.log(
+      '{linesToRender}',
+      linesToRender,
+      'leftYAxis',
+      leftYAxis,
+      'rightYAxis',
+      rightYAxis,
+      'measureLabelRight',
+      measureLabelRight
+    );
     console.log('data to render', data, data.length);
 
     // 4 ticks is the first one that is hidden plus the 3 we want to show.
-    const tickNumberToShow = 4; 
+    const tickNumberToShow = 4;
     const tickOffset = data.length - tickNumberToShow;
-    const xaxisInterval = Math.round( tickOffset  / tickNumberToShow);
+    const xaxisInterval = Math.round(tickOffset / tickNumberToShow);
     console.log('data to render', data, data.length, 'xaxisInterval', xaxisInterval);
     return (
       <div>
         <ResponsiveContainer width="98%" height={260}>
-        <ComposedChart
-          margin={{
-            left: 15,
-            top: 20,
-            bottom: 30
-          }}
-          data={data}
-        >
-          {linesToRender}
-          {/* <CartesianGrid stroke="#ccc" strokeDasharray="5 5" /> */}
-          {/* <XAxis 
+          <ComposedChart
+            margin={{
+              left: 15,
+              top: 20,
+              bottom: 30
+            }}
+            data={data}
+          >
+            {linesToRender}
+            {/* <CartesianGrid stroke="#ccc" strokeDasharray="5 5" /> */}
+            {/* <XAxis
           domain = {['auto', 'auto']}
           name='time'
           type='number'
@@ -1270,21 +1285,35 @@ class SimulationRun extends Component {
           tickCount={2}
           tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
           dataKey="timestamp_unix_epoch" fontSize={10} padding={{ left: 0, right: 0 }}/> */}
-          <XAxis 
-          domain = {['auto', 'auto']}
-          interval={xaxisInterval}
-          tickFormatter = {(unixTime) => +(Math.round(moment.duration(moment(unixTime).diff(moment(data[0].timestamp))).asHours() + "e+2")  + "e-2") + ' Hours'}
-          dataKey="timestamp" fontSize={10} padding={{ left: 0, right: 0 }}/>
-          {leftYAxis}
-          {rightYAxis}
-          <Legend iconType='plainline' verticalAlign="bottom" align="left" height={26}
+            <XAxis
+              domain={['auto', 'auto']}
+              interval={xaxisInterval}
+              tickFormatter={unixTime => `${+(
+                `${Math.round(
+                  `${moment.duration(moment(unixTime).diff(moment(data[0].timestamp))).asHours()
+                  }e+2`
+                )}e-2`
+              )} Hours`
+              }
+              dataKey="timestamp"
+              fontSize={10}
+              padding={{ left: 0, right: 0 }}
+            />
+            {leftYAxis}
+            {rightYAxis}
+            <Legend
+              iconType="plainline"
+              verticalAlign="bottom"
+              align="left"
+              height={26}
               wrapperStyle={{
                 fontSize: '10px',
                 paddingLeft: '60px'
-              }} />
-          <Tooltip/>
-        </ComposedChart>
-      </ResponsiveContainer>
+              }}
+            />
+            <Tooltip />
+          </ComposedChart>
+        </ResponsiveContainer>
       </div>
     );
   }
@@ -1459,15 +1488,15 @@ class SimulationRun extends Component {
   }
 
   renderSimulationRunHeader() {
-    const simulationRunId = parseInt(this.props.match.params.simulationRunId, 10);
-    // console.log('!renderSimulationRunHeader',this.props.simulationRunRequestsMetadata);
+    const simulationRunId = this.props.match.params.simulationRunId
+      ? parseInt(this.props.match.params.simulationRunId, 10)
+      : null;
     return (
       <SimulationRunHeader
         commonProps={this.props.commonProps}
         postSimulationSubmission={this.postSimulationSubmission}
         simulationRunStatus={this.state.simulationRunStatus}
-        simulationRunRequestsMetadata={this.props.simulationRunRequestsMetadata}
-        simulationRunId={simulationRunId}
+        simulationRunId={this.props.match.params.simulationRunId}
       />
     );
   }
@@ -1649,7 +1678,7 @@ class SimulationRun extends Component {
                 getGlobalMeasurement={this.getGlobalMeasurement}
                 addGlobalMeasurements={this.addGlobalMeasurements}
                 getAliasForRecording={this.getAliasForRecording}
-                simulationMetaData={this.state.simulationMetaData}
+                simulationMetaData={this.state.currentSimulationRunRequestMetadata}
               />
             </div>
           )}

@@ -189,7 +189,6 @@ class Asset extends Component {
     const simulationRunId = e.currentTarget.getAttribute('value');
     console.log('navigateToSimulationRunClicked', simulationRunId, 'this.props', this.props);
     // Clear out simulation runs, force whole new re-render of app
-    /* const newState = {simulationRunRequestsMetadata:[] }; */
     this.props.history.push({
       pathname: `/simulation-runs/${simulationRunId}`
     });

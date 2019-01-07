@@ -60,10 +60,10 @@ class AssetProperties extends Component {
 
     if (filterList) {
       AssetPropertiesToRender.map(property => {
-        console.log('property', property, property.name, classProperties[0].key);
+        //console.log('property', property, property.name, classProperties[0].key);
         const propFound = classProperties.find(prop => prop.key === property.name);
         if (propFound) {
-          console.log('property found', property);
+          //console.log('property found', property);
           property.name = propFound.name;
           filteredAssetPropertiesToRender.push(property);
         }

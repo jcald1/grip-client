@@ -51,9 +51,9 @@ class App extends Component {
     this.handleError = this.handleError.bind(this);
     this.state = {
       error: null,
-      simulationRunRequestsMetadata: [],
       getingSimulationRuns: true,
       commonProps: {
+        simulationRunRequestsMetadata: [],
         apiPath: process.env.REACT_APP_API_PATH,
         handleError: this.handleError,
         shallowEquals
@@ -108,7 +108,10 @@ class App extends Component {
     );
 
     if (
-      _.isEqual(prevState.simulationRunRequestsMetadata, this.state.simulationRunRequestsMetadata)
+      _.isEqual(
+        prevState.commonProps.simulationRunRequestsMetadata,
+        this.state.commonProps.simulationRunRequestsMetadata
+      )
     ) {
       return;
     }
@@ -143,8 +146,6 @@ class App extends Component {
 
   navigateToSimulationRun(simulationRunId) {
     console.log('navigateToSimulationRun', simulationRunId);
-    // Clear out simulation runs, force whole new re-render of app
-    /* const newState = {simulationRunRequestsMetadata:[] }; */
     this.props.history.push({
       pathname: `/simulation-runs/${simulationRunId}`
     });
@@ -162,13 +163,6 @@ class App extends Component {
     }
     return max;
   }
-
-  /*   handleClick(e) {
-    console.log('Category handleClick', e.currentTarget);
-    if (this.props.handlePlusClick) {
-      this.props.handlePlusClick(e);
-    }
-  } */
 
   refreshSimulationRuns() {
     console.log('App refreshSimulationRuns');
@@ -203,11 +197,16 @@ class App extends Component {
             active={false}
             tooltip="Phase 2"
           />,
-          <Category key="recovery" name="Recovery" style={{ marginTop: '0px' }} active={false} tooltip="Phase 3"/>,
+          <Category
+            key="recovery"
+            name="Recovery"
+            style={{ marginTop: '0px' }}
+            active={false}
+            tooltip="Phase 3"
+          />,
           <Category key="settings" name="Settings" style={{ marginTop: '0px' }} />
         ];
         this.setState({
-          simulationRunRequestsMetadata: data,
           commonProps: {
             ...this.state.commonProps,
             simulationRunRequestsMetadata: data,
@@ -283,11 +282,8 @@ class App extends Component {
           className="nav-item"
           style={{ overflowWrap: 'break-word', paddingTop: '0px' }}
           data-row-key={run.id}
-          onClick={this.handleSimulationRunRequestClick}
-        >
-          {/*           {runDate}
-          <br />
-          {run.simulation_filename} */}
+          onClick={this.handleSimulationRunRequestClick}>
+        
           {run.simulation_submission.name}
         </div>
       );
@@ -302,14 +298,6 @@ class App extends Component {
       this.state
     );
     const { children, inputValue } = this.props;
-
-    /* const simulationRunRequestsMainItems = [
-      <SimulationRunRequests
-        data={this.state.simulationRunRequestsMetadata}
-        handleSimulationRunRequestClick={this.handleSimulationRunRequestClick}
-        key="main-items-1"
-      />
-    ]; */
 
     const mainItems = <div />;
 
@@ -335,7 +323,6 @@ class App extends Component {
               <SimulationRun
                 commonProps={this.state.commonProps}
                 refreshSimulationRuns={this.refreshSimulationRuns}
-                simulationRunRequestsMetadata={this.state.simulationRunRequestsMetadata}
               />
             </div>
           )}
@@ -347,7 +334,6 @@ class App extends Component {
               <SimulationRun
                 commonProps={this.state.commonProps}
                 refreshSimulationRuns={this.refreshSimulationRuns}
-                simulationRunRequestsMetadata={this.state.simulationRunRequestsMetadata}
               />
             </div>
           )}

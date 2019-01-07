@@ -39,7 +39,7 @@ class SimulationRunHeader extends Component {
   componentDidUpdate(prevProps, prevState) {
     // TODO: Speed this up, probably by passing in the current simulation as a prop
     const simulationRunMetadata = this.getCurrentSimulationRunMetadata(
-      this.props.simulationRunRequestsMetadata
+      this.props.commonProps.simulationRunRequestsMetadata
     );
     if (_.isEmpty(simulationRunMetadata)) {
       return;

@@ -5,6 +5,7 @@
 # RUN npm install
 
 # build environment
+# Using nikolaik/python-nodejs:latest as it has both React and Python.  Forgot what the need was for Python, maybe deployment-related?
 FROM nikolaik/python-nodejs:latest as builder
 #FROM node:10-alpine as builder
 RUN mkdir -p /usr/src/app
