@@ -36,24 +36,13 @@ class SimulationRunHeader extends Component {
     this.handleSimulationNameEnter = this.handleSimulationNameEnter.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    // TODO: Speed this up, probably by passing in the current simulation as a prop
-    const simulationRunMetadata = this.getCurrentSimulationRunMetadata(
-      this.props.commonProps.simulationRunRequestsMetadata
-    );
-    if (_.isEmpty(simulationRunMetadata)) {
-      return;
-    }
-    if (this.state.retrieveDataSourcesFailed) {
-      return;
-    }
-    if (this.state.simulation_name) {
-      return;
-    }
+  componentDidMount() {
+    console.log('SimulationRunHeader componentDidMount');
+  }
 
+  componentDidUpdate(prevProps, prevState) {
     console.log(
-      'SimulationRunHeader componentDidUpdate simulationRunMetadata',
-      simulationRunMetadata,
+      'SimulationRunHeader componentDidUpdate',
       'prevProps.simulation_name',
       prevProps.simulation_name,
       'this.state',
@@ -61,6 +50,46 @@ class SimulationRunHeader extends Component {
       'this.props',
       this.props
     );
+    // TODO: Speed this up, probably by passing in the current simulation as a prop
+
+    /*  if (_.isEmpty(currentSimulationRunMetadata)) {
+      return;
+    }  */
+    if (this.state.retrieveDataSourcesFailed) {
+      return;
+    }
+    if (
+      _.isEqual(
+        this.props.commonProps.simulationRunRequestsMetadata,
+        prevProps.commonProps.simulationRunRequestsMetadata
+      ) &&
+      _.isEqual(this.props.simulationRunId, prevProps.simulationRunId)
+    ) {
+      return;
+    }
+
+    // If the initial values have already been loaded, don't try to load them again.
+    if (this.state.simulation_name) {
+      return;
+    }
+
+    if (!this.props.simulationRunId) {
+      return;
+    }
+
+    const currentSimulationRunMetadata = this.getCurrentSimulationRunMetadata(
+      this.props.commonProps.simulationRunRequestsMetadata
+    );
+    console.log(
+      'SimulationRunHeader componentDidUpdate currentSimulationRunMetadata',
+      currentSimulationRunMetadata
+    );
+
+    this.populateInitialValues(currentSimulationRunMetadata);
+  }
+
+  populateInitialValues(currentSimulationRunMetadata) {
+    console.log('SimulationRunHeader populateInitialValues');
 
     simulationRuns
       .getSimulationRunDataSource({
@@ -74,9 +103,9 @@ class SimulationRunHeader extends Component {
         const weatherModelItems = [];
         dataSources.forEach(dataSource => {
           if (dataSource.type === DEFAULT_MODEL_TYPE_WEATHER) {
-            networkModelItems.push(dataSource);
-          } else if (dataSource.type === DEFAULT_MODEL_TYPE_NETWORK) {
             weatherModelItems.push(dataSource);
+          } else if (dataSource.type === DEFAULT_MODEL_TYPE_NETWORK) {
+            networkModelItems.push(dataSource);
           }
         });
         console.log('SimulationRunHeader datasource items', networkModelItems, weatherModelItems);
@@ -93,22 +122,31 @@ class SimulationRunHeader extends Component {
       });
 
     const initialSimulationName =
-      simulationRunMetadata && simulationRunMetadata.simulation_submission.name;
-    const initialNetworkModel =
-      simulationRunMetadata && simulationRunMetadata.simulation_submission.network_datasource_id;
-    const initialWeatherModel =
-      simulationRunMetadata && simulationRunMetadata.simulation_submission.weather_datasource_id;
+      currentSimulationRunMetadata && currentSimulationRunMetadata.simulation_submission.name;
+    let initialNetworkModel =
+      currentSimulationRunMetadata &&
+      currentSimulationRunMetadata.simulation_submission.network_datasource_id;
+    initialNetworkModel = initialNetworkModel
+      ? initialNetworkModel.toString()
+      : initialNetworkModel;
+    let initialWeatherModel =
+      currentSimulationRunMetadata &&
+      currentSimulationRunMetadata.simulation_submission.weather_datasource_id;
+    initialWeatherModel = initialWeatherModel
+      ? initialWeatherModel.toString()
+      : initialWeatherModel;
     const initialInterval =
-      simulationRunMetadata && simulationRunMetadata.simulation_submission.interval;
+      currentSimulationRunMetadata && currentSimulationRunMetadata.simulation_submission.interval;
     const initialDuration =
-      simulationRunMetadata && simulationRunMetadata.simulation_submission.duration;
+      currentSimulationRunMetadata && currentSimulationRunMetadata.simulation_submission.duration;
     // Only set the state here when the metadata is initially passed in as a props, then just set state based on user input,
 
     console.log('setting state', initialSimulationName);
+    // Pre-populate for the Simulation Run Detail page header
     this.setState({
       simulation_name: initialSimulationName,
-      networkModel: initialNetworkModel.toString(),
-      weatherModel: initialWeatherModel.toString(),
+      networkModel: initialNetworkModel,
+      weatherModel: initialWeatherModel,
       duration: initialDuration,
       interval: initialInterval
     });
@@ -141,12 +179,13 @@ class SimulationRunHeader extends Component {
   }
 
   getSelect({ items, name, selectClass }) {
+    // console.log('getSelect items', items);
     return (
       <Form.Item className={selectClass}>
         <Select name={name} onChange={this.handleOptionChange}>
           {items.map(item => (
-            <Option key={item.id} value={item.id} group={name}>
-              {item.name}
+            <Option key={item.id} value={item.file_uri} group={name}>
+              {item.file_uri}
             </Option>
           ))}
         </Select>
@@ -206,6 +245,7 @@ class SimulationRunHeader extends Component {
   renderSimulationRunPageHeader({
     status, weatherItems, networkItems, style
   }) {
+    console.log('renderSimulationRunPageHeader', weatherItems, networkItems);
     const selectClass = 'simulation-header-run-page-input';
     return (
       <Form onSubmit={this.handleRun}>
@@ -286,6 +326,7 @@ class SimulationRunHeader extends Component {
   renderCreateSimulationHeader({
     status, weatherItems, networkItems, style
   }) {
+    console.log('renderSimulationRunPageHeader', weatherItems, networkItems);
     const selectClass = 'simulation-header-create-input';
     return (
       <Form onSubmit={this.handleRun}>
@@ -375,8 +416,6 @@ class SimulationRunHeader extends Component {
 
   render() {
     console.log('SimulationRunHeader render this.props', this.props, 'this.state', this.state);
-    const weatherItems = [{ id: 1, name: 'High Winds' }];
-    const networkItems = [{ id: 2, name: 'IEEE123 pole vulnerability' }];
 
     const { style } = this.props;
 
@@ -385,16 +424,16 @@ class SimulationRunHeader extends Component {
     if (this.props.simulationRunId) {
       return this.renderSimulationRunPageHeader({
         status,
-        weatherItems,
-        networkItems,
+        weatherItems: this.state.weatherModelItems,
+        networkItems: this.state.networkModelItems,
         style
       });
     }
 
     return this.renderCreateSimulationHeader({
       status,
-      weatherItems,
-      networkItems,
+      weatherItems: this.state.weatherModelItems,
+      networkItems: this.state.networkModelItems,
       style
     });
   }

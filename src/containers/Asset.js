@@ -172,7 +172,7 @@ class Asset extends Component {
     );
 
     const simulationRunAssetId = e.currentTarget.getAttribute('value');
-    const simulationRunId = this.props.simulationRunId;
+    const { simulationRunId } = this.props.match.params;
     this.navigateToSimulationRunAsset(simulationRunId, simulationRunAssetId);
     console.log('App simulationRun.handleAssetClick');
   }

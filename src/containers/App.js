@@ -23,6 +23,40 @@ import moment from 'moment';
 import path from 'path';
 var qs = require('qs');
 
+const log = process.env.REACT_APP_LOG;
+const window_console = console;
+console.log('Logging', log);
+if (log && log.toUpperCase() !== 'OFF') {
+  // TODO: Implement actual logging level functionality
+  /*  
+  window.console = {
+    log: (...args) => {
+        return window_console.log(...args);
+    },
+    warn: (...args) => {
+        return window_console.warn(...args);
+    },
+    error: (...args) => {
+        return window_console.error(...args);
+    },
+    debug: (...args) => {
+        return window_console.debug(...args);
+    },
+    info: (...args) => {
+        return window_console.info(...args);
+    }
+  }; */
+} else {
+  window.console = {
+    log: (...args) => {},
+    warn: (...args) => {},
+  error: (...args) => (...args) => window_console.error(...args),
+    debug: (...args) => {},
+    info: (...args) => {}
+  };
+}
+
+
 const DEFAULT_API_VERSION = 'v1';
 
 const shallowEquals = (obj1, obj2) => {
@@ -96,7 +130,7 @@ class App extends Component {
       });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  /*   componentDidUpdate(prevProps, prevState) {
     console.log(
       'App componentDidUpdate this.props',
       this.props,
@@ -107,6 +141,10 @@ class App extends Component {
       prevState
     );
 
+    // Don't get the simulation runs again after getting it the first time.
+    if (_.isEmpty(prevState.commonProps.simulationRunRequestsMetadata)) {
+      return;
+    }
     if (
       _.isEqual(
         prevState.commonProps.simulationRunRequestsMetadata,
@@ -127,7 +165,7 @@ class App extends Component {
         // To continue the promise chain in componentDidMount
         return null;
       });
-  }
+  } */
 
   handleSimulationRunRequestClick(e) {
     console.log('App handleSimulationRunRequestClick', 'e.currentTarget', e.currentTarget);
@@ -282,7 +320,8 @@ class App extends Component {
           className="nav-item"
           style={{ overflowWrap: 'break-word', paddingTop: '0px' }}
           data-row-key={run.id}
-          onClick={this.handleSimulationRunRequestClick}>
+          onClick={this.handleSimulationRunRequestClick}
+        >
         
           {run.simulation_submission.name}
         </div>

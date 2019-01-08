@@ -623,25 +623,14 @@ class SimulationRun extends Component {
     this.roundToTwo = this.roundToTwo.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (!this.props || !this.props.commonProps) {
-      return false;
-    }
-    return true;
-  }
 
   componentDidMount() {
-    console.log(
-      'SimulationRun componentDidMount this.props.match.params.simulationRunId',
-      this.props.match.params.simulationRunId,
-      'this.props.commonProps',
-      this.props.commonProps
-    );
+    console.log('SimulationRun componentDidMount');
 
-    if (this.props.commonProps) {
+
       this.populateSimulationRun();
     }
-  }
+
 
   componentDidUpdate(prevProps, prevState) {
     console.log(
@@ -652,15 +641,34 @@ class SimulationRun extends Component {
       'this.state',
       this.state
     );
-    /* if (this.props.commonProps.shallowEquals(this.props.commonProps, prevProps.commonProps)) {
-      return;
-    } */
-    if (this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId &&
-        this.props.commonProps.simulationRunRequestsMetadata === prevProps.commonProps.simulationRunRequestsMetadata) {
+    if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) { 
       return;
     }
-    // Clear out the state to remove everything from the page right away
-    // this.setState({ ...this.emptyState });
+  // If any state is empty (componentDidMount should still be finishing its calls)
+  if (_.isEmpty(this.state.omfTopologyImage) ||
+  _.isEmpty(this.state.allModelAssets) ||
+  _.isEmpty(this.state.currentAsset) ||
+  _.isEmpty(this.state.allRunAssets) ||
+  _.isEmpty(this.state.selectedAssetDetailId) ||
+  _.isEmpty(this.state.runResultsData) ||
+  _.isEmpty(this.state.chartData) 
+  ) {
+      return;
+    }
+  // If Props or state haven't changed
+   if (
+      this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId &&
+      _.isEqual(this.props.commonProps.simulationRunRequestsMetadata,      prevProps.commonProps.simulationRunRequestsMetadata) &&
+      _.isEqual(this.state.omfTopologyImage,      prevState.omfTopologyImage) &&
+      _.isEqual(this.state.allModelAssets,      prevState.allModelAssets) &&
+      _.isEqual(this.state.currentAsset,      prevState.currentAsset) &&
+      _.isEqual(this.state.allRunAssets,      prevState.allRunAssets) &&     
+      this.state.selectedAssetDetailId === prevState.selectedAssetDetailId &&
+      _.isEqual(this.state.runResultsData,      prevState.runResultsData) &&    
+      _.isEqual(this.state.chartData,      prevState.chartData)) {
+        return;
+    } 
+    // If any of these are set, that means componentDidMount has already
 
     this.populateSimulationRun();
   }
@@ -678,7 +686,14 @@ class SimulationRun extends Component {
     }
 
     const { simulationRunId } = this.props.match.params;
-    console.log('1populateSimulationRun', simulationRunId, 'this.props.', this.props, 'this.state', this.state);
+    console.log(
+      '1populateSimulationRun',
+      simulationRunId,
+      'this.props.',
+      this.props,
+      'this.state',
+      this.state
+    );
     omf
       .getOMFTopologyImage({
         baseUrl: this.props.commonProps.apiPath,
@@ -720,8 +735,7 @@ class SimulationRun extends Component {
           return Promise.reject(new Error('No data received from the API.'));
         }
         this.setState({
-          allModelAssets,
-          simulationRunId
+          allModelAssets
         });
       })
       .catch(err => {
@@ -854,7 +868,11 @@ class SimulationRun extends Component {
 
 
   setCurrentSimulationRunRequestMetadata() {
-    console.log('SimulationRun setCurrentSimulationRunRequestMetadata','this.props.commonProps.simulationRunRequestsMetadata',this.props.commonProps)
+    console.log(
+      'SimulationRun setCurrentSimulationRunRequestMetadata',
+      'this.props.commonProps.simulationRunRequestsMetadata',
+      this.props.commonProps
+    );
     if (!this.props.match.params.simulationRunId) {
       return;
     }
@@ -862,7 +880,9 @@ class SimulationRun extends Component {
     if (isNaN(simulationRunIdStr)) {
       return this.props.commonProps.handleError('Simulation Run ID must be numeric');
     }
-    const currentSimulationRunRequestMetadata = this.props.commonProps.simulationRunRequestsMetadata.find(simulation => simulation.id === simulationRunIdStr);
+    const currentSimulationRunRequestMetadata = this.props.commonProps.simulationRunRequestsMetadata.find(
+      simulation => simulation.id === simulationRunIdStr
+    );
 
     this.setState({ currentSimulationRunRequestMetadata });
   }
@@ -1105,7 +1125,7 @@ class SimulationRun extends Component {
       };
       if (aggResultsValues) {
         const vulnDataforTimestep = aggResultsValues.find(o => o.timestamp === row.timestamp);
-        console.log('vuln timestamp', row.timestamp);
+        // console.log('vuln timestamp', row.timestamp);
         if (vulnDataforTimestep) {
           newRow[this.state.chartsConfiguration.vulnerability_measurement] =
             vulnDataforTimestep.pole_stress;
@@ -1136,7 +1156,7 @@ class SimulationRun extends Component {
   }
 
   roundToTwo(num) {
-    return +(`${Math.round(`${num}e+2`)}e-2`);
+    return +`${Math.round(`${num}e+2`)}e-2`;
   }
 
   renderLineChartAssetDetail({
@@ -1320,12 +1340,11 @@ class SimulationRun extends Component {
             <XAxis
               domain={['auto', 'auto']}
               interval={xaxisInterval}
-              tickFormatter={unixTime => `${+(
-                `${Math.round(
-                  `${moment.duration(moment(unixTime).diff(moment(data[0].timestamp))).asHours()
-                  }e+2`
-                )}e-2`
-              )} Hours`
+              tickFormatter={unixTime => `${+`${Math.round(
+                `${moment
+                  .duration(moment(unixTime).diff(moment(data[0].timestamp)))
+                  .asHours()}e+2`
+              )}e-2`} Hours`
               }
               dataKey="timestamp"
               fontSize={10}
@@ -1696,7 +1715,6 @@ class SimulationRun extends Component {
                 selectedAssetDetailId={this.state.selectedAssetDetailId}
                 allRunAssets={this.state.allRunAssets}
                 runResultsData={this.state.runResultsData}
-                simulationRunId={this.state.simulationRunId}
                 mapResponseToBarChartData={this.mapResponseToBarChartData}
                 mapResponseToChartData={this.mapResponseToChartData}
                 getAssetMeasurement={this.getAssetMeasurement}
