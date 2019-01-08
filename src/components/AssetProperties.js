@@ -35,11 +35,11 @@ class AssetProperties extends Component {
   }
 
   renderAssetProperties(asset, props, filterList) {
-    // console.log('renderAssetProperties asset', asset);
+   console.log('renderAssetProperties asset', asset);
     const { properties } = asset;
     const assetClass = properties.class;
     // console.log('renderAssetProperties list', properties, 'asset', asset);
-
+    properties['Name'] = asset.name;
     const AssetPropertiesToRender = Object.keys(properties)
       .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
       .map(property => {

@@ -169,6 +169,10 @@ class SimulationRun extends Component {
           class: 'meter',
           properties: [
             {
+              key: 'Name',
+              name: 'Name'
+            },
+            {
               key: 'nominal_voltage',
               name: 'Nominal Voltage'
             },
@@ -201,6 +205,10 @@ class SimulationRun extends Component {
         {
           class: 'triplex-meter',
           properties: [
+            {
+              key: 'Name',
+              name: 'Name'
+            },
             {
               key: 'nominal_voltage',
               name: 'Nominal Voltage'
@@ -235,6 +243,10 @@ class SimulationRun extends Component {
           class: 'transformer',
           properties: [
             {
+              key: 'Name',
+              name: 'Name'
+            },
+            {
               key: 'nominal_voltage',
               name: 'Nominal Voltage'
             },
@@ -267,6 +279,10 @@ class SimulationRun extends Component {
         {
           class: 'substation',
           properties: [
+            {
+              key: 'Name',
+              name: 'Name'
+            },
             {
               key: 'nominal_voltage',
               name: 'Nominal Voltage'
@@ -301,6 +317,10 @@ class SimulationRun extends Component {
           class: 'substation_meter',
           properties: [
             {
+              key: 'Name',
+              name: 'Name'
+            },
+            {
               key: 'nominal_voltage',
               name: 'Nominal Voltage'
             },
@@ -333,6 +353,10 @@ class SimulationRun extends Component {
         {
           class: 'pole',
           properties: [
+            {
+              key: 'Name',
+              name: 'Name'
+            },
             {
               key: 'class',
               name: 'Class'
@@ -375,6 +399,10 @@ class SimulationRun extends Component {
           class: 'line',
           properties: [
             {
+              key: 'Name',
+              name: 'Name'
+            },
+            {
               key: 'configuration',
               name: 'Configurration'
             },
@@ -411,6 +439,10 @@ class SimulationRun extends Component {
         {
           class: 'overhead_line',
           properties: [
+            {
+              key: 'Name',
+              name: 'Name'
+            },
             {
               key: 'configuration',
               name: 'Configurration'
