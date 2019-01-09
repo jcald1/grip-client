@@ -16,10 +16,9 @@ import Layout from '../components/Layout';
 import Admin from './Admin';
 import { Redirect } from 'react-router-dom';
 import './App.css';
-import Category from '../components/Category';
-import CategoryItem from '../components/CategoryItem';
+
 import simulationRuns from '../actions/simulationRuns';
-import moment from 'moment';
+
 import path from 'path';
 var qs = require('qs');
 
@@ -50,12 +49,11 @@ if (log && log.toUpperCase() !== 'OFF') {
   window.console = {
     log: (...args) => {},
     warn: (...args) => {},
-  error: (...args) => (...args) => window_console.error(...args),
+    error: (...args) => (...args) => window_console.error(...args),
     debug: (...args) => {},
     info: (...args) => {}
   };
 }
-
 
 const DEFAULT_API_VERSION = 'v1';
 
@@ -129,44 +127,6 @@ class App extends Component {
         return null;
       });
   }
-
-  /*   componentDidUpdate(prevProps, prevState) {
-    console.log(
-      'App componentDidUpdate this.props',
-      this.props,
-      'componentDidUpdate',
-      'this.state',
-      this.state,
-      'prevState',
-      prevState
-    );
-
-    // Don't get the simulation runs again after getting it the first time.
-    if (_.isEmpty(prevState.commonProps.simulationRunRequestsMetadata)) {
-      return;
-    }
-    if (
-      _.isEqual(
-        prevState.commonProps.simulationRunRequestsMetadata,
-        this.state.commonProps.simulationRunRequestsMetadata
-      )
-    ) {
-      return;
-    }
-
-    this.setState({ getingSimulationRuns: true, getingSimulationRun: true });
-
-    this.refreshSimulationRuns()
-      .catch(err => {
-        this.handleError(err);
-      })
-      .finally(() => {
-        this.setState({ getingSimulationRuns: false, getingSimulationRun: false });
-        // To continue the promise chain in componentDidMount
-        return null;
-      });
-  } */
-
   handleSimulationRunRequestClick(e) {
     console.log('App handleSimulationRunRequestClick', 'e.currentTarget', e.currentTarget);
 
@@ -212,46 +172,12 @@ class App extends Component {
         apiVersion: DEFAULT_API_VERSION
       })
       .then(data => {
-        const simulationRuns = this.getSimulationRunMenuItems(data);
-        const simulationRunRequestsLeftNavItems = [
-          <Category
-            key="anticipation"
-            name="Anticipation"
-            items={simulationRuns}
-            /* handlePlusClick={this.handleRunSimulationClick} */
-          >
-            <div
-              className="nav-item"
-              style={{ display: 'inline-block', fontSize: '18px', fontWeight: 'bold' }}
-              onClick={this.handleRunSimulationClick}
-            >
-              +
-            </div>
-          </Category>,
-          <Category
-            key="absorption"
-            name="Absorption"
-            style={{ marginTop: '0px' }}
-            active={false}
-            tooltip="Phase 2"
-          />,
-          <Category
-            key="recovery"
-            name="Recovery"
-            style={{ marginTop: '0px' }}
-            active={false}
-            tooltip="Phase 3"
-          />,
-          <Category key="settings" name="Settings" style={{ marginTop: '0px' }} />
-        ];
         this.setState({
           commonProps: {
             ...this.state.commonProps,
-            simulationRunRequestsMetadata: data,
-            leftNavItems: simulationRunRequestsLeftNavItems
+            simulationRunRequestsMetadata: data
           }
         });
-        return data;
       })
       .catch(err => {
         this.handleError(err);
@@ -271,10 +197,6 @@ class App extends Component {
     this.props.resetErrorMessage();
     e.preventDefault();
   };
-
-  /*   handleChange = nextValue => {
-    this.props.history.push(`/${nextValue}`);
-  }; */
 
   renderErrorMessage() {
     /*    const { errorMessage } = this.props;
@@ -308,27 +230,6 @@ class App extends Component {
     );
   }
 
-  getSimulationRunMenuItems(simulationRunRequestsMetadata) {
-    if (!simulationRunRequestsMetadata) {
-      return null;
-    }
-
-    return simulationRunRequestsMetadata.map(run => {
-      const runDate = moment(run.created_at).format('HH:mm:ss MM/DD/YY');
-      const details = (
-        <div
-          className="nav-item"
-          style={{ overflowWrap: 'break-word', paddingTop: '0px' }}
-          data-row-key={run.id}
-          onClick={this.handleSimulationRunRequestClick}
-        >
-        
-          {run.simulation_submission.name}
-        </div>
-      );
-      return <CategoryItem key={run.id}>{details}</CategoryItem>;
-    });
-  }
   render() {
     console.log(
       'App render this.state.commonProps',
@@ -343,48 +244,43 @@ class App extends Component {
     return (
       <div>
         {this.renderErrorMessage()}
-        <Route
-          exact
-          path="/"
-          render={props => (
-            <Layout
-              leftNavItems={this.state.commonProps.leftNavItems}
-              /* mainItems={simulationRunRequestsMainItems} */
-              mainItems={null}
-            />
-          )}
-        />
-        <Route
-          exact
-          path="/simulation-runs"
-          render={props => (
-            <div>
-              <SimulationRun
-                commonProps={this.state.commonProps}
-                refreshSimulationRuns={this.refreshSimulationRuns}
-              />
-            </div>
-          )}
-        />
-        <Route
-          path="/simulation-runs/:simulationRunId"
-          render={props => (
-            <div>
-              <SimulationRun
-                commonProps={this.state.commonProps}
-                refreshSimulationRuns={this.refreshSimulationRuns}
-              />
-            </div>
-          )}
-        />
-        <Route
-          path="/admin"
-          render={props => (
-            <div>
-              <Admin commonProps={this.state.commonProps} />
-            </div>
-          )}
-        />
+        <Layout
+          commonProps={this.state.commonProps}
+          handleRunSimulationClick={this.handleRunSimulationClick}
+          anticipationItemClick={this.handleSimulationRunRequestClick}
+        >
+          <Route
+            exact
+            path="/simulation-runs"
+            render={props => (
+              <div>
+                <SimulationRun
+                  commonProps={this.state.commonProps}
+                  refreshSimulationRuns={this.refreshSimulationRuns}
+                />
+              </div>
+            )}
+          />
+          <Route
+            path="/simulation-runs/:simulationRunId"
+            render={props => (
+              <div>
+                <SimulationRun
+                  commonProps={this.state.commonProps}
+                  refreshSimulationRuns={this.refreshSimulationRuns}
+                />
+              </div>
+            )}
+          />
+          <Route
+            path="/admin"
+            render={props => (
+              <div>
+                <Admin commonProps={this.state.commonProps} />
+              </div>
+            )}
+          />
+        </Layout>
       </div>
     );
   }

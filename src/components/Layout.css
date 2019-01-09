@@ -39,4 +39,13 @@
 
 .nav-item {
   font-weight: normal;
+  padding: 10px 0;
+}
+
+.nav-plus {
+  font-weight: normal;
+}
+
+.nav-plus:hover {
+  background-color: #fafafa;
 }

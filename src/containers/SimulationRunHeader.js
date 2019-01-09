@@ -38,6 +38,11 @@ class SimulationRunHeader extends Component {
 
   componentDidMount() {
     console.log('SimulationRunHeader componentDidMount');
+
+    const currentSimulationRunMetadata = this.getCurrentSimulationRunMetadata(
+      this.props.commonProps.simulationRunRequestsMetadata
+    );
+    this.populateInitialValues(currentSimulationRunMetadata);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -50,14 +55,15 @@ class SimulationRunHeader extends Component {
       'this.props',
       this.props
     );
-    // TODO: Speed this up, probably by passing in the current simulation as a prop
 
-    /*  if (_.isEmpty(currentSimulationRunMetadata)) {
+    /*     if (this.state.retrieveDataSourcesFailed) {
       return;
-    }  */
-    if (this.state.retrieveDataSourcesFailed) {
+    } */
+
+    if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
       return;
     }
+
     if (
       _.isEqual(
         this.props.commonProps.simulationRunRequestsMetadata,
@@ -224,8 +230,8 @@ class SimulationRunHeader extends Component {
     const data = {
       duration: parsedDuration,
       interval: parsedInterval,
-      network_datasource_id: this.state.networkModel,
-      weather_datasource_id: this.state.weatherModel,
+      network_datasource_id: this.state.networkModelItems.find(model => model.file_uri === this.state.networkModel).id,
+      weather_datasource_id: this.state.weatherModelItems.find(model => model.file_uri === this.state.weatherModel).id,
       name: this.state.simulation_name
     };
     this.props.postSimulationSubmission(data);
@@ -415,6 +421,10 @@ class SimulationRunHeader extends Component {
   }
 
   render() {
+    if (_.isEmpty(this.state.networkModelItems) && _.isEmpty(this.state.weatherModelItems)) {
+      return null;
+    }
+
     console.log('SimulationRunHeader render this.props', this.props, 'this.state', this.state);
 
     const { style } = this.props;

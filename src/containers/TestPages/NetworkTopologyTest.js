@@ -15,7 +15,6 @@ class NetworkTopologyTest extends Component {
 
     const apiPath = process.env.REACT_APP_API_PATH;
 
-    const leftNavItems = this.props.commonProps.leftNavItems;
 
     const mainItems = (
       <div>
@@ -32,7 +31,7 @@ class NetworkTopologyTest extends Component {
       </div>
     );
 
-    return <Layout leftNavItems={leftNavItems} mainItems={mainItems} />;
+    return mainItems;
   }
 }
 

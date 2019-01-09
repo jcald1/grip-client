@@ -21,7 +21,6 @@ class TestPage extends Component {
 
   render() {
     console.log('TestPage render');
-    const leftNavItems = this.props.commonProps.leftNavItems;
 
     const mainItems = (
       <div>
@@ -38,7 +37,7 @@ class TestPage extends Component {
         <Route
           exact
           path={`${this.props.match.path}`}
-          render={props => <Layout leftNavItems={leftNavItems} mainItems={mainItems} />}
+          render={props => mainItems}
         />
         <Route
           path={`${this.props.match.path}/network-topology`}

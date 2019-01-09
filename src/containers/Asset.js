@@ -459,7 +459,7 @@ class Asset extends Component {
       </div>
     );
 
-    return <Layout leftNavItems={leftNavItems} mainItems={mainItems} />;
+    return mainItems;
   }
 }
 

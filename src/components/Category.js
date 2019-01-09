@@ -13,31 +13,53 @@ class Category extends Component {
     this.handleTitleClick = this.handleTitleClick.bind(this);
   }
 
+  componentDidMount() {
+    console.log('Category componentDidMount this.props', this.props, 'this.state', this.state);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log('Category componentDidUpdate this.props', this.props, 'this.state', this.state);
+
+    if (_.isEqual(prevProps.children, this.props.children)) {
+    }
+  }
+
   handleTitleClick() {
-    //console.log('Category handleTitleClick current this.state.open', this.state.open);
+    // console.log('Category handleTitleClick current this.state.open', this.state.open);
     this.setState({ open: !this.state.open });
   }
 
   render() {
+    console.log('Category render this.state', this.state, 'this.props', this.props);
     const {
       items, name, style, active
     } = this.props;
 
-    const block = items ? items.map(item => <div key={item.key}>{item}</div>) : null;
+    /* const block = items ? items.map(item => <div data-row-key={item.id} key={item.key} onClick={this.props.itemClick}>{item}</div>) : null; */
 
     const clazz = active === false ? 'nav-text-inactive' : 'nav-text';
 
+    const plus = this.props.children && (
+      <div
+        className="nav-plus"
+        style={{ display: 'inline-block', fontSize: '18px', fontWeight: 'bold' }}
+        onClick={this.props.handlePlusClick}
+      >
+        +
+      </div>
+    );
     const category = (
       <div
         style={{ padding: '5px', fontWeight: 'bold', ...style }}
         className={clazz}
-        onClick={this.handleTitleClick}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div style={{ fontSize: '18px', display: 'inline-block' }}>{name}</div>
-          {this.props.children}
+        <div style={{ display: 'flex', justifyContent: 'space-between' }} >
+          <div style={{ fontSize: '18px', display: 'inline-block' }} onClick={this.handleTitleClick}>{name}</div>
+          {plus}
         </div>
-        <div style={{ padding: '0 15px' }}> {this.state.open && block}</div>
+
+        {/* <div style={{ padding: '0 15px' }}> {this.state.open && block}</div> */}
+        <div style={{ padding: '0 15px' }}> {this.state.open && this.props.children}</div>
       </div>
     );
 

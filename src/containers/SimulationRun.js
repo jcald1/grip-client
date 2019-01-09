@@ -32,6 +32,7 @@ import SimulationRunHeader from './SimulationRunHeader';
 
 const DEFAULT_DIVIDER = '__';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
+const DEFAULT_SIMULATION_RUN_STATUS_COMPLETED = 4;
 
 const TabPane = Tabs.TabPane;
 
@@ -593,7 +594,6 @@ class SimulationRun extends Component {
       chartsConfiguration,
       topologyMapSelectNode: null,
       omfTopologyImage: null,
-      simulationRunStatus: null,
       vulnerabilityBands: {
         low: [],
         medium: [],
@@ -626,8 +626,9 @@ class SimulationRun extends Component {
 
   componentDidMount() {
     console.log('SimulationRun componentDidMount');
-
-
+    if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+      return null;
+    }
       this.populateSimulationRun();
     }
 
@@ -645,7 +646,8 @@ class SimulationRun extends Component {
       return;
     }
   // If any state is empty (componentDidMount should still be finishing its calls)
-  if (_.isEmpty(this.state.omfTopologyImage) ||
+  // TODO: What happens if the props change while the calls are still happening, may be best to remove this.
+/*   if (_.isEmpty(this.state.omfTopologyImage) ||
   _.isEmpty(this.state.allModelAssets) ||
   _.isEmpty(this.state.currentAsset) ||
   _.isEmpty(this.state.allRunAssets) ||
@@ -654,7 +656,7 @@ class SimulationRun extends Component {
   _.isEmpty(this.state.chartData) 
   ) {
       return;
-    }
+    } */
   // If Props or state haven't changed
    if (
       this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId &&
@@ -685,6 +687,7 @@ class SimulationRun extends Component {
       return;
     }
 
+
     const { simulationRunId } = this.props.match.params;
     console.log(
       '1populateSimulationRun',
@@ -694,6 +697,16 @@ class SimulationRun extends Component {
       'this.state',
       this.state
     );
+
+    const currentSimulationRunRequestMetadata = this.setCurrentSimulationRunRequestMetadata();
+    if (_.isEmpty(currentSimulationRunRequestMetadata)) {
+      console.log('Simulation Run data not available yet')
+      return;
+    }
+    if (currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED) {
+      return;
+    }
+
     omf
       .getOMFTopologyImage({
         baseUrl: this.props.commonProps.apiPath,
@@ -721,7 +734,6 @@ class SimulationRun extends Component {
         this.props.commonProps.handleError(err);
       });
     // TODO: Get the Simulation Run / Update the Status/details
-    // this.setState({simulationRunStatus: response.status});
     simulationRuns
       .getSimulationRunAllModelAssets({
         baseUrl: this.props.commonProps.apiPath,
@@ -862,8 +874,6 @@ class SimulationRun extends Component {
         }
         this.props.commonProps.handleError(err);
       });
-
-    this.setCurrentSimulationRunRequestMetadata();
   }
 
 
@@ -885,6 +895,7 @@ class SimulationRun extends Component {
     );
 
     this.setState({ currentSimulationRunRequestMetadata });
+    return currentSimulationRunRequestMetadata;
   }
 
   createVulnerabilityBands(allRunAssets) {
@@ -999,6 +1010,7 @@ class SimulationRun extends Component {
   }
 
   postSimulationSubmission(data) {
+    console.log('SimulationRun data',data);
     // TODO: Add message to user
     this.setState({ sendingSimulationRunRequest: true });
     simulationRuns
@@ -1008,10 +1020,10 @@ class SimulationRun extends Component {
         data
       })
       .then(response => {
-        this.props.refreshSimulationRuns();
-        return response;
+        return this.props.refreshSimulationRuns()
+        .then(refreshRunResponse => ({response, refreshRunResponse}));
       })
-      .then(response => {
+      .then( ({response}) => {
         console.log('Simulation Run Submission Response', response);
         this.props.history.push({
           pathname: `/simulation-runs/${response.simulation_run_id.toString()}`
@@ -1372,9 +1384,7 @@ class SimulationRun extends Component {
   renderLineChartSimulationRun({
     data, lines, domain, yAxisLeft, chartsConfiguration
   }) {
-    if (!data || !data.length || data.length === 0) {
-      return null;
-    }
+
 
     console.log('renderLineChart', 'data', data, 'lines', lines);
 
@@ -1546,7 +1556,6 @@ class SimulationRun extends Component {
       <SimulationRunHeader
         commonProps={this.props.commonProps}
         postSimulationSubmission={this.postSimulationSubmission}
-        simulationRunStatus={this.state.simulationRunStatus}
         simulationRunId={this.props.match.params.simulationRunId}
       />
     );
@@ -1607,6 +1616,27 @@ class SimulationRun extends Component {
       </div>
     );
   }
+  renderBelowHeader(combinedData, linesToAdd) {
+    if (_.isEmpty(combinedData)) {
+      return null;
+    }
+
+    return (
+      <div>
+      <div>
+      {this.renderLineChartSimulationRun({
+        data: combinedData,
+        lines: linesToAdd,
+        // TODO: In the API, calculate the max values for each asset,
+        // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
+        domain: DEFAULT_YAXIS_DOMAIN,
+        chartsConfiguration: this.state.chartsConfiguration,
+        yAxisLeft: { dy: 40 }
+      })}
+    </div>
+    {this.renderAssetDetails()}
+    </div>)
+  }
 
   render() {
     console.log('render============================================================SimulationRun');
@@ -1615,10 +1645,6 @@ class SimulationRun extends Component {
 
     const { chartData } = this.state;
 
-    /*     if (!chartData || !chartData.length || chartData.length === 0) {
-      return null;
-    }
- */
     const leftNavItems = this.props.commonProps.leftNavItems;
 
     const defaultMeasurement =
@@ -1677,33 +1703,17 @@ class SimulationRun extends Component {
     const mainItems = (
       <div>
         {this.renderSimulationRunHeader()}
-        {/* <Divider /> */}
-        {/*         <Title
-          text="
-          Network Power and Vulnerability"
-        /> */}
-        <div>
-          {this.renderLineChartSimulationRun({
-            // data: renderPoleData,
-            data: combinedData,
-            lines: linesToAdd,
-            // TODO: In the API, calculate the max values for each asset,
-            // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
-            domain: DEFAULT_YAXIS_DOMAIN,
-            chartsConfiguration: this.state.chartsConfiguration,
-            yAxisLeft: { dy: 40 }
-          })}
-        </div>
-        {this.renderAssetDetails()}
+        {this.renderBelowHeader(combinedData, linesToAdd)}
       </div>
-    );
+    ); 
+
 
     return (
       <div>
         <Route
           exact
           path={`${this.props.match.path}`}
-          render={props => <Layout leftNavItems={leftNavItems} mainItems={mainItems} />}
+          render={props => mainItems}
         />
         <Route
           exact
