@@ -3,9 +3,9 @@ import './Layout.css';
 import { withRouter } from 'react-router-dom';
 import '../containers/App.css';
 import moment from 'moment';
+import _ from 'lodash';
 import Category from './Category';
 import CategoryItem from './CategoryItem';
-import _ from 'lodash';
 
 class Layout extends Component {
   constructor(props) {
@@ -19,8 +19,8 @@ class Layout extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('Category componentDidUpdate this.props',this.props,'this.state',this.state);
-/*     if (_.isEmpty(this.props.commonProps) ||
+    console.log('Category componentDidUpdate this.props', this.props, 'this.state', this.state);
+    /*     if (_.isEmpty(this.props.commonProps) ||
       _.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
       return null;
     }
@@ -41,73 +41,79 @@ class Layout extends Component {
     });
   }
 
-  getSimulationRunMenuItems(simulationRunRequestsMetadata) {
+  getSimulationRunMenuItems(simulationRunRequestsMetadata, selectedSimulationRunId) {
     if (!simulationRunRequestsMetadata) {
       return null;
     }
 
     return simulationRunRequestsMetadata.map(run => {
       // const runDate = moment(run.created_at).format('HH:mm:ss MM/DD/YY');
+
       const details = (
         <div
-          className="nav-item"
-          style={{ overflowWrap: 'break-word', paddingTop: '0px' }}
+          className={run.id === selectedSimulationRunId ? 'nav-item nav-item-selected' : 'nav-item'}
+          style={{ overflowWrap: 'break-word', padding: '0 15px' }}
           data-row-key={run.id}
           onClick={this.props.anticipationItemClick}
         >
-        
           {run.simulation_submission.name}
         </div>
       );
       return <CategoryItem key={run.id}>{details}</CategoryItem>;
     });
   }
-  
+
+
   renderMenuItems() {
-    if (_.isEmpty(this.props.commonProps) ||
-      _.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+    const simulationRuns = this.getSimulationRunMenuItems(
+      this.props.commonProps.simulationRunRequestsMetadata,
+      this.props.selectedSimulationRunId
+    );
+    if (_.isEmpty(simulationRuns)) {
       return null;
     }
 
-    const simulationRuns = this.getSimulationRunMenuItems(this.props.commonProps.simulationRunRequestsMetadata);
     const simulationRunRequestsLeftNavItems = (
       <div>
-      <Category
-        key="anticipation"
-        name="Anticipation"
-        handlePlusClick={this.props.handleRunSimulationClick}
-        itemClick={this.props.anticipationItemClick}
-      >
-        {simulationRuns}
-      </Category>,
-      <Category
-        key="absorption"
-        name="Absorption"
-        style={{ marginTop: '0px' }}
-        active={false}
-        tooltip="Phase 2"
-      />,
-      <Category
-        key="recovery"
-        name="Recovery"
-        style={{ marginTop: '0px' }}
-        active={false}
-        tooltip="Phase 3"
-      />,
-      <Category key="settings" name="Settings" style={{ marginTop: '0px' }} />
-    </div>);
+        <Category
+          key="anticipation"
+          name="Anticipation"
+          handlePlusClick={this.props.handleRunSimulationClick}
+          itemClick={this.props.anticipationItemClick}
+        >
+          {simulationRuns}
+        </Category>
+        <Category
+          key="absorption"
+          name="Absorption"
+          style={{ marginTop: '0px' }}
+          active={false}
+          tooltip="Phase 2"
+        />
+        <Category
+          key="recovery"
+          name="Recovery"
+          style={{ marginTop: '0px' }}
+          active={false}
+          tooltip="Phase 3"
+        />
+        <Category key="settings" name="Settings" style={{ marginTop: '0px' }} />
+      </div>
+    );
 
     return simulationRunRequestsLeftNavItems;
   }
 
   render() {
     const { mainItems, history } = this.props;
+    if (_.isEmpty(this.props.commonProps)) {
+      return null;
+    }
+    if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+      return null;
+    }
 
-    console.log(
-      'Layout render',
-      'this.props',
-      this.props
-    );
+    console.log('Layout render', 'this.props', this.props);
 
     return (
       <div

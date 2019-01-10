@@ -29,10 +29,17 @@ class Category extends Component {
     this.setState({ open: !this.state.open });
   }
 
+  openTitle() {
+    if (!this.state.open) {
+      this.setState({open: true});
+    }
+  }
+
   render() {
     console.log('Category render this.state', this.state, 'this.props', this.props);
+
     const {
-      items, name, style, active
+      items, name, style, active, open
     } = this.props;
 
     /* const block = items ? items.map(item => <div data-row-key={item.id} key={item.key} onClick={this.props.itemClick}>{item}</div>) : null; */
@@ -49,17 +56,18 @@ class Category extends Component {
       </div>
     );
     const category = (
-      <div
-        style={{ padding: '5px', fontWeight: 'bold', ...style }}
-        className={clazz}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between' }} >
-          <div style={{ fontSize: '18px', display: 'inline-block' }} onClick={this.handleTitleClick}>{name}</div>
+      <div style={{ padding: '5px', fontWeight: 'bold', ...style }} className={clazz}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div
+            style={{ fontSize: '18px', display: 'inline-block' }}
+            onClick={this.handleTitleClick}
+          >
+            {name}
+          </div>
           {plus}
         </div>
 
-        {/* <div style={{ padding: '0 15px' }}> {this.state.open && block}</div> */}
-        <div style={{ padding: '0 15px' }}> {this.state.open && this.props.children}</div>
+        <div style={{}}> {this.state.open && this.props.children}</div>
       </div>
     );
 

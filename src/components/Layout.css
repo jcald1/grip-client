@@ -33,8 +33,13 @@
   color: darkgray;
 }
 
-.nav-item:hover {
+.nav-item:hover,
+.nav-plus:hover {
   background-color: #fafafa;
+}
+
+.nav-item-selected {
+  background-color: #9d9d9d;
 }
 
 .nav-item {
@@ -44,8 +49,4 @@
 
 .nav-plus {
   font-weight: normal;
-}
-
-.nav-plus:hover {
-  background-color: #fafafa;
 }

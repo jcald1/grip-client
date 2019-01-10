@@ -46,21 +46,16 @@ class SimulationRunHeader extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(
-      'SimulationRunHeader componentDidUpdate',
-      'prevProps.simulation_name',
-      prevProps.simulation_name,
-      'this.state',
-      this.state,
-      'this.props',
-      this.props
-    );
-
     /*     if (this.state.retrieveDataSourcesFailed) {
       return;
     } */
 
     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+      return;
+    }
+    if (_.isEmpty(this.state.networkModelItems) ||
+        _.isEmpty(this.state.weatherModelItems)
+    ) {
       return;
     }
 
@@ -82,6 +77,18 @@ class SimulationRunHeader extends Component {
     if (!this.props.simulationRunId) {
       return;
     }
+
+
+    console.log(
+      'SimulationRunHeader componentDidUpdate',
+      'prevProps.simulation_name',
+      prevProps.simulation_name,
+      'this.state',
+      this.state,
+      'this.props',
+      this.props
+    );
+
 
     const currentSimulationRunMetadata = this.getCurrentSimulationRunMetadata(
       this.props.commonProps.simulationRunRequestsMetadata
@@ -253,6 +260,7 @@ class SimulationRunHeader extends Component {
   }) {
     console.log('renderSimulationRunPageHeader', weatherItems, networkItems);
     const selectClass = 'simulation-header-run-page-input';
+    return null;
     return (
       <Form onSubmit={this.handleRun}>
         <div

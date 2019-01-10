@@ -29,6 +29,8 @@ import omf from '../actions/omf';
 import networkTopology from '../actions/networkTopology';
 import NetworkTopology from '../components/d3/NetworkTopology/NetworkTopololgy';
 import SimulationRunHeader from './SimulationRunHeader';
+import SimulationRunNotCompleted from '../components/SimulationRunNotCompleted';
+import chartsConfiguration from './Configuration';
 
 const DEFAULT_DIVIDER = '__';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
@@ -40,554 +42,21 @@ class SimulationRun extends Component {
   constructor(props) {
     super(props);
 
-    const chartsConfiguration = {
-      api: {
-        version: 'v1'
-      },
-      vulnerabilityBands: {
-        low: 0.8,
-        medium: 1,
-        high: null // infinite
-        /*         low: 0.005,
-        medium: 0.01,
-        high: null // infinite */
-      },
-      filtered_assets: ['meter', 'overhead_line', 'pole'],
-      vulnerability_measurement: 'vulnerability',
-      criticalVulnerability: 1,
-      // The substation has to be mapped here
-      selectionMappings: {
-        substation_meter: 'node_14', // Asset List to Network Topology
-        node_14: 'substation_meter' // Network Topology to Asset List
-      },
-      defaultFirstAssetSelected: 'substation_meter',
-      defaultFirstMetricSelected: 'measured_real_power',
-      defaultMetricClasses: [
-        {
-          class: 'meter',
-          recording: 'measured_real_power'
-        },
-        {
-          class: 'triplex-meter',
-          recording: 'measured_real_power'
-        },
-        {
-          class: 'transformer',
-          recording: 'measured_real_power'
-        },
-        {
-          class: 'substation',
-          recording: 'measured_real_power'
-        },
-        {
-          class: 'substation_meter',
-          recording: 'measured_real_power'
-        },
-        {
-          class: 'pole',
-          recording: 'pole_stress'
-        },
-        {
-          class: 'weather',
-          recording: 'wind_speed'
-        },
-        {
-          class: 'line',
-          recording: 'power_out_real'
-        }
-      ],
-      primaryMetricsForClasses: [
-        {
-          class: 'pole',
-          properties: [
-            {
-              key: 'resisting_moment'
-            },
-            {
-              key: 'total_moment'
-            },
-            {
-              key: 'susceptibility'
-            },
-            {
-              key: 'wind_speed'
-            }
-          ]
-        },
-        {
-          class: 'line',
-          properties: [
-            {
-              key: 'power_out_real'
-            },
-            {
-              key: 'wind_speed'
-            }
-          ]
-        },
-        {
-          class: 'overhead_line',
-          properties: [
-            {
-              key: 'power_out_real'
-            },
-            {
-              key: 'wind_speed'
-            }
-          ]
-        },
-        {
-          class: 'substation_meter',
-          properties: [
-            {
-              key: 'measured_reactive_power'
-            },
-            {
-              key: 'measured_real_power'
-            },
-            {
-              key: 'wind_speed'
-            }
-          ]
-        },
-        {
-          class: 'meter',
-          properties: [
-            {
-              key: 'measured_reactive_power'
-            },
-            {
-              key: 'measured_real_power'
-            },
-            {
-              key: 'wind_speed'
-            }
-          ]
-        }
-      ],
-      primaryPropertiesForClasses: [
-        {
-          class: 'meter',
-          properties: [
-            {
-              key: 'Name',
-              name: 'Name'
-            },
-            {
-              key: 'nominal_voltage',
-              name: 'Nominal Voltage'
-            },
-            {
-              key: 'bustype',
-              name: 'Bus Type'
-            },
-            {
-              key: 'class',
-              name: 'class'
-            },
-            {
-              key: 'phases',
-              name: 'Phases'
-            },
-            {
-              key: 'service_status',
-              name: 'Service Status'
-            },
-            {
-              key: 'longitude',
-              name: 'Longitude'
-            },
-            {
-              key: 'latitude',
-              name: 'Latitude'
-            }
-          ]
-        },
-        {
-          class: 'triplex-meter',
-          properties: [
-            {
-              key: 'Name',
-              name: 'Name'
-            },
-            {
-              key: 'nominal_voltage',
-              name: 'Nominal Voltage'
-            },
-            {
-              key: 'bustype',
-              name: 'Bus Type'
-            },
-            {
-              key: 'class',
-              name: 'class'
-            },
-            {
-              key: 'phases',
-              name: 'Phases'
-            },
-            {
-              key: 'service_status',
-              name: 'Service Status'
-            },
-            {
-              key: 'longitude',
-              name: 'Longitude'
-            },
-            {
-              key: 'latitude',
-              name: 'Latitude'
-            }
-          ]
-        },
-        {
-          class: 'transformer',
-          properties: [
-            {
-              key: 'Name',
-              name: 'Name'
-            },
-            {
-              key: 'nominal_voltage',
-              name: 'Nominal Voltage'
-            },
-            {
-              key: 'bustype',
-              name: 'Bus Type'
-            },
-            {
-              key: 'class',
-              name: 'class'
-            },
-            {
-              key: 'phases',
-              name: 'Phases'
-            },
-            {
-              key: 'service_status',
-              name: 'Service Status'
-            },
-            {
-              key: 'longitude',
-              name: 'Longitude'
-            },
-            {
-              key: 'latitude',
-              name: 'Latitude'
-            }
-          ]
-        },
-        {
-          class: 'substation',
-          properties: [
-            {
-              key: 'Name',
-              name: 'Name'
-            },
-            {
-              key: 'nominal_voltage',
-              name: 'Nominal Voltage'
-            },
-            {
-              key: 'bustype',
-              name: 'Bus Type'
-            },
-            {
-              key: 'class',
-              name: 'class'
-            },
-            {
-              key: 'phases',
-              name: 'Phases'
-            },
-            {
-              key: 'service_status',
-              name: 'Service Status'
-            },
-            {
-              key: 'longitude',
-              name: 'Longitude'
-            },
-            {
-              key: 'latitude',
-              name: 'Latitude'
-            }
-          ]
-        },
-        {
-          class: 'substation_meter',
-          properties: [
-            {
-              key: 'Name',
-              name: 'Name'
-            },
-            {
-              key: 'nominal_voltage',
-              name: 'Nominal Voltage'
-            },
-            {
-              key: 'bustype',
-              name: 'Bus Type'
-            },
-            {
-              key: 'class',
-              name: 'class'
-            },
-            {
-              key: 'phases',
-              name: 'Phases'
-            },
-            {
-              key: 'service_status',
-              name: 'Service Status'
-            },
-            {
-              key: 'longitude',
-              name: 'Longitude'
-            },
-            {
-              key: 'latitude',
-              name: 'Latitude'
-            }
-          ]
-        },
-        {
-          class: 'pole',
-          properties: [
-            {
-              key: 'Name',
-              name: 'Name'
-            },
-            {
-              key: 'class',
-              name: 'Class'
-            },
-            {
-              key: 'pole_type',
-              name: 'Type'
-            },
-            {
-              key: 'equipment_height',
-              name: 'Height'
-            },
-            {
-              key: 'equipment_area',
-              name: 'Area'
-            },
-            {
-              key: 'latitude',
-              name: 'Latitude'
-            },
-            {
-              key: 'longitude',
-              name: 'Longitude'
-            },
-            {
-              key: 'tilt_angle',
-              name: 'Tilt Angel'
-            },
-            {
-              key: 'tilt_direction',
-              name: 'Tilt Direction'
-            }
-          ]
-        },
-        {
-          class: 'weather',
-          properties: []
-        },
-        {
-          class: 'line',
-          properties: [
-            {
-              key: 'Name',
-              name: 'Name'
-            },
-            {
-              key: 'configuration',
-              name: 'Configurration'
-            },
-            {
-              key: 'class',
-              name: 'Class'
-            },
-            {
-              key: 'continuous_rating',
-              name: 'Continuous Rating'
-            },
-            {
-              key: 'emergency_rating',
-              name: 'Emergency Rating'
-            },
-            {
-              key: 'flow_direction',
-              name: 'Flow Direction'
-            },
-            {
-              key: 'longitude',
-              name: 'Longitude'
-            },
-            {
-              key: 'latitude',
-              name: 'Latitude'
-            },
-            {
-              key: 'length',
-              name: 'Length'
-            }
-          ]
-        },
-        {
-          class: 'overhead_line',
-          properties: [
-            {
-              key: 'Name',
-              name: 'Name'
-            },
-            {
-              key: 'configuration',
-              name: 'Configurration'
-            },
-            {
-              key: 'class',
-              name: 'Class'
-            },
-            {
-              key: 'continuous_rating',
-              name: 'Continuous Rating'
-            },
-            {
-              key: 'emergency_rating',
-              name: 'Emergency Rating'
-            },
-            {
-              key: 'flow_direction',
-              name: 'Flow Direction'
-            },
-            {
-              key: 'longitude',
-              name: 'Longitude'
-            },
-            {
-              key: 'latitude',
-              name: 'Latitude'
-            },
-            {
-              key: 'length',
-              name: 'Length'
-            }
-          ]
-        }
-      ],
-      globalRecordings: [
-        {
-          id: 10000,
-          is_measure: true,
-          name: 'wind_speed',
-          asset: 'weather',
-          fullName: 'weather__wind_speed'
-        }
-      ],
-      recordingLabels: [
-        {
-          name: 'vulnerability',
-          label: 'Peak Vulnerability',
-          YAxisPosition: 'left'
-        },
-        {
-          name: 'pole_stress',
-          nameAlias: 'vulnerability_index',
-          label: 'Vulnerability Index',
-          YAxisPosition: 'left'
-        },
-        {
-          name: 'critical_pole_stress',
-          nameAlias: 'critical_vulnerability_index',
-          label: 'Critical Vulnerability Index',
-          unit: 'pu',
-          YAxisPosition: 'left'
-        },
-        {
-          name: 'measured_real_power',
-          label: 'Measured Real Power',
-          unit: 'W',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'measured_real_power',
-          label: 'Measured Real Power',
-          unit: 'W',
-          YAxisPosition: 'left'
-        },
-        {
-          name: 'measured_real_power',
-          label: 'Measured Real Power',
-          unit: 'W',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'measured_reactive_power',
-          label: 'Measured Reactive Power',
-          unit: 'W',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'wind_speed',
-          label: 'Wind Speed',
-          unit: 'meters/sec',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'resisting_moment',
-          label: 'Resisting Moment',
-          unit: 'ft*lb',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'total_moment',
-          label: 'Total Moment',
-          unit: 'ft*lb',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'critical_wind_speed',
-          label: 'Critical Wind Speed',
-          unit: 'meters/sec',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'susceptibility',
-          label: 'Susceptibility',
-          unit: 'pu*s/m',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'pole_status',
-          label: 'Pole Status',
-          unit: 'OK/FAILED',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'current_uptime',
-          label: 'Current Uptime',
-          unit: 'Minutes',
-          YAxisPosition: 'right'
-        },
-        {
-          name: 'power_out_real',
-          label: 'Power Out Real',
-          unit: 'W',
-          YAxisPosition: 'right'
-        }
-      ]
-    };
     this.emptyState = {
+      calledApi: {
+        omfTopologyImage: false,
+        allModelAssets: false,
+        currentAsset: false,
+        allRunAssets: false,
+        selectedAssetDetailId: false,
+        chartData: false,
+        networkTopologyData: false
+      },
       currentAsset: null,
       selectedAssetDetailId: null,
       allRunAssets: null,
       runResultsData: [],
       networkTopologyData: {},
-      gettingSimulationRun: true,
       selectNode: null,
       chartVulrunAggResultsResponseDatanerabilityAggData: [],
       chartData: [],
@@ -623,17 +92,78 @@ class SimulationRun extends Component {
     this.roundToTwo = this.roundToTwo.bind(this);
   }
 
-
   componentDidMount() {
     console.log('SimulationRun componentDidMount');
     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
       return null;
     }
-      this.populateSimulationRun();
-    }
-
+    this.populateSimulationRun();
+  }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log(
+      'SimulationRun 1componentDidUpdate this.props',
+      this.props,
+      'this.state.currentAsset',
+      this.state.currentAsset,
+      'this.state',
+      this.state
+    );
+
+    if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+      return;
+    }
+
+    // If any state is empty, calls from componentDidMount could still be finishing)
+    /*   if (_.isEmpty(this.state.omfTopologyImage) ||
+  _.isEmpty(this.state.allModelAssets) ||
+  _.isEmpty(this.state.currentAsset) ||
+  _.isEmpty(this.state.allRunAssets) ||
+  _.isEmpty(this.state.selectedAssetDetailId) ||
+  _.isEmpty(this.state.runResultsData) ||
+  _.isEmpty(this.state.chartData)
+  ) {
+      return;
+    } */
+
+    // If Props or state haven't changed
+
+    if (
+      !(
+        Object.keys(this.state.calledApi).every(val => this.state.calledApi[val] === true) ||
+        Object.keys(this.state.calledApi).every(val => this.state.calledApi[val] === false)
+      )
+    ) {
+      return;
+    }
+    if (
+      this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId &&
+      _.isEqual(
+        this.props.commonProps.simulationRunRequestsMetadata,
+        prevProps.commonProps.simulationRunRequestsMetadata
+      ) &&
+      this.state.selectedAssetDetailId === prevState.selectedAssetDetailId &&
+      this.state.calledApi === prevState.calledApi &&
+      _.isEqual(
+        this.state.currentSimulationRunRequestMetadata,
+        prevState.currentSimulationRunRequestMetadata
+      ) &&
+      _.isEqual(this.state.omfTopologyImage, prevState.omfTopologyImage) &&
+      _.isEqual(this.state.allModelAssets, prevState.allModelAssets) &&
+      _.isEqual(this.state.currentAsset, prevState.currentAsset) &&
+      _.isEqual(this.state.allRunAssets, prevState.allRunAssets) &&
+      _.isEqual(this.state.runResultsData, prevState.runResultsData) &&
+      _.isEqual(this.state.chartData, prevState.chartData) &&
+      _.isEqual(this.state.networkTopologyData, prevState.networkTopologyData) &&
+      _.isEqual(this.state.selectNode, prevState.selectNode) &&
+      _.isEqual(
+        this.state.chartVulrunAggResultsResponseDatanerabilityAggData,
+        prevState.chartVulrunAggResultsResponseDatanerabilityAggData
+      ) &&
+      _.isEqual(this.state.topologyMapSelectNode, prevState.topologyMapSelectNode)
+    ) {
+      return;
+    }
     console.log(
       'SimulationRun componentDidUpdate this.props',
       this.props,
@@ -642,51 +172,24 @@ class SimulationRun extends Component {
       'this.state',
       this.state
     );
-    if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) { 
-      return;
-    }
-  // If any state is empty (componentDidMount should still be finishing its calls)
-  // TODO: What happens if the props change while the calls are still happening, may be best to remove this.
-/*   if (_.isEmpty(this.state.omfTopologyImage) ||
-  _.isEmpty(this.state.allModelAssets) ||
-  _.isEmpty(this.state.currentAsset) ||
-  _.isEmpty(this.state.allRunAssets) ||
-  _.isEmpty(this.state.selectedAssetDetailId) ||
-  _.isEmpty(this.state.runResultsData) ||
-  _.isEmpty(this.state.chartData) 
-  ) {
-      return;
-    } */
-  // If Props or state haven't changed
-   if (
-      this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId &&
-      _.isEqual(this.props.commonProps.simulationRunRequestsMetadata,      prevProps.commonProps.simulationRunRequestsMetadata) &&
-      _.isEqual(this.state.omfTopologyImage,      prevState.omfTopologyImage) &&
-      _.isEqual(this.state.allModelAssets,      prevState.allModelAssets) &&
-      _.isEqual(this.state.currentAsset,      prevState.currentAsset) &&
-      _.isEqual(this.state.allRunAssets,      prevState.allRunAssets) &&     
-      this.state.selectedAssetDetailId === prevState.selectedAssetDetailId &&
-      _.isEqual(this.state.runResultsData,      prevState.runResultsData) &&    
-      _.isEqual(this.state.chartData,      prevState.chartData)) {
-        return;
-    } 
+
     // If any of these are set, that means componentDidMount has already
 
+    if (this.props.match.params.simulationRunId !== prevProps.match.params.simulationRunId) {
+      this.setState({ ...this.emptyState });
+    }
     this.populateSimulationRun();
   }
 
   populateSimulationRun() {
     // TODO: Move this into Redux / Thunk actions
-
     let currentAsset;
     let selectedAssetDetailId;
-    this.setState({ gettingSimulationRun: true });
-    // TODO: Some of these calls may be able to be done in parallel.
 
+    // When creating a simulation, don't try to pull one up
     if (!this.props.match.params.simulationRunId) {
       return;
     }
-
 
     const { simulationRunId } = this.props.match.params;
     console.log(
@@ -698,204 +201,245 @@ class SimulationRun extends Component {
       this.state
     );
 
-    const currentSimulationRunRequestMetadata = this.setCurrentSimulationRunRequestMetadata();
+    const currentSimulationRunRequestMetadata = this.props.getCurrentSimulationRunRequestMetadata(
+      this.props.match.params.simulationRunId
+    );
     if (_.isEmpty(currentSimulationRunRequestMetadata)) {
-      console.log('Simulation Run data not available yet')
+      console.log('Simulation Run data not available yet');
       return;
     }
+    this.props.selectSimulationRunId(currentSimulationRunRequestMetadata.id);
+    this.setState({ currentSimulationRunRequestMetadata });
+
     if (currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED) {
       return;
     }
 
-    omf
-      .getOMFTopologyImage({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: this.state.chartsConfiguration.api.version,
-        simulationRunId
-      })
-      // TODO: This may belong in the API container
-      .then(omfTopologyImage => {
-        console.log('SimulationRun omfTopologyImage1', omfTopologyImage);
-        if (!omfTopologyImage) {
-          return Promise.reject(
-            new Error('No data received from the API for the OMF Topology graph.')
-          );
-        }
-        this.setState({
-          omfTopologyImage
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        console.log('Error', err);
-        if (err.response && err.response.data && err.response.data.message) {
-          err = new verror.VError(err, err.response.data.message);
-        }
-        this.props.commonProps.handleError(err);
+    if (!this.state.calledApi.omfTopologyImage) {
+      this.setState({
+        calledApi: { ...this.state.calledApi, omfTopologyImage: true }
       });
-    // TODO: Get the Simulation Run / Update the Status/details
-    simulationRuns
-      .getSimulationRunAllModelAssets({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: this.state.chartsConfiguration.api.version,
-        simulationRunId
-      })
-      // TODO: This may belong in the API container
-      .then(allModelAssets => {
-        console.log('SimulationRun allModelAssets ', allModelAssets);
-        if (!allModelAssets) {
-          return Promise.reject(new Error('No data received from the API.'));
-        }
-        this.setState({
-          allModelAssets
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        console.log('Error', err);
-        if (err.response && err.response.data && err.response.data.message) {
-          err = new verror.VError(err, err.response.data.message);
-        }
-        this.props.commonProps.handleError(err);
-      });
-
-    simulationRuns
-      .getSimulationRunAssets({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: this.state.chartsConfiguration.api.version,
-        simulationRunId
-      })
-      .then(allRunAssets => {
-        console.log(
-          'SimulationRun populateSimulationRun getsimulation run assets data',
-          allRunAssets
-        );
-        if (!allRunAssets) {
-          return Promise.reject(new Error('No simulation run data received from the API.'));
-        }
-        this.createVulnerabilityBands(allRunAssets);
-        console.log(
-          ' this.state.chartsConfiguration',
-          this.state.chartsConfiguration,
-          allRunAssets
-        );
-        const defaultAsset = this.findDefaultAsset(allRunAssets, this.state.chartsConfiguration);
-        console.log('defaultAsset', defaultAsset);
-        currentAsset = defaultAsset;
-
-        selectedAssetDetailId = currentAsset.id;
-        this.setState({ currentAsset, allRunAssets, selectedAssetDetailId });
-        return null;
-      })
-      .catch(err => {
-        console.error(err);
-        console.log('Error', err);
-        if (err.response && err.response.data && err.response.data.message) {
-          err = new verror.VError(err, err.response.data.message);
-        }
-        this.props.commonProps.handleError(err);
-      });
-
-    simulationRuns
-      .getSimulationRunResults({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: this.state.chartsConfiguration.api.version,
-        simulationRunId
-      })
-      // TODO: This may belong in the API container
-      .then(runResultsData => {
-        console.log(
-          'SimulationRun populateSimulationRun get simulation run results',
-          runResultsData
-        );
-        if (!runResultsData) {
-          return Promise.reject(new Error('No data received from the API.'));
-        }
-        this.setState({
-          runResultsData
-        });
-        return runResultsData;
-      })
-      .then(runResultsData => simulationRuns
-        .getSimulationRunVulnerabilityAggByTimeStepResults({
+      console.log('SimulationRun omfTopologyImage1', this.state);
+      omf
+        .getOMFTopologyImage({
           baseUrl: this.props.commonProps.apiPath,
           apiVersion: this.state.chartsConfiguration.api.version,
           simulationRunId
         })
-        .then(runAggResultsResponseData => ({ runAggResultsResponseData, runResultsData })))
-      // TODO: This may belong in the API container
-      .then(({ runAggResultsResponseData, runResultsData }) => {
-        console.log(
-          'SimulationRun getSimulationRunVulnerabilityAggByTimeStepResults ',
-          runAggResultsResponseData
-        );
-        if (!runAggResultsResponseData) {
-          return Promise.reject(new Error('No data received from the API.'));
-        }
-        const chartData = this.mapResultsAndVulnerabilityToChartData(
-          runResultsData,
-          runAggResultsResponseData
-        );
-        this.setState({
-          chartData
+        // TODO: This may belong in the API container
+        .then(omfTopologyImage => {
+          console.log('SimulationRun omfTopologyImage1 result this.state', this.state);
+          if (!omfTopologyImage) {
+            return Promise.reject(
+              new Error('No data received from the API for the OMF Topology graph.')
+            );
+          }
+          this.setState({
+            omfTopologyImage
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          console.log('Error', err);
+          if (err.response && err.response.data && err.response.data.message) {
+            err = new verror.VError(err, err.response.data.message);
+          }
+          this.props.commonProps.handleError(err);
         });
-      })
-      .catch(err => {
-        console.error(err);
-        console.log('Error', err);
-        if (err.response && err.response.data && err.response.data.message) {
-          err = new verror.VError(err, err.response.data.message);
-        }
-        this.props.commonProps.handleError(err);
-      })
-      .finally(() => {
-        this.setState({ gettingSimulationRun: false });
-      });
-
-    networkTopology
-      .getNetworkTopology({
-        baseUrl: this.props.commonProps.apiPath,
-        apiVersion: this.state.chartsConfiguration.api.version
-      })
-      .then(topologyData => {
-        console.log('Topology network data', topologyData);
-        if (!topologyData) {
-          return Promise.reject(new Error('No network topology data received from the API.'));
-        }
-
-        this.setState({ networkTopologyData: topologyData });
-        return null;
-      })
-      .catch(err => {
-        console.error(err);
-        console.log('Error', err);
-        if (err.response && err.response.data && err.response.data.message) {
-          err = new verror.VError(err, err.response.data.message);
-        }
-        this.props.commonProps.handleError(err);
-      });
-  }
-
-
-  setCurrentSimulationRunRequestMetadata() {
-    console.log(
-      'SimulationRun setCurrentSimulationRunRequestMetadata',
-      'this.props.commonProps.simulationRunRequestsMetadata',
-      this.props.commonProps
-    );
-    if (!this.props.match.params.simulationRunId) {
-      return;
+      /*       .finally(() => {
+        this.setState({
+          calledApi: {...this.state.calledApi, omfTopologyImage: false}
+          });
+      }) */
     }
-    const simulationRunIdStr = parseInt(this.props.match.params.simulationRunId, 10);
-    if (isNaN(simulationRunIdStr)) {
-      return this.props.commonProps.handleError('Simulation Run ID must be numeric');
-    }
-    const currentSimulationRunRequestMetadata = this.props.commonProps.simulationRunRequestsMetadata.find(
-      simulation => simulation.id === simulationRunIdStr
-    );
 
-    this.setState({ currentSimulationRunRequestMetadata });
-    return currentSimulationRunRequestMetadata;
+    if (!this.state.calledApi.allModelAssets) {
+      this.setState({
+        calledApi: { ...this.state.calledApi, allModelAssets: true }
+      });
+      // TODO: Get the Simulation Run / Update the Status/details
+      simulationRuns
+        .getSimulationRunAllModelAssets({
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion: this.state.chartsConfiguration.api.version,
+          simulationRunId
+        })
+        // TODO: This may belong in the API container
+        .then(allModelAssets => {
+          console.log('SimulationRun allModelAssets ', allModelAssets, this.state);
+          if (!allModelAssets) {
+            return Promise.reject(new Error('No data received from the API.'));
+          }
+          this.setState({
+            allModelAssets
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          console.log('Error', err);
+          if (err.response && err.response.data && err.response.data.message) {
+            err = new verror.VError(err, err.response.data.message);
+          }
+          this.props.commonProps.handleError(err);
+        });
+      /*       .finally(() => {
+        this.setState({
+          calledApi: {...this.state.calledApi, allModelAssets: false}
+          });
+      }) */
+    }
+
+    if (
+      !this.state.calledApi.currentAsset ||
+      !this.state.calledApi.allRunAssets ||
+      !this.state.calledApi.selectedAssetDetailId
+    ) {
+      this.setState({
+        calledApi: {
+          ...this.state.calledApi,
+          currentAsset: true,
+          allRunAssets: true,
+          selectedAssetDetailId: true
+        }
+      });
+      simulationRuns
+        .getSimulationRunAssets({
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion: this.state.chartsConfiguration.api.version,
+          simulationRunId
+        })
+        .then(allRunAssets => {
+          console.log(
+            'SimulationRun populateSimulationRun getsimulation run assets data',
+            allRunAssets
+          );
+          if (!allRunAssets) {
+            return Promise.reject(new Error('No simulation run data received from the API.'));
+          }
+          this.createVulnerabilityBands(allRunAssets);
+          console.log(
+            ' this.state.chartsConfiguration',
+            this.state.chartsConfiguration,
+            allRunAssets
+          );
+          const defaultAsset = this.findDefaultAsset(allRunAssets, this.state.chartsConfiguration);
+          console.log('defaultAsset', defaultAsset);
+          currentAsset = defaultAsset;
+
+          selectedAssetDetailId = currentAsset.id;
+          this.setState({ currentAsset, allRunAssets, selectedAssetDetailId });
+          return null;
+        })
+        .catch(err => {
+          console.error(err);
+          console.log('Error', err);
+          if (err.response && err.response.data && err.response.data.message) {
+            err = new verror.VError(err, err.response.data.message);
+          }
+          this.props.commonProps.handleError(err);
+        });
+      /*       .finally(() => {
+        this.setState({
+          calledApi: {...this.state.calledApi, currentAsset: false, allRunAssets: false, selectedAssetDetailId: false}
+          });
+      }) */
+    }
+
+    if (!this.state.calledApi.chartData) {
+      this.setState({
+        calledApi: { ...this.state.calledApi, chartData: true }
+      });
+      simulationRuns
+        .getSimulationRunResults({
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion: this.state.chartsConfiguration.api.version,
+          simulationRunId
+        })
+        // TODO: This may belong in the API container
+        .then(runResultsData => {
+          console.log(
+            'SimulationRun populateSimulationRun get simulation run results',
+            runResultsData
+          );
+          if (!runResultsData) {
+            return Promise.reject(new Error('No data received from the API.'));
+          }
+          this.setState({
+            runResultsData
+          });
+          return runResultsData;
+        })
+        .then(runResultsData => simulationRuns
+          .getSimulationRunVulnerabilityAggByTimeStepResults({
+            baseUrl: this.props.commonProps.apiPath,
+            apiVersion: this.state.chartsConfiguration.api.version,
+            simulationRunId
+          })
+          .then(runAggResultsResponseData => ({ runAggResultsResponseData, runResultsData })))
+        // TODO: This may belong in the API container
+        .then(({ runAggResultsResponseData, runResultsData }) => {
+          console.log(
+            'SimulationRun getSimulationRunVulnerabilityAggByTimeStepResults ',
+            runAggResultsResponseData
+          );
+          if (!runAggResultsResponseData) {
+            return Promise.reject(new Error('No data received from the API.'));
+          }
+          const chartData = this.mapResultsAndVulnerabilityToChartData(
+            runResultsData,
+            runAggResultsResponseData
+          );
+          this.setState({
+            chartData
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          console.log('Error', err);
+          if (err.response && err.response.data && err.response.data.message) {
+            err = new verror.VError(err, err.response.data.message);
+          }
+          this.props.commonProps.handleError(err);
+        });
+      /*       .finally(() => {
+        this.setState({
+          calledApi: {...this.state.calledApi, chartData: false}
+          });
+      }); */
+    }
+
+    if (!this.state.calledApi.networkTopologyData) {
+      this.setState({
+        calledApi: { ...this.state.calledApi, networkTopologyData: true }
+      });
+      networkTopology
+        .getNetworkTopology({
+          baseUrl: this.props.commonProps.apiPath,
+          apiVersion: this.state.chartsConfiguration.api.version
+        })
+        .then(topologyData => {
+          console.log('Topology network data', topologyData);
+          if (!topologyData) {
+            return Promise.reject(new Error('No network topology data received from the API.'));
+          }
+
+          this.setState({ networkTopologyData: topologyData });
+          return null;
+        })
+        .catch(err => {
+          console.error(err);
+          console.log('Error', err);
+          if (err.response && err.response.data && err.response.data.message) {
+            err = new verror.VError(err, err.response.data.message);
+          }
+          this.props.commonProps.handleError(err);
+        });
+      /*       .finally(() => {
+        this.setState({
+          calledApi: {...this.state.calledApi, networkTopologyData: false}
+          });
+      }) */
+    }
   }
 
   createVulnerabilityBands(allRunAssets) {
@@ -1010,7 +554,7 @@ class SimulationRun extends Component {
   }
 
   postSimulationSubmission(data) {
-    console.log('SimulationRun data',data);
+    console.log('SimulationRun data', data);
     // TODO: Add message to user
     this.setState({ sendingSimulationRunRequest: true });
     simulationRuns
@@ -1019,11 +563,10 @@ class SimulationRun extends Component {
         apiVersion: this.state.chartsConfiguration.api.version,
         data
       })
-      .then(response => {
-        return this.props.refreshSimulationRuns()
-        .then(refreshRunResponse => ({response, refreshRunResponse}));
-      })
-      .then( ({response}) => {
+      .then(response => this.props
+        .refreshSimulationRuns()
+        .then(refreshRunResponse => ({ response, refreshRunResponse })))
+      .then(({ response }) => {
         console.log('Simulation Run Submission Response', response);
         this.props.history.push({
           pathname: `/simulation-runs/${response.simulation_run_id.toString()}`
@@ -1384,8 +927,6 @@ class SimulationRun extends Component {
   renderLineChartSimulationRun({
     data, lines, domain, yAxisLeft, chartsConfiguration
   }) {
-
-
     console.log('renderLineChart', 'data', data, 'lines', lines);
 
     const linesToRender = lines.map(line => {
@@ -1556,7 +1097,7 @@ class SimulationRun extends Component {
       <SimulationRunHeader
         commonProps={this.props.commonProps}
         postSimulationSubmission={this.postSimulationSubmission}
-        simulationRunId={this.props.match.params.simulationRunId}
+        simulationRunId={simulationRunId}
       />
     );
   }
@@ -1616,6 +1157,7 @@ class SimulationRun extends Component {
       </div>
     );
   }
+
   renderBelowHeader(combinedData, linesToAdd) {
     if (_.isEmpty(combinedData)) {
       return null;
@@ -1623,19 +1165,43 @@ class SimulationRun extends Component {
 
     return (
       <div>
-      <div>
-      {this.renderLineChartSimulationRun({
-        data: combinedData,
-        lines: linesToAdd,
-        // TODO: In the API, calculate the max values for each asset,
-        // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
-        domain: DEFAULT_YAXIS_DOMAIN,
-        chartsConfiguration: this.state.chartsConfiguration,
-        yAxisLeft: { dy: 40 }
-      })}
-    </div>
-    {this.renderAssetDetails()}
-    </div>)
+        <div>
+          {this.renderLineChartSimulationRun({
+            data: combinedData,
+            lines: linesToAdd,
+            // TODO: In the API, calculate the max values for each asset,
+            // then don't set the domain if the max is higher than the DEFAULT_YAXIS_DOMAIN
+            domain: DEFAULT_YAXIS_DOMAIN,
+            chartsConfiguration: this.state.chartsConfiguration,
+            yAxisLeft: { dy: 40 }
+          })}
+        </div>
+        {this.renderAssetDetails()}
+      </div>
+    );
+  }
+
+  renderSimulationRunNotCompleted(combinedData) {
+    if (_.isEmpty(this.state.currentSimulationRunRequestMetadata)) {
+      return null;
+    }
+    // Only render if it's not completed
+    if (!_.isEmpty(combinedData)) {
+      return null;
+    }
+    if (
+      this.state.currentSimulationRunRequestMetadata.status ===
+      DEFAULT_SIMULATION_RUN_STATUS_COMPLETED
+    ) {
+      return null;
+    }
+    console.log('SimulationRun renderSimulationRunNotCompleted combinedData', combinedData);
+    return (
+      <SimulationRunNotCompleted
+        configuration={this.state.chartsConfiguration}
+        simulationMetaData={{ ...this.state.currentSimulationRunRequestMetadata }}
+      />
+    );
   }
 
   render() {
@@ -1703,18 +1269,14 @@ class SimulationRun extends Component {
     const mainItems = (
       <div>
         {this.renderSimulationRunHeader()}
+        {this.renderSimulationRunNotCompleted(combinedData)}
         {this.renderBelowHeader(combinedData, linesToAdd)}
       </div>
-    ); 
-
+    );
 
     return (
       <div>
-        <Route
-          exact
-          path={`${this.props.match.path}`}
-          render={props => mainItems}
-        />
+        <Route exact path={`${this.props.match.path}`} render={props => mainItems} />
         <Route
           exact
           path={`${this.props.match.path}/assets/:assetId`}
@@ -1738,7 +1300,7 @@ class SimulationRun extends Component {
                 getGlobalMeasurement={this.getGlobalMeasurement}
                 addGlobalMeasurements={this.addGlobalMeasurements}
                 getAliasForRecording={this.getAliasForRecording}
-                simulationMetaData={this.state.currentSimulationRunRequestMetadata}
+                simulationMetaData={{ ...this.state.currentSimulationRunRequestMetadata }}
               />
             </div>
           )}

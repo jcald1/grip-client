@@ -84,11 +84,11 @@ class App extends Component {
     this.state = {
       error: null,
       getingSimulationRuns: true,
+      selectedSimulationRunId: null,
       commonProps: {
         simulationRunRequestsMetadata: [],
         apiPath: process.env.REACT_APP_API_PATH,
-        handleError: this.handleError,
-        shallowEquals
+        handleError: this.handleError
       }
     };
 
@@ -98,6 +98,10 @@ class App extends Component {
     this.handleError = this.handleError.bind(this);
     this.renderErrorMessage = this.renderErrorMessage.bind(this);
     this.refreshSimulationRuns = this.refreshSimulationRuns.bind(this);
+    this.getCurrentSimulationRunRequestMetadata = this.getCurrentSimulationRunRequestMetadata.bind(
+      this
+    );
+    this.selectSimulationRunId = this.selectSimulationRunId.bind(this);
 
     if (!process.env.REACT_APP_API_PATH) {
       const err = Error('Configuration file has not been set up.');
@@ -127,6 +131,11 @@ class App extends Component {
         return null;
       });
   }
+
+  selectSimulationRunId(selectedSimulationRunId) {
+    this.setState({selectedSimulationRunId});
+  } 
+
   handleSimulationRunRequestClick(e) {
     console.log('App handleSimulationRunRequestClick', 'e.currentTarget', e.currentTarget);
 
@@ -198,6 +207,26 @@ class App extends Component {
     e.preventDefault();
   };
 
+  getCurrentSimulationRunRequestMetadata(simulationRunIdUrlStr) {
+    console.log(
+      'App getCurrentSimulationRunRequestMetadata',
+      'this.props.commonProps.simulationRunRequestsMetadata',
+      this.props.commonProps
+    );
+    if (!simulationRunIdUrlStr) {
+      return;
+    }
+    const simulationRunIdUrl = parseInt(simulationRunIdUrlStr, 10);
+    if (isNaN(simulationRunIdUrl)) {
+      return this.handleError('Simulation Run ID must be numeric');
+    }
+    const currentSimulationRunRequestMetadata = this.state.commonProps.simulationRunRequestsMetadata.find(
+      simulation => simulation.id === simulationRunIdUrl
+    );
+
+    return currentSimulationRunRequestMetadata;
+  }
+
   renderErrorMessage() {
     /*    const { errorMessage } = this.props;
     if (!errorMessage) {
@@ -248,6 +277,7 @@ class App extends Component {
           commonProps={this.state.commonProps}
           handleRunSimulationClick={this.handleRunSimulationClick}
           anticipationItemClick={this.handleSimulationRunRequestClick}
+          selectedSimulationRunId={this.state.selectedSimulationRunId}
         >
           <Route
             exact
@@ -257,6 +287,10 @@ class App extends Component {
                 <SimulationRun
                   commonProps={this.state.commonProps}
                   refreshSimulationRuns={this.refreshSimulationRuns}
+                  getCurrentSimulationRunRequestMetadata={
+                    this.getCurrentSimulationRunRequestMetadata
+                  }
+                  selectSimulationRunId={this.selectSimulationRunId}
                 />
               </div>
             )}
@@ -268,6 +302,10 @@ class App extends Component {
                 <SimulationRun
                   commonProps={this.state.commonProps}
                   refreshSimulationRuns={this.refreshSimulationRuns}
+                  getCurrentSimulationRunRequestMetadata={
+                    this.getCurrentSimulationRunRequestMetadata
+                  }
+                  selectSimulationRunId={this.selectSimulationRunId}
                 />
               </div>
             )}
