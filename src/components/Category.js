@@ -5,44 +5,28 @@ import { Tooltip } from 'antd';
 class Category extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      open: false
-    };
-
-    this.handleTitleClick = this.handleTitleClick.bind(this);
   }
 
   componentDidMount() {
-    console.log('Category componentDidMount this.props', this.props, 'this.state', this.state);
+    console.log('Category componentDidMount this.props', this.props);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('Category componentDidUpdate this.props', this.props, 'this.state', this.state);
+    console.log('Category componentDidUpdate this.props', this.props);
 
     if (_.isEqual(prevProps.children, this.props.children)) {
     }
   }
 
-  handleTitleClick() {
-    // console.log('Category handleTitleClick current this.state.open', this.state.open);
-    this.setState({ open: !this.state.open });
-  }
 
-  openTitle() {
-    if (!this.state.open) {
-      this.setState({open: true});
-    }
-  }
 
   render() {
-    console.log('Category render this.state', this.state, 'this.props', this.props);
+    console.log('Category render this.props', this.props);
 
     const {
       items, name, style, active, open
     } = this.props;
 
-    /* const block = items ? items.map(item => <div data-row-key={item.id} key={item.key} onClick={this.props.itemClick}>{item}</div>) : null; */
 
     const clazz = active === false ? 'nav-text-inactive' : 'nav-text';
 
@@ -59,15 +43,16 @@ class Category extends Component {
       <div style={{ padding: '5px', fontWeight: 'bold', ...style }} className={clazz}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div
+            id={this.props.id}
             style={{ fontSize: '18px', display: 'inline-block' }}
-            onClick={this.handleTitleClick}
+            onClick={this.props.handleCategoryClick}
           >
             {name}
           </div>
           {plus}
         </div>
 
-        <div style={{}}> {this.state.open && this.props.children}</div>
+        <div style={{}}> {this.props.open && this.props.children}</div>
       </div>
     );
 

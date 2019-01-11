@@ -12,6 +12,7 @@ class Layout extends Component {
     super(props);
 
     this.handleButtonClick = this.handleButtonClick.bind(this);
+
   }
 
   componentDidMount() {
@@ -61,7 +62,7 @@ class Layout extends Component {
       );
       return <CategoryItem key={run.id}>{details}</CategoryItem>;
     });
-  }
+  }s
 
 
   renderMenuItems() {
@@ -69,35 +70,41 @@ class Layout extends Component {
       this.props.commonProps.simulationRunRequestsMetadata,
       this.props.selectedSimulationRunId
     );
-    if (_.isEmpty(simulationRuns)) {
+/*     if (_.isEmpty(simulationRuns)) {
       return null;
-    }
+    } */
 
     const simulationRunRequestsLeftNavItems = (
       <div>
         <Category
-          key="anticipation"
+          id="anticipation"
           name="Anticipation"
           handlePlusClick={this.props.handleRunSimulationClick}
           itemClick={this.props.anticipationItemClick}
+          open={this.props.open.anticipation}
+          handleCategoryClick={this.props.handleCategoryClick}
         >
           {simulationRuns}
         </Category>
         <Category
-          key="absorption"
+          id="absorption"
           name="Absorption"
           style={{ marginTop: '0px' }}
           active={false}
           tooltip="Phase 2"
+          open={this.props.open.absorption}
+          handleCategoryClick={this.props.handleCategoryClick}
         />
         <Category
-          key="recovery"
+          id="recovery"
           name="Recovery"
           style={{ marginTop: '0px' }}
           active={false}
           tooltip="Phase 3"
+          open={this.props.open.recovery}
+          handleCategoryClick={this.props.handleCategoryClick}
         />
-        <Category key="settings" name="Settings" style={{ marginTop: '0px' }} />
+        <Category id="settings" name="Settings" style={{ marginTop: '0px' }} open={this.props.open.settings} handleCategoryClick={this.props.handleCategoryClick}/>
       </div>
     );
 
@@ -109,11 +116,11 @@ class Layout extends Component {
     if (_.isEmpty(this.props.commonProps)) {
       return null;
     }
-    if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+/*     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
       return null;
-    }
+    } */
 
-    console.log('Layout render', 'this.props', this.props);
+    console.log('Layout render', 'this.props', this.props, 'this.state',this.state);
 
     return (
       <div
@@ -162,7 +169,7 @@ class Layout extends Component {
             jane.doe@slac.stanford.edu
           </div>
         </div>
-
+        {this.props.renderErrorMessage()}
         <div
           className="main-body"
           style={{

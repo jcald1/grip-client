@@ -5,7 +5,7 @@ const SimulationRunNotCompleted = ({ simulationMetaData, configuration }) => {
   console.log('SimulationRunNotCompleted render', simulationMetaData);
   return (
     <div>
-      <div style={{ fontWeight: 'bold', fontSize: '24px' }}>
+      <div style={{ fontSize: '24px' }}>
         {simulationMetaData.simulation_submission.name}
       </div>
       <div>&nbsp;</div>

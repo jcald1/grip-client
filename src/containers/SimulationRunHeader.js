@@ -26,7 +26,8 @@ class SimulationRunHeader extends Component {
       networkModelItems: [],
       weatherModelItems: [],
 
-      retrieveDataSourcesFailed: false
+      retrieveDataSourcesFailed: false,
+      disabled: false
     };
 
     this.handleDurationEnter = this.handleDurationEnter.bind(this);
@@ -46,16 +47,19 @@ class SimulationRunHeader extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    /*     if (this.state.retrieveDataSourcesFailed) {
-      return;
-    } */
+    console.log(
+      '1SimulationRunHeader componentDidUpdate, this.props',this.props, 'this.state',this.state);
 
+    if  (!_.isEqual(this.props.simulationRunId, prevProps.simulationRunId)) {
+      return this.clearState();
+    }
     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
       return;
     }
     if (_.isEmpty(this.state.networkModelItems) ||
         _.isEmpty(this.state.weatherModelItems)
     ) {
+      console.log('1SimulationRunHeader 1');
       return;
     }
 
@@ -63,20 +67,24 @@ class SimulationRunHeader extends Component {
       _.isEqual(
         this.props.commonProps.simulationRunRequestsMetadata,
         prevProps.commonProps.simulationRunRequestsMetadata
-      ) &&
-      _.isEqual(this.props.simulationRunId, prevProps.simulationRunId)
+      ) /* &&
+      _.isEqual(this.props.simulationRunId, prevProps.simulationRunId) */
     ) {
+      console.log('1SimulationRunHeader 2');
       return;
     }
+      
 
     // If the initial values have already been loaded, don't try to load them again.
-    if (this.state.simulation_name) {
+/*     if (this.state.simulation_name) {
+      console.log('1SimulationRunHeader 3');
       return;
     }
 
     if (!this.props.simulationRunId) {
+      console.log('1SimulationRunHeader 4');
       return;
-    }
+    } */
 
 
     console.log(
@@ -241,7 +249,20 @@ class SimulationRunHeader extends Component {
       weather_datasource_id: this.state.weatherModelItems.find(model => model.file_uri === this.state.weatherModel).id,
       name: this.state.simulation_name
     };
-    this.props.postSimulationSubmission(data);
+    this.setState({disabled: true,  })
+    this.props.postSimulationSubmission(data)
+    .finally(() => {
+      this.clearState();
+    })
+  }
+
+  clearState() {
+    this.setState({disabled: false,
+      duration: null,
+      interval: null,
+      networkModel: null,
+      weatherModel: null,
+      simulation_name: null,})
   }
 
   getCurrentSimulationRunMetadata(simulationRunRequestsMetadata) {
@@ -329,7 +350,7 @@ class SimulationRunHeader extends Component {
           </div>
 
           <div style={{ flexGrow: 2, flexBasis: 0 }}>
-            <Button htmlType="submit">Run</Button>
+            <Button htmlType="submit" disabled={this.state.disabled}>Run</Button>
           </div>
         </div>
         <Divider />
@@ -422,7 +443,7 @@ class SimulationRunHeader extends Component {
         </div>
 
         <div style={{}}>
-          <Button htmlType="submit">Run</Button>
+          <Button htmlType="submit" disabled={this.state.disabled}>Run</Button>
         </div>
       </Form>
     );

@@ -83,8 +83,14 @@ class App extends Component {
     this.handleError = this.handleError.bind(this);
     this.state = {
       error: null,
-      getingSimulationRuns: true,
+      gettingSimulationRuns: true,
       selectedSimulationRunId: null,
+      open: {
+        anticipation: false,
+        absorption: false,
+        recovery: false,
+        settings: false
+      },
       commonProps: {
         simulationRunRequestsMetadata: [],
         apiPath: process.env.REACT_APP_API_PATH,
@@ -93,7 +99,8 @@ class App extends Component {
     };
 
     this.handleSimulationRunRequestClick = this.handleSimulationRunRequestClick.bind(this);
-
+    this.handleCategoryClick = this.handleCategoryClick.bind(this);
+    this.openCategory = this.openCategory.bind(this);
     this.handleRunSimulationClick = this.handleRunSimulationClick.bind(this);
     this.handleError = this.handleError.bind(this);
     this.renderErrorMessage = this.renderErrorMessage.bind(this);
@@ -116,7 +123,7 @@ class App extends Component {
   componentDidMount() {
     console.log('App componentDidMount');
 
-    this.setState({ getingSimulationRuns: true, getingSimulationRun: true });
+    this.setState({ gettingSimulationRuns: true });
 
     this.refreshSimulationRuns()
       // TODO: We need to add the simulation run request fetch first.  Going straight for the Simulation Runs for now
@@ -126,15 +133,22 @@ class App extends Component {
         this.handleError(err);
       })
       .finally(() => {
-        this.setState({ getingSimulationRuns: false, getingSimulationRun: false });
+        this.setState({ gettingSimulationRuns: false });
         // To continue the promise chain in componentDidMount
         return null;
       });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    console.log('App 1componentDidUpdate this.props', this.props, 'this.state', this.state);
+  }
+
   selectSimulationRunId(selectedSimulationRunId) {
-    this.setState({selectedSimulationRunId});
-  } 
+    console.log('App selectSimulationRunId',selectedSimulationRunId)
+    if (selectedSimulationRunId !== this.state.selectedSimulationRunId) {
+      this.setState({ selectedSimulationRunId });
+    }
+  }
 
   handleSimulationRunRequestClick(e) {
     console.log('App handleSimulationRunRequestClick', 'e.currentTarget', e.currentTarget);
@@ -146,13 +160,19 @@ class App extends Component {
   handleRunSimulationClick(e) {
     console.log('App handleRunSimulationClick e.target', e.target);
     console.log('e.currentTarget', e.currentTarget);
+    this.setState({ error: null });
     this.props.history.push({
       pathname: '/simulation-runs'
     });
   }
 
   navigateToSimulationRun(simulationRunId) {
-    console.log('navigateToSimulationRun', simulationRunId);
+    console.log('App navigateToSimulationRun', simulationRunId);
+    const simulationRunIdInt = parseInt(simulationRunId, 10);
+    if (isNaN(simulationRunIdInt)) {
+      return this.handleError(new Error('Simulation Run ID must be numeric'));
+    }
+    this.setState({ selectedSimulationRunId: simulationRunIdInt });
     this.props.history.push({
       pathname: `/simulation-runs/${simulationRunId}`
     });
@@ -174,7 +194,7 @@ class App extends Component {
   refreshSimulationRuns() {
     console.log('App refreshSimulationRuns');
     // TODO: Add message to user
-    this.setState({ getingSimulationRuns: true });
+    this.setState({ gettingSimulationRuns: true });
     return simulationRuns
       .getSimulationRuns({
         baseUrl: this.state.commonProps.apiPath,
@@ -192,14 +212,26 @@ class App extends Component {
         this.handleError(err);
       })
       .finally(() => {
-        this.setState({ getingSimulationRuns: false });
+        this.setState({ gettingSimulationRuns: false });
       });
   }
-
-  // TODO: Display Error
   handleError(err) {
-    this.setState({ error: err });
-    console.error('handleError', err);
+    console.log('handleError', err);
+    let error;
+    if (err) {
+      console.error('handleError', err);
+      let errStr;
+      if (err && err.message) {
+        errStr = err.message;
+      } else if (err) {
+        errStr = err;
+      } else {
+        errStr = '';
+      }
+      error = this.state.error ? `${this.state.error}<br/>\n${errStr}` : errStr;
+      console.log('handleError setting error', error);
+      this.setState({ error: new Error(error) });
+    }
   }
 
   handleDismissClick = e => {
@@ -218,7 +250,7 @@ class App extends Component {
     }
     const simulationRunIdUrl = parseInt(simulationRunIdUrlStr, 10);
     if (isNaN(simulationRunIdUrl)) {
-      return this.handleError('Simulation Run ID must be numeric');
+      return this.handleError(new Error('Simulation Run ID must be numeric'));
     }
     const currentSimulationRunRequestMetadata = this.state.commonProps.simulationRunRequestsMetadata.find(
       simulation => simulation.id === simulationRunIdUrl
@@ -259,6 +291,28 @@ class App extends Component {
     );
   }
 
+  handleCategoryClick(e) {
+    const id = e.currentTarget.getAttribute('id');
+    console.log(
+      'Layout handleCategoryClick',
+      id,
+      'current: ',
+      this.state.open[id],
+      'change to: ',
+      this.state.open[id]
+    );
+    this.setState({
+      open: { ...this.state.open, [e.currentTarget.getAttribute('id')]: !this.state.open[id] }
+    });
+  }
+
+  openCategory(category) {
+    console.log('Layout openCategory', category);
+    if (!this.state.open.id) {
+      this.setState({ open: { ...this.state.open, [category]: true } });
+    }
+  }
+
   render() {
     console.log(
       'App render this.state.commonProps',
@@ -270,56 +324,35 @@ class App extends Component {
 
     const mainItems = <div />;
 
+    const simulationRun = (
+      <SimulationRun
+        commonProps={this.state.commonProps}
+        refreshSimulationRuns={this.refreshSimulationRuns}
+        getCurrentSimulationRunRequestMetadata={this.getCurrentSimulationRunRequestMetadata}
+        selectSimulationRunId={this.selectSimulationRunId}
+        openCategory={this.openCategory}
+      />
+    );
     return (
-      <div>
-        {this.renderErrorMessage()}
-        <Layout
-          commonProps={this.state.commonProps}
-          handleRunSimulationClick={this.handleRunSimulationClick}
-          anticipationItemClick={this.handleSimulationRunRequestClick}
-          selectedSimulationRunId={this.state.selectedSimulationRunId}
-        >
-          <Route
-            exact
-            path="/simulation-runs"
-            render={props => (
-              <div>
-                <SimulationRun
-                  commonProps={this.state.commonProps}
-                  refreshSimulationRuns={this.refreshSimulationRuns}
-                  getCurrentSimulationRunRequestMetadata={
-                    this.getCurrentSimulationRunRequestMetadata
-                  }
-                  selectSimulationRunId={this.selectSimulationRunId}
-                />
-              </div>
-            )}
-          />
-          <Route
-            path="/simulation-runs/:simulationRunId"
-            render={props => (
-              <div>
-                <SimulationRun
-                  commonProps={this.state.commonProps}
-                  refreshSimulationRuns={this.refreshSimulationRuns}
-                  getCurrentSimulationRunRequestMetadata={
-                    this.getCurrentSimulationRunRequestMetadata
-                  }
-                  selectSimulationRunId={this.selectSimulationRunId}
-                />
-              </div>
-            )}
-          />
-          <Route
-            path="/admin"
-            render={props => (
-              <div>
-                <Admin commonProps={this.state.commonProps} />
-              </div>
-            )}
-          />
-        </Layout>
-      </div>
+      <Layout
+        commonProps={this.state.commonProps}
+        handleRunSimulationClick={this.handleRunSimulationClick}
+        anticipationItemClick={this.handleSimulationRunRequestClick}
+        selectedSimulationRunId={this.state.selectedSimulationRunId}
+        open={this.state.open}
+        handleCategoryClick={this.handleCategoryClick}
+        renderErrorMessage={this.renderErrorMessage}
+      >
+        <Route exact path="/simulation-runs/:simulationRunId?" render={() => simulationRun} />
+        <Route
+          path="/admin"
+          render={props => (
+            <div>
+              <Admin commonProps={this.state.commonProps} />
+            </div>
+          )}
+        />
+      </Layout>
     );
   }
 }

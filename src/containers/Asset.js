@@ -368,18 +368,19 @@ class Asset extends Component {
 
     console.log('combinedData', combinedData, 'poleStaticValues', poleStaticValues);
 
+    const simulationMetaData = this.props.getCurrentSimulationRunRequestMetadata(this.props.match.params.simulationRunId);
     console.log(
       'combinedData',
       combinedData,
-      'this.props.simulationMetaData',
-      this.props.simulationMetaData
+      'simulationMetaData',
+      simulationMetaData
     );
 
     let simulationName = '';
     let simulationId = null;
-    if (this.props.simulationMetaData) {
-      simulationName = this.props.simulationMetaData.simulation_submission.name;
-      simulationId = this.props.simulationMetaData.id;
+    if (simulationMetaData) {
+      simulationName = simulationMetaData.simulation_submission.name;
+      simulationId = simulationMetaData.id;
     }
     const mainItems = (
       <div>
