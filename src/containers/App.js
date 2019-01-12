@@ -95,9 +95,11 @@ class App extends Component {
         simulationRunRequestsMetadata: [],
         apiPath: process.env.REACT_APP_API_PATH,
         handleError: this.handleError
-      }
+      },
+      forceRefreshSimulationRun: false
     };
 
+    this.setForceRefreshSimulationRun = this.setForceRefreshSimulationRun.bind(this);
     this.handleSimulationRunRequestClick = this.handleSimulationRunRequestClick.bind(this);
     this.handleCategoryClick = this.handleCategoryClick.bind(this);
     this.openCategory = this.openCategory.bind(this);
@@ -108,7 +110,7 @@ class App extends Component {
     this.getCurrentSimulationRunRequestMetadata = this.getCurrentSimulationRunRequestMetadata.bind(
       this
     );
-    this.selectSimulationRunId = this.selectSimulationRunId.bind(this);
+    this.updateSelectedSimulationRunId = this.updateSelectedSimulationRunId.bind(this);
 
     if (!process.env.REACT_APP_API_PATH) {
       const err = Error('Configuration file has not been set up.');
@@ -143,17 +145,22 @@ class App extends Component {
     console.log('App 1componentDidUpdate this.props', this.props, 'this.state', this.state);
   }
 
-  selectSimulationRunId(selectedSimulationRunId) {
-    console.log('App selectSimulationRunId',selectedSimulationRunId)
+  updateSelectedSimulationRunId(selectedSimulationRunId) {
+    console.log('App updateSelectedSimulationRunId',selectedSimulationRunId)
     if (selectedSimulationRunId !== this.state.selectedSimulationRunId) {
       this.setState({ selectedSimulationRunId });
     }
+  }
+
+  setForceRefreshSimulationRun(val) {
+    this.setState({forceRefreshSimulationRun: val});
   }
 
   handleSimulationRunRequestClick(e) {
     console.log('App handleSimulationRunRequestClick', 'e.currentTarget', e.currentTarget);
 
     const simulationRunId = e.currentTarget.getAttribute('data-row-key');
+    this.refreshSimulationRuns();
     this.navigateToSimulationRun(simulationRunId);
   }
 
@@ -172,7 +179,7 @@ class App extends Component {
     if (isNaN(simulationRunIdInt)) {
       return this.handleError(new Error('Simulation Run ID must be numeric'));
     }
-    this.setState({ selectedSimulationRunId: simulationRunIdInt });
+    this.setState({ selectedSimulationRunId: simulationRunIdInt, forceRefreshSimulationRun: true });
     this.props.history.push({
       pathname: `/simulation-runs/${simulationRunId}`
     });
@@ -286,7 +293,7 @@ class App extends Component {
         }}
         className="logo"
       >
-        <div style={{ paddingLeft: '20px' }}> Error Occured - {this.state.error.message}</div>
+        <div style={{ paddingLeft: '20px' }}> Error Occured: {this.state.error.message}</div>
       </div>
     );
   }
@@ -299,7 +306,7 @@ class App extends Component {
       'current: ',
       this.state.open[id],
       'change to: ',
-      this.state.open[id]
+      !this.state.open[id]
     );
     this.setState({
       open: { ...this.state.open, [e.currentTarget.getAttribute('id')]: !this.state.open[id] }
@@ -307,9 +314,11 @@ class App extends Component {
   }
 
   openCategory(category) {
-    console.log('Layout openCategory', category);
-    if (!this.state.open.id) {
-      this.setState({ open: { ...this.state.open, [category]: true } });
+    console.log('App openCategory this state', this.state,category,'current open status');
+    if (!this.state.open[category]) {
+      const newState = { open: { ...this.state.open, [category]: true } };
+      //console.log('Layout openCategory newState',newState);
+      this.setState(newState);
     }
   }
 
@@ -329,8 +338,10 @@ class App extends Component {
         commonProps={this.state.commonProps}
         refreshSimulationRuns={this.refreshSimulationRuns}
         getCurrentSimulationRunRequestMetadata={this.getCurrentSimulationRunRequestMetadata}
-        selectSimulationRunId={this.selectSimulationRunId}
+        updateSelectedSimulationRunId={this.updateSelectedSimulationRunId}
         openCategory={this.openCategory}
+        setForceRefreshSimulationRun={this.setForceRefreshSimulationRun}
+        forceRefreshSimulationRun={this.state.forceRefreshSimulationRun}
       />
     );
     return (
@@ -343,7 +354,7 @@ class App extends Component {
         handleCategoryClick={this.handleCategoryClick}
         renderErrorMessage={this.renderErrorMessage}
       >
-        <Route exact path="/simulation-runs/:simulationRunId?" render={() => simulationRun} />
+        <Route path="/simulation-runs/:simulationRunId?" render={() => simulationRun} />
         <Route
           path="/admin"
           render={props => (

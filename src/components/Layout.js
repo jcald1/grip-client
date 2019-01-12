@@ -150,14 +150,8 @@ class Layout extends Component {
 
         <div className="top-navbar" style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div
-            className="nav-text"
-            style={{
-              display: 'inline-block',
-              fontSize: '28px',
-              width: '100px',
-              padding: '10px 5px',
-              fontWeight: 'bold'
-            }}
+            className="nav-text logo-text"
+            style={{}}
             onClick={this.handleButtonClick}
           >
             GRIP

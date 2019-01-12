@@ -367,7 +367,7 @@ class Asset extends Component {
     );
 
     console.log('combinedData', combinedData, 'poleStaticValues', poleStaticValues);
-
+    
     const simulationMetaData = this.props.getCurrentSimulationRunRequestMetadata(this.props.match.params.simulationRunId);
     console.log(
       'combinedData',

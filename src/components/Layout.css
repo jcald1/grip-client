@@ -24,6 +24,19 @@
   width: 100%;
 }
 
+.logo-text {
+  display: inline-block;
+  font-size: 28px;
+  width: 100px;
+  padding: 10px 5px;
+  font-weight: bold;
+}
+
+.nav-category {
+  font-size: 18px;
+  display: inline-block;
+}
+
 .nav-text {
   /* color: white; */
   color: black;
@@ -34,7 +47,9 @@
 }
 
 .nav-item:hover,
-.nav-plus:hover {
+.nav-plus:hover,
+.nav-category:hover,
+.logo-text:hover {
   background-color: #fafafa;
 }
 

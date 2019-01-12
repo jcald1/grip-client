@@ -45,15 +45,14 @@ class SimulationRun extends Component {
     super(props);
 
     this.emptyState = {
-      calledApi: {
-        omfTopologyImage: false,
-        allModelAssets: false,
-        currentAsset: false,
-        allRunAssets: false,
-        selectedAssetDetailId: false,
-        chartData: false,
-        networkTopologyData: false
-      },
+      calledApi_omfTopologyImage: false,
+      calledApi_allModelAssets: false,
+      calledApi_currentAsset: false,
+      calledApi_allRunAssets: false,
+      calledApi_selectedAssetDetailId: false,
+      calledApi_chartData: false,
+      calledApi_networkTopologyData: false,
+
       currentAsset: null,
       selectedAssetDetailId: null,
       allRunAssets: null,
@@ -96,6 +95,10 @@ class SimulationRun extends Component {
 
   componentDidMount() {
     console.log('SimulationRun componentDidMount');
+    // Only force open the category on the initial load
+    if (this.props.match.params.simulationRunId) {
+      this.props.openCategory(DEFAULT_ANTICIPATION);
+    }
     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
       return null;
     }
@@ -104,32 +107,25 @@ class SimulationRun extends Component {
     ) {
       return;
     }
-    const parsedSimulationRunId = parseInt(this.props.match.params.simulationRunId, 10);
-    this.selectSimulationRunId();
+
+
     this.populateSimulationRun();
   }
 
-  /*   populateCurrentSimulationRunRequestMetadata() {
-    const currentSimulationRunRequestMetadata = this.props.getCurrentSimulationRunRequestMetadata(
-      this.props.match.params.simulationRunId
-    );
-    if (_.isEmpty(currentSimulationRunRequestMetadata)) {
-      console.log('Simulation Run data not available yet');
-      return;
-    }
-
-    if (currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED) {
-      return;
-    }
+  checkAllApiStates(status) {
     if (
-      !this.state.currentSimulationRunRequestMetadata ||
-      currentSimulationRunRequestMetadata.id !== this.state.currentSimulationRunRequestMetadata.id
-    ) {
-      this.setState({ currentSimulationRunRequestMetadata });
-    }
-
-    return currentSimulationRunRequestMetadata;
-  } */
+      this.state.calledApi_omfTopologyImage === status &&
+      this.state.calledApi_allModelAssets === status &&
+      this.state.calledApi_currentAsset === status &&
+      this.state.calledApi_allRunAssets === status &&
+      this.state.calledApi_selectedAssetDetailId === status &&
+      this.state.calledApi_chartData === status &&
+      this.state.calledApi_networkTopologyData === status
+      ) {
+        return true;
+      }
+      return false;
+  }
 
   componentDidUpdate(prevProps, prevState) {
     console.log(
@@ -141,13 +137,25 @@ class SimulationRun extends Component {
       this.state
     );
 
+    // When creating a simulation, don't try to pull one up
+    if (!this.props.match.params.simulationRunId) {
+      console.log('SimulationRun 1componentDidUpdate 1','New simulation being created');
+      if (!this.checkAllApiStates(false)) { // Good proxy for checking whether everything has already been cleared out
+        return this.clearState(); // Clear out previous simulation run when creating a new one
+      }
+    }
+
     if (this.props.match.params.simulationRunId !== prevProps.match.params.simulationRunId) {
-      console.log('SimulationRun 1componentDidUpdate 1');
+      console.log('SimulationRun 1componentDidUpdate 2','Simulation Run ID has changed, clearing state');
+      return this.clearState();
+    }
+    else if (this.checkAllApiStates(true) && this.props.forceRefreshSimulationRun) {
+      console.log('SimulationRun 1componentDidUpdate 3','Simulation Run ID is the same and all API calls have completed. This must be a refresh request');
       return this.clearState();
     }
 
     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
-      console.log('SimulationRun 1componentDidUpdate 2');
+      console.log('SimulationRun 1componentDidUpdate 4','Metadata is empty');
       return;
     }
 
@@ -155,57 +163,24 @@ class SimulationRun extends Component {
       this.props.match.params.simulationRunId
     );
     if (!currentSimulationRunRequestMetadata) {
-      console.log('SimulationRun 1componentDidUpdate 3');
+      console.log('SimulationRun 1componentDidUpdate 5','Current simulation run metadata is empty');
+      return;
+    }
+    /// Simulation Run ID populated at this point
+
+    if (!(this.checkAllApiStates(false) || this.checkAllApiStates(true)))
+    {
+      console.log('SimulationRun 1componentDidUpdate 6','Not all API calls have returned',this.state);
       return;
     }
 
-    // If Props or state haven't changed
-
-    if (
-      !(
-        Object.keys(this.state.calledApi).every(val => this.state.calledApi[val] === true) ||
-        Object.keys(this.state.calledApi).every(val => this.state.calledApi[val] === false)
-      )
+    this.updateSelectedSimulationRunId();
+     if (
+      currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED
     ) {
-      console.log('SimulationRun 1componentDidUpdate 4');
-      return;
-    }
-    /*     if (
-      this.props.match.params.simulationRunId === prevProps.match.params.simulationRunId &&
-      _.isEqual(
-        this.props.commonProps.simulationRunRequestsMetadata,
-        prevProps.commonProps.simulationRunRequestsMetadata
-      ) &&
-      this.state.selectedAssetDetailId === prevState.selectedAssetDetailId &&
-      this.state.calledApi === prevState.calledApi &&
-      _.isEqual(
-        this.state.currentSimulationRunRequestMetadata,
-        prevState.currentSimulationRunRequestMetadata
-      ) &&
-      _.isEqual(this.state.omfTopologyImage, prevState.omfTopologyImage) &&
-      _.isEqual(this.state.allModelAssets, prevState.allModelAssets) &&
-      _.isEqual(this.state.currentAsset, prevState.currentAsset) &&
-      _.isEqual(this.state.allRunAssets, prevState.allRunAssets) &&
-      _.isEqual(this.state.runResultsData, prevState.runResultsData) &&
-      _.isEqual(this.state.chartData, prevState.chartData) &&
-      _.isEqual(this.state.networkTopologyData, prevState.networkTopologyData) &&
-      _.isEqual(this.state.selectNode, prevState.selectNode) &&
-      _.isEqual(
-        this.state.chartVulrunAggResultsResponseDatanerabilityAggData,
-        prevState.chartVulrunAggResultsResponseDatanerabilityAggData
-      ) &&
-      _.isEqual(this.state.topologyMapSelectNode, prevState.topologyMapSelectNode)
-    ) {
-      return;
-    } */
-
-    if (
-      currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED &&
-      currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_ERROR
-    ) {
-      console.log('SimulationRun 1componentDidUpdate 5');
+      console.log('SimulationRun 1componentDidUpdate 7','The simulation run status is not completed');
       return null;
-    }
+    } 
 
     console.log(
       'SimulationRun componentDidUpdate this.props',
@@ -216,27 +191,30 @@ class SimulationRun extends Component {
       this.state
     );
 
-    // If any of these are set, that means componentDidMount has already
-    this.selectSimulationRunId();
+    console.log('SimulationRun 1componentDidUpdate 8','Attempt to call APIs');
     this.populateSimulationRun();
   }
 
-  selectSimulationRunId() {
-    console.log('SimulationRun selectSimulationRunId', this.props.match.params.simulationRunId);
+  updateSelectedSimulationRunId() {
+    console.log('SimulationRun updateSelectedSimulationRunId', this.props.match.params.simulationRunId);
     if (!this.props.match.params.simulationRunId) {
-      return;
+      return this.props.updateSelectedSimulationRunId(null);
     }
     const parsedSimulationRunId = parseInt(this.props.match.params.simulationRunId, 10);
     if (isNaN(parsedSimulationRunId)) {
       return this.props.commonProps.handleError(new Error('Simulation Run ID must be numeric'));
     }
     console.log('***', parsedSimulationRunId);
-    this.props.selectSimulationRunId(parsedSimulationRunId);
+    this.props.updateSelectedSimulationRunId(parsedSimulationRunId);
   }
 
   clearState() {
+    console.log('SimulationRun clearState')
     this.props.commonProps.handleError(null);
-    this.selectSimulationRunId();
+    this.updateSelectedSimulationRunId(null);
+    if (this.props.forceRefreshSimulationRun) {
+      this.props.setForceRefreshSimulationRun(false);
+    }
     this.setState({ ...this.emptyState });
   }
 
@@ -245,9 +223,8 @@ class SimulationRun extends Component {
     let currentAsset;
     let selectedAssetDetailId;
 
-    // When creating a simulation, don't try to pull one up
-    if (!this.props.match.params.simulationRunId) {
-      return;
+    if (this.props.forceRefreshSimulationRun) {
+      this.props.setForceRefreshSimulationRun(false);
     }
 
     const { simulationRunId } = this.props.match.params;
@@ -260,10 +237,8 @@ class SimulationRun extends Component {
       this.state
     );
 
-    if (!this.state.calledApi.omfTopologyImage) {
-      this.setState({
-        calledApi: { ...this.state.calledApi, omfTopologyImage: true }
-      });
+    if (!this.state.calledApi_omfTopologyImage) {
+      this.setState({ calledApi_omfTopologyImage: true });
       console.log('SimulationRun omfTopologyImage1', this.state);
       omf
         .getOMFTopologyImage({
@@ -291,17 +266,10 @@ class SimulationRun extends Component {
           }
           this.props.commonProps.handleError(err);
         });
-      /*       .finally(() => {
-        this.setState({
-          calledApi: {...this.state.calledApi, omfTopologyImage: false}
-          });
-      }) */
     }
 
-    if (!this.state.calledApi.allModelAssets) {
-      this.setState({
-        calledApi: { ...this.state.calledApi, allModelAssets: true }
-      });
+    if (!this.state.calledApi_allModelAssets) {
+      this.setState({ calledApi_allModelAssets: true });
       // TODO: Get the Simulation Run / Update the Status/details
       simulationRuns
         .getSimulationRunAllModelAssets({
@@ -327,26 +295,14 @@ class SimulationRun extends Component {
           }
           this.props.commonProps.handleError(err);
         });
-      /*       .finally(() => {
-        this.setState({
-          calledApi: {...this.state.calledApi, allModelAssets: false}
-          });
-      }) */
     }
 
     if (
-      !this.state.calledApi.currentAsset ||
-      !this.state.calledApi.allRunAssets ||
-      !this.state.calledApi.selectedAssetDetailId
+      !this.state.calledApi_currentAsset ||
+      !this.state.calledApi_allRunAssets ||
+      !this.state.calledApi_selectedAssetDetailId
     ) {
-      this.setState({
-        calledApi: {
-          ...this.state.calledApi,
-          currentAsset: true,
-          allRunAssets: true,
-          selectedAssetDetailId: true
-        }
-      });
+      this.setState({ calledApi_currentAsset: true, calledApi_allRunAssets: true, calledApi_selectedAssetDetailId: true });
       simulationRuns
         .getSimulationRunAssets({
           baseUrl: this.props.commonProps.apiPath,
@@ -383,17 +339,10 @@ class SimulationRun extends Component {
           }
           this.props.commonProps.handleError(err);
         });
-      /*       .finally(() => {
-        this.setState({
-          calledApi: {...this.state.calledApi, currentAsset: false, allRunAssets: false, selectedAssetDetailId: false}
-          });
-      }) */
     }
 
-    if (!this.state.calledApi.chartData) {
-      this.setState({
-        calledApi: { ...this.state.calledApi, chartData: true }
-      });
+    if (!this.state.calledApi_chartData) {
+      this.setState({ calledApi_chartData: true });
       simulationRuns
         .getSimulationRunResults({
           baseUrl: this.props.commonProps.apiPath,
@@ -446,17 +395,10 @@ class SimulationRun extends Component {
           }
           this.props.commonProps.handleError(err);
         });
-      /*       .finally(() => {
-        this.setState({
-          calledApi: {...this.state.calledApi, chartData: false}
-          });
-      }); */
     }
 
-    if (!this.state.calledApi.networkTopologyData) {
-      this.setState({
-        calledApi: { ...this.state.calledApi, networkTopologyData: true }
-      });
+    if (!this.state.calledApi_networkTopologyData) {
+      this.setState({ calledApi_networkTopologyData: true });
       networkTopology
         .getNetworkTopology({
           baseUrl: this.props.commonProps.apiPath,
@@ -479,11 +421,6 @@ class SimulationRun extends Component {
           }
           this.props.commonProps.handleError(err);
         });
-      /*       .finally(() => {
-        this.setState({
-          calledApi: {...this.state.calledApi, networkTopologyData: false}
-          });
-      }) */
     }
   }
 
@@ -1208,8 +1145,12 @@ class SimulationRun extends Component {
     );
   }
 
-  renderBelowHeader(combinedData, linesToAdd) {
+  renderBelowHeader(currentSimulationRunRequestMetadata, combinedData, linesToAdd) {
     if (_.isEmpty(combinedData) || _.isEmpty(linesToAdd)) {
+      return null;
+    }
+
+    if (currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED) {
       return null;
     }
 
@@ -1231,7 +1172,7 @@ class SimulationRun extends Component {
     );
   }
 
-  renderSimulationRunNotCompleted(combinedData) {
+  renderSimulationRunNotCompleted(currentSimulationRunRequestMetadata, combinedData) {
     console.log(
       '1SimulationRun renderSimulationRunNotCompleted this.props',
       this.props,
@@ -1239,9 +1180,6 @@ class SimulationRun extends Component {
       this.state,
       'combinedData',
       combinedData
-    );
-    const currentSimulationRunRequestMetadata = this.props.getCurrentSimulationRunRequestMetadata(
-      this.props.match.params.simulationRunId
     );
 
     if (_.isEmpty(currentSimulationRunRequestMetadata)) {
@@ -1251,7 +1189,7 @@ class SimulationRun extends Component {
     if (!_.isEmpty(combinedData)) {
       return null;
     }
-    // Don't show the COMPLETED status, just let the detailed page show
+    // Don't show the COMPLETED or ERROR status, just let the detailed page show
     if (currentSimulationRunRequestMetadata.status === DEFAULT_SIMULATION_RUN_STATUS_COMPLETED) {
       return null;
     }
@@ -1327,11 +1265,14 @@ class SimulationRun extends Component {
 
     linesToAdd.push(criticalPoleStressLine);
 
+    const currentSimulationRunRequestMetadata = this.props.getCurrentSimulationRunRequestMetadata(
+      this.props.match.params.simulationRunId
+    );
     const mainItems = (
       <div>
         {this.renderSimulationRunHeader()}
-        {this.renderSimulationRunNotCompleted(combinedData)}
-        {this.renderBelowHeader(combinedData, linesToAdd)}
+        {this.renderSimulationRunNotCompleted(currentSimulationRunRequestMetadata, combinedData)}
+        {this.renderBelowHeader(currentSimulationRunRequestMetadata, combinedData, linesToAdd)}
       </div>
     );
 

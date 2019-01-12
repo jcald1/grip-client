@@ -38,7 +38,7 @@ import path from 'path';
         <Route
           exact
           path={`${this.props.match.path}`}
-          render={props => mainItems} />}
+          render={props => mainItems}
         />
         <Route
           path={`${this.props.match.path}/test`}

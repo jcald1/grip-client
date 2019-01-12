@@ -43,8 +43,9 @@ class Category extends Component {
       <div style={{ padding: '5px', fontWeight: 'bold', ...style }} className={clazz}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div
+            className="nav-category"
             id={this.props.id}
-            style={{ fontSize: '18px', display: 'inline-block' }}
+            style={{  }}
             onClick={this.props.handleCategoryClick}
           >
             {name}
@@ -57,7 +58,7 @@ class Category extends Component {
     );
 
     if (this.props.tooltip) {
-      return <Tooltip title={this.props.tooltip}>{category}</Tooltip>;
+      return <Tooltip title={this.props.tooltip} placement="rightTop">{category}</Tooltip>;
     }
     return category;
   }

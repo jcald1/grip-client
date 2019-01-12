@@ -12,6 +12,8 @@ const SimulationRunNotCompleted = ({ simulationMetaData, configuration }) => {
       <div>{configuration.run_statuses[simulationMetaData.status]}</div>
       <div>&nbsp;</div>
       <div>{simulationMetaData.status_details ? simulationMetaData.status_details : null}</div>
+      <div>&nbsp;</div>
+      <div>{ (simulationMetaData.simulation_run_result  && simulationMetaData.simulation_run_result.std_out_err) ? simulationMetaData.simulation_run_result.std_out_err : null}</div>
     </div>
   );
 };
