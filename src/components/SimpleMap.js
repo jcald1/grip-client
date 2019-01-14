@@ -143,12 +143,8 @@ class SimpleMap extends Component {
 
       infoWindow.setPosition({ lat: parseFloat(asset.latitude), lng: parseFloat(asset.longitude) });
       const content =
-        `<div id=popup-${
-          asset.name
-        } className=map-asset-hover>` +
-        `<div id=popup-${
-          asset.name
-        }-txt  className=map-asset-hover-txt><b>${
+        `<div id=popup-${asset.name} className=map-asset-hover>` +
+        `<div id=popup-${asset.name}-txt  className=map-asset-hover-txt><b>${
           asset.name
         }</b></div>` +
         '</div>';
@@ -201,35 +197,31 @@ class SimpleMap extends Component {
           geodesic: false,
           strokeColor: '#000000',
           strokeOpacity: 0.5,
-          strokeWeight: 5
+          strokeWeight: 3
         });
         nonGeodesicPolyline.setMap(map);
         polyLinesMap[asset.name] = nonGeodesicPolyline;
 
         const infoWindow = new maps.InfoWindow();
-        maps.event.addListener(nonGeodesicPolyline, 'mouseover', (e) => {
+        maps.event.addListener(nonGeodesicPolyline, 'mouseover', e => {
           infoWindow.setPosition({
             lat: parseFloat(asset.latitude),
             lng: parseFloat(asset.longitude)
           });
           const content =
-            `<div id=popup-${
-              asset.name
-            } className=map-asset-hover>` +
-            `<div id=popup-${
-              asset.name
-            }-txt  className=map-asset-hover-txt><b>${
+            `<div id=popup-${asset.name} className=map-asset-hover>` +
+            `<div id=popup-${asset.name}-txt  className=map-asset-hover-txt><b>${
               asset.name
             }</b></div>` +
             '</div>';
           infoWindow.setContent(content);
-          nonGeodesicPolyline.setOptions({ strokeOpacity: 1, strokeWeight: 8 });
+          nonGeodesicPolyline.setOptions({ strokeOpacity: 1, strokeWeight: 5 });
           infoWindow.open(map);
           // mymap represents the map you created using google.maps.Map
         });
 
         maps.event.addListener(nonGeodesicPolyline, 'mouseout', () => {
-          nonGeodesicPolyline.setOptions({ strokeOpacity: 0.5, strokeWeight: 5 });
+          nonGeodesicPolyline.setOptions({ strokeOpacity: 0.5, strokeWeight: 3 });
           infoWindow.close();
         });
       }
@@ -238,12 +230,16 @@ class SimpleMap extends Component {
     this.setState({ polyLinesMap });
   }
 
-  createMapOptions() {
+  createMapOptions(maps) {
     return {
       zoomControl: true,
-      mapTypeControl: true,
+      zoomControlOptions: {
+        style: maps.MapTypeControlStyle.VERTICAL_BAR,
+        position: maps.ControlPosition.TOP_RIGHT
+      },
+      mapTypeControl: false,
       scaleControl: true,
-      streetViewControl: true,
+      streetViewControl: false,
       rotateControl: true,
       fullscreenControl: false
     };
@@ -252,7 +248,7 @@ class SimpleMap extends Component {
   render() {
     console.log('simepleMap Render', this.state.defaultProps.center);
     return (
-      <div style={{ height: '404px', width: '100%' }}>
+      <div style={{ height: '370px', width: '100%', marginTop: '-15px' }}>
         <GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyBmP__YMCIKYPJom6jCYnyV4BbFruBCKsQ' }}
           defaultCenter={this.state.defaultProps.center}

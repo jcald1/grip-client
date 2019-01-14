@@ -210,3 +210,61 @@
 .ant-radio{
   margin: -1px;
 }
+
+.measurement-column-style {
+  background-color: #ffffff;
+  padding-top: 20px; 
+  margin-left: -30px;
+  width: 80%;
+  font-size: 10px;
+}
+
+.column-style {
+  background-color: #ffffff;
+}
+
+.column-style-map {
+  background-color: #ffffff;
+}
+
+.inner-column-style {
+  background-color: #ffffff;
+  padding-top: 0px; 
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.run-detail-assets-inner-column-style {
+  background-color: #ffffff;
+  padding-top: 0px; 
+  margin-left: 10px;
+  margin-right: auto;
+  width: 90%;
+}
+
+.run-detail-map-inner-column-style {
+  background-color: #ffffff;
+  padding-top: 0px; 
+  margin-left: 0px;
+  margin-right: auto;
+  width: 95%;
+}
+
+.assets-header {
+  font-size: 12px;
+  padding: 12px;
+}
+
+.assets-header {
+  font-size: 12px;
+  padding: 12px;
+}
+.ant-table-thead > tr > th, .ant-table-tbody > tr > td{
+  padding: 12px;  
+}
+
+
+.run-border {
+  /* border: 1px solid #000000; */
+}

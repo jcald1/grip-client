@@ -66,9 +66,13 @@ class SimpleMapAsset extends Component {
     return mapContent;
   }
 
-  createMapOptions() {
+  createMapOptions(maps) {
     return {
       zoomControl: true,
+      zoomControlOptions: {
+        style: maps.MapTypeControlStyle.VERTICAL_BAR,
+        position: maps.ControlPosition.TOP_RIGHT
+      },
       mapTypeControl: false,
       scaleControl: true,
       streetViewControl: false,

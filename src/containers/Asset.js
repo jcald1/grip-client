@@ -211,29 +211,6 @@ class Asset extends Component {
 
     console.log('Continue Rendering', this.props);
     const leftNavItems = this.props.commonProps.leftNavItems;
-    const columnStyle = {
-      backgroundColor: '#ffffff'
-    };
-
-    const columnStyleMap = {
-      backgroundColor: '#ffffff'
-    };
-
-    const innerColumnStyle = {
-      backgroundColor: '#ffffff',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      paddingTop: '0px',
-      width: '100%'
-    };
-
-    const measurementColumnStyle = {
-      backgroundColor: '#ffffff',
-      paddingTop: '20px',
-      marginLeft: '-30px',
-      width: '80%',
-      fontSize: '10px'
-    };
 
     let assetMeasurement = '';
     const globalMeasurement = this.props.getGlobalMeasurement(
@@ -366,16 +343,21 @@ class Asset extends Component {
       poleStaticValues
     );
 
-    console.log('combinedData', combinedData, 'poleStaticValues', poleStaticValues);
-    
-    const simulationMetaData = this.props.getCurrentSimulationRunRequestMetadata(this.props.match.params.simulationRunId);
     console.log(
       'combinedData',
       combinedData,
-      'simulationMetaData',
-      simulationMetaData
+      'poleStaticValues',
+      poleStaticValues,
+      'this.props.chartsConfiguration',
+      this.props.chartsConfiguration,
+      this.props.chartsConfiguration.recordingLabels
     );
 
+    const simulationMetaData = this.props.getCurrentSimulationRunRequestMetadata(
+      this.props.match.params.simulationRunId
+    );
+    console.log('combinedData', combinedData, 'simulationMetaData', simulationMetaData);
+    console.log('this.state.selectedMeasurement', this.state.selectedMeasurement);
     let simulationName = '';
     let simulationId = null;
     if (simulationMetaData) {
@@ -422,21 +404,22 @@ class Asset extends Component {
             </div>
           </Col>
           <Col span={4}>
-            <div style={measurementColumnStyle}>
+            <div className="measurement-column-style">
               <Measurements
                 measurements={measurements}
                 handleMeasurementClick={this.handleMeasurementClick}
                 getAliasForRecording={this.props.getAliasForRecording}
                 chartsConfiguration={this.props.chartsConfiguration}
                 asset={this.state.asset}
+                selectedMeasurement={this.state.selectedRightYAxisMeasurement}
               />
             </div>
           </Col>
         </Row>
         <Row>
-          <Col span={2} style={columnStyle} />
-          <Col span={7} style={columnStyle}>
-            <div style={innerColumnStyle}>
+          <Col span={2} className="column-style" />
+          <Col span={7} className="column-style">
+            <div className="inner-column-style">
               <AssetProperties
                 asset={this.state.asset}
                 props={this.props}
@@ -444,16 +427,16 @@ class Asset extends Component {
               />
             </div>
           </Col>
-          <Col span={4} style={columnStyle}>
-            <div style={innerColumnStyle}>
+          <Col span={4} className="column-style">
+            <div className="inner-column-style">
               <AssetRelationships
                 asset={this.state.asset}
                 handleSimulationRunAssetRequestClick={this.handleSimulationRunAssetRequestClick}
               />
             </div>
           </Col>
-          <Col span={11} style={columnStyleMap}>
-          Asset Location
+          <Col span={11} className="column-style-map  ">
+            Asset Location
             <SimpleMapAsset asset={this.state.asset} />
           </Col>
         </Row>

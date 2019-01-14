@@ -22,11 +22,10 @@ for (let i = 1; i <= 10; i++) {
 } */
 
 const expandedRowRender = record => <p>{record.description}</p>;
-const title = () => 'Assets';
 const showHeader = true;
 const footer = () => 'Here is footer';
 const scroll = { y: 240 };
-const pagination = { position: 'bottom', defaultPageSize: 5 };
+const pagination = { position: 'bottom', defaultPageSize: 7 };
 
 // TODO: Delete this after swapping in the table
 /* const renderAssets = (data, handleAssetClick) => {
@@ -85,7 +84,6 @@ class Assets extends Component {
       pagination,
       size: 'default',
       // expandedRowRender,
-      title,
       showHeader,
       // footer,
       // rowSelection: {},
@@ -250,6 +248,7 @@ class Assets extends Component {
         key: 'name',
         // width: 200
         width: '15%',
+        className: 'assets-header',
         sorter: (a, b) => this.stringSorter(a.name, b.name)
       },
       {
@@ -258,49 +257,19 @@ class Assets extends Component {
         key: 'type',
         // width: 80
         width: '12%',
+        className: 'assets-header',
 
         sorter: (a, b) => this.stringSorter(a.type, b.type),
         // defaultSortOrder: 'ascend',
         filteredValue: this.props.assetsList,
-        /*         filters: [
-          {
-            text: 'meter',
-            value: 'meter'
-          },
-          {
-            text: 'pole',
-            value: 'pole'
-          },
-          {
-            text: 'overhead_line',
-            value: 'overhead_line'
-          }
-        ], */
         filters: this.props.assetsList.map(assetName => ({ text: assetName, value: assetName })),
         onFilter: (value, record) => this.stringFilterer(value, record, 'type')
       },
-      /* {
-        title: 'Status',
-        dataIndex: 'status',
-        key: 'status',
-        width: '7%',
-        sorter: (a, b) => this.stringSorter(a.status, b.status),
-        filters: [
-          {
-            text: 'IN_SERVICE',
-            value: 'IN_SERVICE'
-          },
-          {
-            text: 'OUT_OF_SERVICE',
-            value: 'OUT_OF_SERVICE'
-          }
-        ],
-        onFilter: (value, record) => this.stringFilterer(value, record, 'status')
-      }, */
       {
-        title: 'Vulnerability',
+        title: 'Peak Vulnerability',
         key: 'peak_vulnerability',
         dataIndex: 'peak_vulnerability',
+        className: 'assets-header',
         defaultSortOrder: 'descend',
         sorter: (a, b) => this.numberWithDashSorter(a.peak_vulnerability, b.peak_vulnerability),
         width: '14%'
@@ -311,38 +280,16 @@ class Assets extends Component {
       (Real)',
         key: 'power_out_real',
         dataIndex: 'power_out_real',
+        className: 'assets-header',
         sorter: (a, b) => this.stringSorter(a.power_out_real, b.power_out_real),
         width: '15%'
       }
-      /* {
-        title: 'Substation',
-        dataIndex: 'substation',
-        key: 'substation',
-        // width: 150
-        width: '16%',
-        sorter: (a, b) => this.stringSorter(a.substation, b.substation)
-        // TODO: Add Filtering by Substation
-      },
-      {
-        title: 'Feeder',
-        dataIndex: 'feeder',
-        key: 'feeder',
-        width: '16%',
-        sorter: (a, b) => this.stringSorter(a.feeder, b.feeder)
-        // TODO: Add Filtering by Feeder
-      } */
     ];
-
-    {
-      /* <div style={{ display: 'inline-block', textAlign: 'left' }}>
-      <Title text="Assets" />
-      <div>{renderAssets(data, handleAssetClick)}</div>
-    </div> */
-    }
 
     this.table = (
       <Table
-        size="middle"
+        size="small"
+        
         onRow={record => ({
           onMouseEnter: e => {
             this.clearAssetTableHighlights(); // For highlights resulting from network topology hover.
@@ -365,58 +312,6 @@ class Assets extends Component {
     this.hoverOverTableRow(this.props.selectNode);
     return (
       <div className="">
-        {/*         <div className="components-table-demo-control-bar">
-          <Form layout="inline">
-            <FormItem label="Bordered">
-              <Switch checked={this.state.bordered} onChange={this.handleToggle('bordered')} />
-            </FormItem>
-            <FormItem label="loading">
-              <Switch checked={this.state.loading} onChange={this.handleToggle('loading')} />
-            </FormItem>
-            <FormItem label="Title">
-              <Switch checked={!!this.state.title} onChange={this.handleTitleChange} />
-            </FormItem>
-            <FormItem label="Column Header">
-              <Switch checked={!!this.state.showHeader} onChange={this.handleHeaderChange} />
-            </FormItem>
-            <FormItem label="Footer">
-              <Switch checked={!!this.state.footer} onChange={this.handleFooterChange} />
-            </FormItem>
-            <FormItem label="Expandable">
-              <Switch checked={!!this.state.expandedRowRender} onChange={this.handleExpandChange} />
-            </FormItem>
-            <FormItem label="Checkbox">
-              <Switch
-                checked={!!this.state.rowSelection}
-                onChange={this.handleRowSelectionChange}
-              />
-            </FormItem>
-            <FormItem label="Fixed Header">
-              <Switch checked={!!this.state.scroll} onChange={this.handleScollChange} />
-            </FormItem>
-            <FormItem label="Has Data">
-              <Switch checked={!!this.state.hasData} onChange={this.handleDataChange} />
-            </FormItem>
-            <FormItem label="Size">
-              <Radio.Group size="default" value={this.state.size} onChange={this.handleSizeChange}>
-                <Radio.Button value="default">Default</Radio.Button>
-                <Radio.Button value="middle">Middle</Radio.Button>
-                <Radio.Button value="small">Small</Radio.Button>
-              </Radio.Group>
-            </FormItem>
-            <FormItem label="Pagination">
-              <Radio.Group
-                value={this.state.pagination ? this.state.pagination.position : 'none'}
-                onChange={this.handlePaginationChange}
-              >
-                <Radio.Button value="top">Top</Radio.Button>
-                <Radio.Button value="bottom">Bottom</Radio.Button>
-                <Radio.Button value="both">Both</Radio.Button>
-                <Radio.Button value="none">None</Radio.Button>
-              </Radio.Group>
-            </FormItem>
-          </Form>
-        </div> */}
         {this.table}
       </div>
     );
