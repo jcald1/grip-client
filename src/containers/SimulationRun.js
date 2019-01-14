@@ -1244,6 +1244,9 @@ class SimulationRun extends Component {
       return null;
     }
 
+    if (_.isEmpty(currentSimulationRunRequestMetadata)) {
+      return null;
+    }
     if (currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED) {
       return null;
     }
