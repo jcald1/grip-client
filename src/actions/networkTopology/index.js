@@ -1,11 +1,13 @@
 import axios from 'axios';
 import verror from 'verror';
 
-const getNetworkTopology = ({ baseUrl, apiVersion }) => {
+const getNetworkTopology = ({ baseUrl, apiVersion, simulationRunId }) => {
   // TODO: Make the route in the glm-plotter index.html page configurable, so we can
   // override it with our own path, while still being able to use the index.html as a test tool.
-  // const urlPath = `${baseUrl}${apiVersion}/network-topology`;
-  const urlPath = `${baseUrl}data`;
+  
+  //Using GLM Plotter's API
+  //const urlPath = `${baseUrl}data`;
+  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/network-topology`;
 
   const context = `GET Network Topology API Call: ${urlPath}`;
   console.log(context);

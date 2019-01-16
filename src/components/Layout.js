@@ -12,7 +12,6 @@ class Layout extends Component {
     super(props);
 
     this.handleButtonClick = this.handleButtonClick.bind(this);
-
   }
 
   componentDidMount() {
@@ -62,15 +61,15 @@ class Layout extends Component {
       );
       return <CategoryItem key={run.id}>{details}</CategoryItem>;
     });
-  }s
-
+  }
+  s;
 
   renderMenuItems() {
     const simulationRuns = this.getSimulationRunMenuItems(
       this.props.commonProps.simulationRunRequestsMetadata,
       this.props.selectedSimulationRunId
     );
-/*     if (_.isEmpty(simulationRuns)) {
+    /*     if (_.isEmpty(simulationRuns)) {
       return null;
     } */
 
@@ -104,7 +103,13 @@ class Layout extends Component {
           open={this.props.open.recovery}
           handleCategoryClick={this.props.handleCategoryClick}
         />
-        <Category id="settings" name="Settings" style={{ marginTop: '0px' }} open={this.props.open.settings} handleCategoryClick={this.props.handleCategoryClick}/>
+        <Category
+          id="settings"
+          name="Settings"
+          style={{ marginTop: '0px' }}
+          open={this.props.open.settings}
+          handleCategoryClick={this.props.handleCategoryClick}
+        />
       </div>
     );
 
@@ -116,11 +121,11 @@ class Layout extends Component {
     if (_.isEmpty(this.props.commonProps)) {
       return null;
     }
-/*     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+    /*     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
       return null;
     } */
 
-    console.log('Layout render', 'this.props', this.props, 'this.state',this.state);
+    console.log('Layout render', 'this.props', this.props, 'this.state', this.state);
 
     return (
       <div
@@ -132,6 +137,17 @@ class Layout extends Component {
           WebkitFlexWrap: 'wrap' /* Safari 6.1+ */
         }}
       >
+        <div className="top-navbar" style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="nav-text logo-text" style={{}} onClick={this.handleButtonClick}>
+            GRIP
+          </div>
+          <div
+            className="nav-text"
+            style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}
+          >
+            jane.doe@slac.stanford.edu
+          </div>
+        </div>
         <div className="left-navbar">
           {this.renderMenuItems()}
           <div style={{ margin: '0 auto', padding: '10px' }}>
@@ -148,33 +164,20 @@ class Layout extends Component {
           </div>
         </div>
 
-        <div className="top-navbar" style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div
-            className="nav-text logo-text"
-            style={{}}
-            onClick={this.handleButtonClick}
-          >
-            GRIP
-          </div>
-          <div
-            className="nav-text"
-            style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}
-          >
-            jane.doe@slac.stanford.edu
-          </div>
-        </div>
-        {this.props.renderErrorMessage()}
         <div
           className="main-body"
           style={{
             minWidth: '1200px',
             flexGrow: 1,
             flexBasis: 0,
-            padding: '20px',
-            marginLeft: '130px'
+            /* padding: '20px',*/
+            marginLeft: '130px' 
           }}
         >
+          {this.props.renderErrorMessage()}
+          <div style={{padding: '20px'}}>
           {this.props.children}
+          </div>
         </div>
       </div>
     );

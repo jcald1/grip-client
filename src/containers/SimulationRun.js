@@ -434,12 +434,14 @@ class SimulationRun extends Component {
         });
     }
 
+    // TODO: This could be combined with the parsed GLM model call (all_model_assets) since the table is the same
     if (!this.state.calledApi_networkTopologyData) {
       this.setState({ calledApi_networkTopologyData: true });
       networkTopology
         .getNetworkTopology({
           baseUrl: this.props.commonProps.apiPath,
-          apiVersion: this.state.chartsConfiguration.api.version
+          apiVersion: this.state.chartsConfiguration.api.version,
+          simulationRunId
         })
         .then(topologyData => {
           console.log('Topology network data', topologyData);

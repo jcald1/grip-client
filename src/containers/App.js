@@ -289,9 +289,7 @@ class App extends Component {
           backgroundColor: 'red',
           color: 'white',
           fontSize: '30px',
-          paddingLeft: '130px'
         }}
-        className="logo"
       >
         <div style={{ paddingLeft: '20px' }}> Error Occured: {this.state.error.message}</div>
       </div>
