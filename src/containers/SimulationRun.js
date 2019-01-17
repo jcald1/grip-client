@@ -98,10 +98,10 @@ class SimulationRun extends Component {
 
   componentDidMount() {
     console.log('SimulationRun componentDidMount');
-    console.log('SimulationRun componentDidMount renderBelowHeader');
+    console.log('SimulationRun componentDidMount');
 
     // Only force open the category on the initial load
-    if (this.props.match.params.simulationRunId) {
+/*     if (this.props.match.params.simulationRunId) {
       this.props.openCategory(DEFAULT_ANTICIPATION);
     }
     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
@@ -113,7 +113,7 @@ class SimulationRun extends Component {
       return;
     }
 
-    this.populateSimulationRun();
+    this.populateSimulationRun(); */
   }
 
   checkAllApiStates(status) {
