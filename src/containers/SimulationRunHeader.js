@@ -1,34 +1,41 @@
 /* eslint-disable no-undef */
-import React, { Component } from 'react';
-import {
-  Menu, Dropdown, Button, Icon, message, Input, Form, Select, Divider
-} from 'antd';
+import React, { Component, PureComponent } from 'react';
 import _ from 'lodash';
+import {
+  Button, message, Input, Form, Select, Divider, Collapse, Row, Col, Tooltip
+} from 'antd';
 import simulationRuns from '../actions/simulationRuns';
 
-const Option = Select.Option;
+const Panel = Collapse.Panel;
+
+const { Option } = Select;
 
 const DEFAULT_API_VERSION = 'v1';
 const DEFAULT_MODEL_TYPE_WEATHER = 1;
 const DEFAULT_MODEL_TYPE_NETWORK = 2;
 
-class SimulationRunHeader extends Component {
+class SimulationRunHeader extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
+    this.emptyState = {
       duration: null,
       interval: null,
       networkModel: null,
       weatherModel: null,
       simulation_name: null,
+      currentSimulationPopulated: false,
 
       networkModelItems: [],
       weatherModelItems: [],
 
       retrieveDataSourcesFailed: false,
-      disabled: false
+      disabled: false,
+
+      submittingDataSourceRequest: false,
     };
+
+    this.state = { ...this.emptyState };
 
     this.handleDurationEnter = this.handleDurationEnter.bind(this);
     this.handleIntervalEnter = this.handleIntervalEnter.bind(this);
@@ -38,8 +45,6 @@ class SimulationRunHeader extends Component {
   }
 
   componentDidMount() {
-    console.log('SimulationRunHeader componentDidMount');
-
     const currentSimulationRunMetadata = this.getCurrentSimulationRunMetadata(
       this.props.commonProps.simulationRunRequestsMetadata
     );
@@ -48,47 +53,57 @@ class SimulationRunHeader extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     console.log(
-      '1SimulationRunHeader componentDidUpdate, this.props',this.props, 'this.state',this.state);
+      '1SimulationRunHeader componentDidUpdate, this.props',
+      this.props,
+      'this.state',
+      this.state
+    );
 
-    if  (!_.isEqual(this.props.simulationRunId, prevProps.simulationRunId)) {
+    if (this.props.simulationRunId !== prevProps.simulationRunId) {
+      console.log('1SimulationRunHeader 1 Simulation Run ID Changed. Clearing state');
       return this.clearState();
     }
-    if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+     if (this.props.simulationRunId && _.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+      console.log('1SimulationRunHeader 2');
+      return;
+    } 
+
+    const currentSimulationRunMetadata = this.getCurrentSimulationRunMetadata(
+      this.props.commonProps.simulationRunRequestsMetadata
+    );
+    if (this.props.simulationRunId && _.isEmpty(currentSimulationRunMetadata)) {
+      console.log('1SimulationRunHeader 3 No current simulation run id');
       return;
     }
-    if (_.isEmpty(this.state.networkModelItems) ||
-        _.isEmpty(this.state.weatherModelItems)
-    ) {
-      console.log('1SimulationRunHeader 1');
+
+    if (this.state.submittingDataSourceRequest) {
+      console.log('1SimulationRunHeader 4 Current requesting data sources');
+      return;
+    }
+    
+    if (!this.props.simulationRunId && !_.isEmpty(this.state.networkModelItems) && ! _.isEmpty(this.state.weatherModelItems)) {
+      console.log('1SimulationRunHeader 6 New simulation');
       return;
     }
 
     if (
-      _.isEqual(
-        this.props.commonProps.simulationRunRequestsMetadata,
-        prevProps.commonProps.simulationRunRequestsMetadata
-      ) /* &&
-      _.isEqual(this.props.simulationRunId, prevProps.simulationRunId) */
+        _.isEqual(this.state.duration, prevState.duration) &&
+        _.isEqual(this.state.interval, prevState.interval) &&
+        _.isEqual(this.state.networkModel, prevState.networkModel) &&
+        _.isEqual(this.state.weatherModel, prevState.weatherModel) &&
+        _.isEqual(this.state.simulation_name, prevState.simulation_name) &&
+        _.isEqual(this.state.currentSimulationPopulated, prevState.currentSimulationPopulated) &&
+        _.isEqual(this.state.networkModelItems, prevState.networkModelItems) &&
+        _.isEqual(this.state.retrieveDataSourcesFailed, prevState.retrieveDataSourcesFailed) &&
+        _.isEqual(this.state.disabled, prevState.disabled) &&
+        _.isEqual(this.state.submittingDataSourceRequest, prevState.submittingDataSourceRequest)
     ) {
-      console.log('1SimulationRunHeader 2');
+      console.log('1SimulationRunHeader 7 No changes to existing simulation');
       return;
     }
-      
-
-    // If the initial values have already been loaded, don't try to load them again.
-/*     if (this.state.simulation_name) {
-      console.log('1SimulationRunHeader 3');
-      return;
-    }
-
-    if (!this.props.simulationRunId) {
-      console.log('1SimulationRunHeader 4');
-      return;
-    } */
-
 
     console.log(
-      'SimulationRunHeader componentDidUpdate',
+      '1SimulationRunHeader 8 componentDidUpdate',
       'prevProps.simulation_name',
       prevProps.simulation_name,
       'this.state',
@@ -96,22 +111,14 @@ class SimulationRunHeader extends Component {
       'this.props',
       this.props
     );
-
-
-    const currentSimulationRunMetadata = this.getCurrentSimulationRunMetadata(
-      this.props.commonProps.simulationRunRequestsMetadata
-    );
-    console.log(
-      'SimulationRunHeader componentDidUpdate currentSimulationRunMetadata',
-      currentSimulationRunMetadata
-    );
-
     this.populateInitialValues(currentSimulationRunMetadata);
   }
 
-  populateInitialValues(currentSimulationRunMetadata) {
-    console.log('SimulationRunHeader populateInitialValues');
 
+  populateInitialValues(currentSimulationRunMetadata) {
+    console.log('SimulationRunHeader populateInitialValues', currentSimulationRunMetadata);
+
+    this.setState({submittingDataSourceRequest: true})
     simulationRuns
       .getSimulationRunDataSource({
         baseUrl: this.props.commonProps.apiPath,
@@ -131,7 +138,53 @@ class SimulationRunHeader extends Component {
         });
         console.log('SimulationRunHeader datasource items', networkModelItems, weatherModelItems);
 
-        this.setState({ networkModelItems, weatherModelItems });
+        const initialSimulationName =
+          currentSimulationRunMetadata && currentSimulationRunMetadata.simulation_submission.name;
+
+        const initialNetworkModelId =
+          currentSimulationRunMetadata &&
+          currentSimulationRunMetadata.simulation_submission.network_datasource_id;
+        let initialNetworkModel = networkModelItems.find(
+          model => model.id === initialNetworkModelId
+        );
+        initialNetworkModel = initialNetworkModel && initialNetworkModel.file_uri;
+
+        const initialWeatherModelId =
+          currentSimulationRunMetadata &&
+          currentSimulationRunMetadata.simulation_submission.weather_datasource_id;
+        let initialWeatherModel = weatherModelItems.find(
+          model => model.id === initialWeatherModelId
+        );
+        initialWeatherModel = initialWeatherModel && initialWeatherModel.file_uri;
+
+        const initialInterval =
+          currentSimulationRunMetadata &&
+          currentSimulationRunMetadata.simulation_submission.interval;
+        const initialDuration =
+          currentSimulationRunMetadata &&
+          currentSimulationRunMetadata.simulation_submission.duration;
+        // Only set the state here when the metadata is initially passed in as a props, then just set state based on user input,
+
+        const newState = {
+          simulation_name: initialSimulationName,
+          networkModel: initialNetworkModel,
+          weatherModel: initialWeatherModel,
+          duration: initialDuration,
+          interval: initialInterval
+        };
+
+        if (_.isEmpty(networkModelItems)) {
+         this.props.handleError(new Error('No network model items populated'));
+        }
+
+        if (_.isEmpty(weatherModelItems)) {
+          this.props.handleError(new Error('No weather model items populated'));
+        } 
+
+        console.log('setting state', newState);
+
+        this.setState({ networkModelItems, weatherModelItems, ...newState });
+
       })
       .catch(err => {
         this.setState({ retrieveDataSourcesFailed: true });
@@ -140,37 +193,10 @@ class SimulationRunHeader extends Component {
           err = new verror.VError(err, err.response.data.message);
         }
         this.props.commonProps.handleError(err);
-      });
-
-    const initialSimulationName =
-      currentSimulationRunMetadata && currentSimulationRunMetadata.simulation_submission.name;
-    let initialNetworkModel =
-      currentSimulationRunMetadata &&
-      currentSimulationRunMetadata.simulation_submission.network_datasource_id;
-    initialNetworkModel = initialNetworkModel
-      ? initialNetworkModel.toString()
-      : initialNetworkModel;
-    let initialWeatherModel =
-      currentSimulationRunMetadata &&
-      currentSimulationRunMetadata.simulation_submission.weather_datasource_id;
-    initialWeatherModel = initialWeatherModel
-      ? initialWeatherModel.toString()
-      : initialWeatherModel;
-    const initialInterval =
-      currentSimulationRunMetadata && currentSimulationRunMetadata.simulation_submission.interval;
-    const initialDuration =
-      currentSimulationRunMetadata && currentSimulationRunMetadata.simulation_submission.duration;
-    // Only set the state here when the metadata is initially passed in as a props, then just set state based on user input,
-
-    console.log('setting state', initialSimulationName);
-    // Pre-populate for the Simulation Run Detail page header
-    this.setState({
-      simulation_name: initialSimulationName,
-      networkModel: initialNetworkModel,
-      weatherModel: initialWeatherModel,
-      duration: initialDuration,
-      interval: initialInterval
-    });
+      })
+      .finally(() => {
+        this.setState({submittingDataSourceRequest: false})
+      })
   }
 
   handleDurationEnter(e) {
@@ -245,24 +271,26 @@ class SimulationRunHeader extends Component {
     const data = {
       duration: parsedDuration,
       interval: parsedInterval,
-      network_datasource_id: this.state.networkModelItems.find(model => model.file_uri === this.state.networkModel).id,
-      weather_datasource_id: this.state.weatherModelItems.find(model => model.file_uri === this.state.weatherModel).id,
+      network_datasource_id: this.state.networkModelItems.find(
+        model => model.file_uri === this.state.networkModel
+      ).id,
+      weather_datasource_id: this.state.weatherModelItems.find(
+        model => model.file_uri === this.state.weatherModel
+      ).id,
       name: this.state.simulation_name
     };
-    this.setState({disabled: true,  })
+    this.setState({ disabled: true });
     this.props.postSimulationSubmission(data)
     .finally(() => {
       this.clearState();
     })
   }
 
-  clearState() {
-    this.setState({disabled: false,
-      duration: null,
-      interval: null,
-      networkModel: null,
-      weatherModel: null,
-      simulation_name: null,})
+  clearState(stateChanges) {
+    stateChanges = stateChanges ? stateChanges : {};
+    this.setState({
+      ...this.emptyState, ...stateChanges
+    });
   }
 
   getCurrentSimulationRunMetadata(simulationRunRequestsMetadata) {
@@ -279,82 +307,74 @@ class SimulationRunHeader extends Component {
   renderSimulationRunPageHeader({
     status, weatherItems, networkItems, style
   }) {
+    if (_.isEmpty(this.state.networkModel) || _.isEmpty(this.state.weatherModel)) {
+      return null;
+    }
+
     console.log('renderSimulationRunPageHeader', weatherItems, networkItems);
     const selectClass = 'simulation-header-run-page-input';
-    return null;
     return (
-      <Form onSubmit={this.handleRun}>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            WebkitFlexWrap: 'wrap',
-            ...style,
-            height: '30px'
-          }}
-        >
-          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '80px' }}>Simulation Name:</div>
-          <div style={{ flexGrow: 3, flexBasis: 0 }}>
-            <Form.Item>
-              <Input
-                onChange={this.handleSimulationNameEnter}
-                placeholder="New Simulation"
-                style={{ width: 250 }}
-                value={this.state.simulation_name}
-              />
-            </Form.Item>
-          </div>
-          <div style={{ flexGrow: 1, flexBasis: 0 }}>Weather Source:</div>
-          <div style={{ flexGrow: 3, flexBasis: 0, minWidth: '150px' }}>
-            {this.getSelect({ items: weatherItems, name: 'weatherModel', selectClass })}
-          </div>
-          <div style={{ flexGrow: 2, flexBasis: 0 }}>{`Status: ${status}`}</div>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            WebkitFlexWrap: 'wrap',
-            marginTop: '10px',
-            ...style,
-            height: '30px'
-          }}
-        >
-          <div style={{ flexGrow: 1, flexBasis: 0, minWidth: '80px' }}>Network Model:</div>
-          <div style={{ flexGrow: 3, flexBasis: 0 }}>
-            {this.getSelect({ items: networkItems, name: 'networkModel' })}
-          </div>
-          <div style={{ flexGrow: 1, flexBasis: 0 }}>Duration (hours): </div>
-          <div style={{ flexGrow: 3, flexBasis: 0, minWidth: '150px' }}>
-            <Form.Item style={{ display: 'inline-block' }}>
-              <Input
-                onChange={this.handleDurationEnter}
-                placeholder="24"
-                style={{ width: 60 }}
-                value={this.state.duration}
-              />
-            </Form.Item>
-
-            <div style={{ display: 'inline-block', marginLeft: '10px' }}>
-              Interval (secs):
-              <Form.Item style={{ display: 'inline-block' }}>
-                <Input
-                  onChange={this.handleIntervalEnter}
-                  placeholder="3600"
-                  style={{ width: 60 }}
-                  value={this.state.interval}
-                />
-              </Form.Item>
-            </div>
-          </div>
-
-          <div style={{ flexGrow: 2, flexBasis: 0 }}>
-            <Button htmlType="submit" disabled={this.state.disabled}>Run</Button>
-          </div>
-        </div>
-        <Divider />
-      </Form>
+      <div>
+        <Collapse bordered={false} defaultActiveKey={['1']}>
+          <Panel header="" key="1">
+            <Form onSubmit={this.handleRun}>
+              <Row className="responsive-row">
+                <Col className="column-style column-header-style responsive-header-column-1">
+                  <div className="run-header-inner-column-style">
+                    <div>
+                      <div style={{ display: 'inline-block', width: '125px' }}>Network Model:</div>
+                      <div style={{ display: 'inline-block' }}>{this.state.networkModel}</div>
+                    </div>
+                    <div style={{ display: 'inline-block', width: '125px' }}>Duration (hours)</div>
+                    <Form.Item style={{ display: 'inline-block' }}>
+                      <Tooltip title="Phase 2" placement="rightTop">
+                        <Input
+                          onChange={this.handleDurationEnter}
+                          placeholder="24"
+                          style={{ width: '150px' }}
+                          value={this.state.duration}
+                          disabled={true}
+                        />
+                      </Tooltip>
+                    </Form.Item>
+                  </div>
+                </Col>
+                <Col className="column-style column-header-style responsive-header-column-2">
+                  <div className="run-header-inner-column-style">
+                    <div>
+                      <div style={{ display: 'inline-block', width: '125px' }}>Weather Model:</div>
+                      <div style={{ display: 'inline-block' }}>{this.state.weatherModel}</div>
+                    </div>
+                    <div style={{ display: 'inline-block', width: '125px' }}>
+                      Interval (seconds)
+                    </div>
+                    <Form.Item style={{ display: 'inline-block' }}>
+                      <Tooltip title="Phase 2" placement="rightTop">
+                        <Input
+                          onChange={this.handleDurationEnter}
+                          placeholder="24"
+                          style={{ width: '150px' }}
+                          value={this.state.interval}
+                          disabled={true}
+                        />
+                      </Tooltip>
+                    </Form.Item>
+                  </div>
+                </Col>
+                <Col className="column-style column-header-style responsive-header-column-3">
+                  <Tooltip title="Phase 2" placement="rightTop">
+                    <div>&nbsp;</div>
+                    <Button htmlType="submit" disabled={true}>
+                      Re-Run
+                    </Button>
+                  </Tooltip>
+                </Col>
+              </Row>
+            </Form>
+          </Panel>
+        </Collapse>
+       {/*  <Divider /> */}
+      </div>
     );
   }
 
@@ -443,7 +463,9 @@ class SimulationRunHeader extends Component {
         </div>
 
         <div style={{}}>
-          <Button htmlType="submit" disabled={this.state.disabled}>Run</Button>
+          <Button htmlType="submit" disabled={this.state.disabled}>
+            Run
+          </Button>
         </div>
       </Form>
     );
@@ -453,6 +475,11 @@ class SimulationRunHeader extends Component {
     if (_.isEmpty(this.state.networkModelItems) && _.isEmpty(this.state.weatherModelItems)) {
       return null;
     }
+    /*     console.log('***5*',this.props.simulationRunId, this.state.currentSimulationPopulated)
+    // Simulation Run Detail data still populated.  Wait for clear state to take effect, don't render for now
+    if (!this.props.simulationRunId && this.state.currentSimulationPopulated) {
+      return null;
+    } */
 
     console.log('SimulationRunHeader render this.props', this.props, 'this.state', this.state);
 

@@ -181,7 +181,7 @@
 .assetdetail-title .asset-title {
   display: inline-block;
   margin-left: 0px;
-  width: 60%
+  width: 60%;
 }
 
 .assetdetail-title .asset-simulation-nav {
@@ -203,33 +203,40 @@
   font-size: 0;
 } */
 
-.recharts-text.recharts-label {    
+.recharts-text.recharts-label {
   font-size: 10px;
 }
 
-.ant-radio{
+.ant-radio {
   margin: -1px;
 }
 
 .measurement-column-style {
   background-color: #ffffff;
-  padding-top: 20px; 
+  padding-top: 20px;
   margin-left: -30px;
   width: 80%;
   font-size: 10px;
 }
 
 .column-style {
+}
+
+.column-asset-detail {
+  min-width: 500px;
+}
+
+.column-asset-detail {
   background-color: #ffffff;
 }
 
 .column-style-map {
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
 }
 
 .inner-column-style {
   background-color: #ffffff;
-  padding-top: 0px; 
+  padding-top: 0px;
   margin-left: auto;
   margin-right: auto;
   width: 100%;
@@ -237,15 +244,23 @@
 
 .run-detail-assets-inner-column-style {
   background-color: #ffffff;
-  padding-top: 0px; 
+  padding-top: 0px;
   margin-left: 10px;
   margin-right: auto;
   width: 90%;
 }
 
+.column-header-style {
+  min-width: 400px;
+}
+
+.run-header-inner-column-style {
+  padding-top: 0px;
+}
+
 .run-detail-map-inner-column-style {
   background-color: #ffffff;
-  padding-top: 0px; 
+  padding-top: 0px;
   margin-left: 0px;
   margin-right: auto;
   width: 95%;
@@ -260,11 +275,52 @@
   font-size: 12px;
   padding: 12px;
 }
-.ant-table-thead > tr > th, .ant-table-tbody > tr > td{
-  padding: 12px;  
+.ant-table-thead > tr > th,
+.ant-table-tbody > tr > td {
+  padding: 12px;
 }
-
 
 .run-border {
   /* border: 1px solid #000000; */
 }
+
+.ant-collapse .ant-collapse-item .ant-collapse-header .anticon {
+  left: initial;
+  right: 16px;
+}
+
+.responsive-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.responsive-column {
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.responsive-header-column-1 {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-width: 450px;
+}
+
+.responsive-header-column-2 {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-width: 500px;
+}
+
+.responsive-header-column-3 {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-width: 75px;
+}
+
+.ant-collapse-borderless
+  .ant-collapse-item
+  .ant-collapse-content
+  .ant-collapse-content-box {
+  padding: 4px 0;
+}
+

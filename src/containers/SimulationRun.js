@@ -6,11 +6,9 @@ import { withRouter, Route } from 'react-router-dom';
 import { Tabs, Row, Col } from 'antd';
 import moment from 'moment';
 import {
-  LineChart,
   ComposedChart,
   Bar,
   Line,
-  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
@@ -18,7 +16,6 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import './App.css';
-import Layout from '../components/Layout';
 import SimpleMap from '../components/SimpleMap';
 import OMFTopologyMap from '../components/OMFTopologyMap';
 import Asset from './Asset';
@@ -35,7 +32,6 @@ import chartsConfiguration from './Configuration';
 const DEFAULT_DIVIDER = '__';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
 const DEFAULT_SIMULATION_RUN_STATUS_COMPLETED = 4;
-const DEFAULT_SIMULATION_RUN_STATUS_ERROR = 5;
 const DEFAULT_ANTICIPATION = 'anticipation';
 
 const TabPane = Tabs.TabPane;
@@ -63,7 +59,6 @@ class SimulationRun extends Component {
       chartData: [],
       chartsConfiguration,
       topologyMapSelectNode: null,
-      selectedRightYAxisMeasurement: null,
       omfTopologyImage: null,
       vulnerabilityBands: {
         low: [],
@@ -93,7 +88,7 @@ class SimulationRun extends Component {
     this.formatXAxis = this.formatXAxis.bind(this);
     this.roundToTwo = this.roundToTwo.bind(this);
     this.getChartInterval = this.getChartInterval.bind(this);
-    this.handleMeasurementClick = this.handleMeasurementClick.bind(this); 
+    this.handleMeasurementClick = this.handleMeasurementClick.bind(this);
   }
 
   componentDidMount() {
@@ -101,7 +96,7 @@ class SimulationRun extends Component {
     console.log('SimulationRun componentDidMount');
 
     // Only force open the category on the initial load
-/*     if (this.props.match.params.simulationRunId) {
+    /*     if (this.props.match.params.simulationRunId) {
       this.props.openCategory(DEFAULT_ANTICIPATION);
     }
     if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
@@ -229,20 +224,22 @@ class SimulationRun extends Component {
     this.props.updateSelectedSimulationRunId(parsedSimulationRunId);
   }
 
-  clearState() {
+  clearState(stateChanges) {
     console.log('SimulationRun clearState');
     this.props.commonProps.handleError(null);
     this.updateSelectedSimulationRunId(null);
     if (this.props.forceRefreshSimulationRun) {
       this.props.setForceRefreshSimulationRun(false);
     }
-    this.setState({ ...this.emptyState });
+    stateChanges = stateChanges ? stateChanges : {};
+    this.setState({ ...this.emptyState, ...stateChanges });
   }
 
   populateSimulationRun() {
-    // TODO: Move this into Redux / Thunk actions
     let currentAsset;
     let selectedAssetDetailId;
+
+    this.props.openCategory(DEFAULT_ANTICIPATION);
 
     if (this.props.forceRefreshSimulationRun) {
       this.props.setForceRefreshSimulationRun(false);
@@ -250,7 +247,7 @@ class SimulationRun extends Component {
 
     const { simulationRunId } = this.props.match.params;
     console.log(
-      '1populateSimulationRun renderBelowHeader',
+      '1populateSimulationRun',
       simulationRunId,
       'this.props.',
       this.props,
@@ -358,7 +355,7 @@ class SimulationRun extends Component {
             currentAsset,
             this.state.chartsConfiguration
           );
-          console.log('defaultMeasurement renderBelowHeader', defaultMeasurementForAsset);
+          console.log('populateSimulationRun defaultMeasurement', defaultMeasurementForAsset);
           this.setState({
             currentAsset,
             allRunAssets,
@@ -625,7 +622,7 @@ class SimulationRun extends Component {
     this.setState({ selectedAssetDetailId });
     const newUrl = `/simulation-runs/${
       this.props.match.params.simulationRunId
-    }/assets/${selectedAssetDetailId}`;
+      }/assets/${selectedAssetDetailId}`;
     console.log('** NEW PUSH', newUrl);
     console.log('newUrl', newUrl);
     this.props.history.push({
@@ -1010,10 +1007,7 @@ class SimulationRun extends Component {
       );
     }
 
-
-    const combinedData = this.mapResponseToChartData(
-      data
-    );
+    const combinedData = this.mapResponseToChartData(data);
 
     console.log(
       'combinedData',
@@ -1022,7 +1016,6 @@ class SimulationRun extends Component {
       this.state.chartsConfiguration,
       this.state.chartsConfiguration.recordingLabels
     );
-
 
     // console.log('***bottomMargin', bottomMargin);
     return (
@@ -1175,10 +1168,7 @@ class SimulationRun extends Component {
   }
 
   handleMeasurementClick(e) {
-    console.log(
-      'Run handleMeasurementClick value',
-      e.currentTarget.getAttribute('value')
-    );
+    console.log('Run handleMeasurementClick value', e.currentTarget.getAttribute('value'));
 
     const selectedRightYAxisMeasurement = e.currentTarget.getAttribute('value');
 
@@ -1186,7 +1176,16 @@ class SimulationRun extends Component {
     this.setState({ selectedRightYAxisMeasurement });
   }
 
-  renderSimulationRunHeader() {
+  renderSimulationRunHeader(currentSimulationRunRequestMetadata) {
+    // We need the header if:
+    // 1) We're on the simulation create page (no current metadata)
+    // 2) We on a current simulation and it has completed
+    if (
+      !_.isEmpty(currentSimulationRunRequestMetadata) &&
+      currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED
+    ) {
+      return null;
+    }
     const simulationRunId = this.props.match.params.simulationRunId
       ? parseInt(this.props.match.params.simulationRunId, 10)
       : null;
@@ -1195,7 +1194,6 @@ class SimulationRun extends Component {
         commonProps={this.props.commonProps}
         postSimulationSubmission={this.postSimulationSubmission}
         simulationRunId={simulationRunId}
-        openCategory={this.props.openCategory}
       />
     );
   }
@@ -1206,14 +1204,14 @@ class SimulationRun extends Component {
     }
     return (
       <div>
-        <Row>
-          <Col span={12} className="column-style">
+        <Row className="responsive-row">
+          <Col span={12} className="column-style column-asset-detail responsive-column">
             <div className="run-detail-assets-inner-column-style">
               <div className="run-border">{this.renderPoleVulnerabilityTable()}</div>
             </div>
           </Col>
-          <Col span={12} className="column-style">
-            <div className="run-detail-map-inner-column-style">
+          <Col span={12} className="column-style column-asset-detail responsive-column">
+            <div className="">
               <div className="run-border">
                 <Tabs tabPosition="top" type="card" style={{ textAlign: 'left' }}>
                   <TabPane tab="Map" key="1">
@@ -1252,11 +1250,13 @@ class SimulationRun extends Component {
     if (currentSimulationRunRequestMetadata.status !== DEFAULT_SIMULATION_RUN_STATUS_COMPLETED) {
       return null;
     }
-    
 
-    console.log('renderBelowHeader this.state.selectedRightYAxisMeasurement', this.state.selectedRightYAxisMeasurement);
+    console.log(
+      'renderBelowHeader this.state.selectedRightYAxisMeasurement',
+      this.state.selectedRightYAxisMeasurement
+    );
     return (
-      <div>
+      <div style={{paddingTop: '20px'}}>
         <Row>
           <Col span={20}>
             {this.renderLineChartSimulationRun({
@@ -1383,7 +1383,6 @@ class SimulationRun extends Component {
     }
 
     linesToAdd.push({
-    
       assetMeasurement: this.state.chartsConfiguration.vulnerability_measurement,
       measurement: this.state.chartsConfiguration.vulnerability_measurement,
       stroke: '#A9A9A9',
@@ -1420,11 +1419,11 @@ class SimulationRun extends Component {
     );
 
     let measurements = [];
-    if ( this.state.currentAsset ) {
-      measurements = this.state.currentAsset.recordings; 
+    if (this.state.currentAsset) {
+      measurements = this.state.currentAsset.recordings;
     }
 
-    if( this.state.selectedRightYAxisMeasurement ) {
+    if (this.state.selectedRightYAxisMeasurement) {
       measurements.push(this.state.selectedRightYAxisMeasurement);
     }
     measurements = this.addGlobalMeasurements(measurements, this.state.chartsConfiguration);
@@ -1432,7 +1431,7 @@ class SimulationRun extends Component {
     const mainItems = (
       <div>
         <Row>
-          <Col span={24}>{this.renderSimulationRunHeader()}</Col>
+          <Col span={24}>{this.renderSimulationRunHeader(currentSimulationRunRequestMetadata)}</Col>
         </Row>
         {this.renderSimulationRunNotCompleted(currentSimulationRunRequestMetadata, combinedData)}
         {this.renderBelowHeader(

@@ -47,11 +47,11 @@ if (log && log.toUpperCase() !== 'OFF') {
   }; */
 } else {
   window.console = {
-    log: (...args) => {},
-    warn: (...args) => {},
+    log: (...args) => { },
+    warn: (...args) => { },
     error: (...args) => (...args) => window_console.error(...args),
-    debug: (...args) => {},
-    info: (...args) => {}
+    debug: (...args) => { },
+    info: (...args) => { }
   };
 }
 
@@ -146,14 +146,14 @@ class App extends Component {
   }
 
   updateSelectedSimulationRunId(selectedSimulationRunId) {
-    console.log('App updateSelectedSimulationRunId',selectedSimulationRunId)
+    console.log('App updateSelectedSimulationRunId', selectedSimulationRunId)
     if (selectedSimulationRunId !== this.state.selectedSimulationRunId) {
       this.setState({ selectedSimulationRunId });
     }
   }
 
   setForceRefreshSimulationRun(val) {
-    this.setState({forceRefreshSimulationRun: val});
+    this.setState({ forceRefreshSimulationRun: val });
   }
 
   handleSimulationRunRequestClick(e) {
@@ -312,7 +312,7 @@ class App extends Component {
   }
 
   openCategory(category) {
-    console.log('App openCategory this state', this.state,category,'current open status');
+    console.log('App openCategory this state', this.state, category, 'current open status');
     if (!this.state.open[category]) {
       const newState = { open: { ...this.state.open, [category]: true } };
       //console.log('Layout openCategory newState',newState);

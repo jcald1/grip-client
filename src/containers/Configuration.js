@@ -10,10 +10,10 @@ const Configuration = {
     version: 'v1'
   },
   vulnerabilityBands: {
-    low: 0.8,
+     low: 0.8,
     medium: 1,
-    high: null // infinite
-    /*         low: 0.005,
+    high: null // infinite 
+/*       low: 0.005,
       medium: 0.01,
       high: null // infinite */
   },

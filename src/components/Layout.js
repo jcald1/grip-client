@@ -62,7 +62,7 @@ class Layout extends Component {
       return <CategoryItem key={run.id}>{details}</CategoryItem>;
     });
   }
-  s;
+ 
 
   renderMenuItems() {
     const simulationRuns = this.getSimulationRunMenuItems(
@@ -167,16 +167,16 @@ class Layout extends Component {
         <div
           className="main-body"
           style={{
-            minWidth: '1200px',
+            /* minWidth: '1200px', */
             flexGrow: 1,
             flexBasis: 0,
             /* padding: '20px',*/
-            marginLeft: '130px' 
+            marginLeft: '130px'
           }}
         >
           {this.props.renderErrorMessage()}
-          <div style={{padding: '20px'}}>
-          {this.props.children}
+          <div style={{ padding: '20px' }}>
+            {this.props.children}
           </div>
         </div>
       </div>

@@ -96,6 +96,9 @@ class Assets extends Component {
     if (!this.props.data || !this.props.data.length || this.props.data.length === 0) {
       return null;
     }
+
+    this.colorVulnerabilityBands();
+    this.hoverOverTableRow(this.props.selectNode);
   }
 
   handleToggle(prop) {
@@ -150,7 +153,9 @@ class Assets extends Component {
       // allRows.forEach(row => row.classList.remove('asset-table-highlight'));
       for (let i = 0; i < allRows.length; i++) {
         console.log('clearAssetTableHighlights', 'clearing', i);
-        allRows[i].classList.remove('asset-table-highlight');
+        if (allRows[i].classList.contains('asset-table-highlight')) {
+          allRows[i].classList.remove('asset-table-highlight');
+        }
       }
     }
   }
@@ -165,10 +170,12 @@ class Assets extends Component {
       levels.forEach(level => {
         this.props.selectionBands[level].forEach(item => {
           if (data.name === item) {
-            console.log('coloring', data, 'data.id', data.id);
+            console.log('colorVulnerabilityBands coloring', data, 'data.id', data.id);
 
             const row = document.querySelector(`.ant-table-tbody tr[data-row-key='${data.id}']`);
-            if (row) {
+            //console.log('colorVulnerabilityBands row',row);
+            //console.log('colorVulnerabilityBands general query',document.querySelector('.ant-table-tbody tr'));
+            if (row && !row.classList.contains(`asset-table-${level}`)) {
               row.classList.add(`asset-table-${level}`);
             }
           }
@@ -188,7 +195,7 @@ class Assets extends Component {
         console.log('hoverOverTableRow found', data, 'data.id', data.id);
 
         const row = document.querySelector(`.ant-table-tbody tr[data-row-key='${data.id}']`);
-        if (row) {
+        if (row && !row.classList.contains('asset-table-highlight')) {
           row.classList.add('asset-table-highlight');
         }
       }
@@ -289,7 +296,7 @@ class Assets extends Component {
     this.table = (
       <Table
         size="small"
-        
+
         onRow={record => ({
           onMouseEnter: e => {
             this.clearAssetTableHighlights(); // For highlights resulting from network topology hover.
@@ -307,9 +314,9 @@ class Assets extends Component {
         dataSource={this.state.hasData ? getAssets(data) : null}
       />
     );
-    // console.log('!!Table', table);
     this.colorVulnerabilityBands();
     this.hoverOverTableRow(this.props.selectNode);
+
     return (
       <div className="">
         {this.table}
