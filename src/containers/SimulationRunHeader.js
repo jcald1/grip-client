@@ -45,6 +45,7 @@ class SimulationRunHeader extends PureComponent {
   }
 
   componentDidMount() {
+    console.log('1SimulationRunHeader componentDidMount', this.props, this.props);
     const currentSimulationRunMetadata = this.getCurrentSimulationRunMetadata(
       this.props.commonProps.simulationRunRequestsMetadata
     );
@@ -85,6 +86,26 @@ class SimulationRunHeader extends PureComponent {
       console.log('1SimulationRunHeader 6 New simulation');
       return;
     }
+ 
+/*     if (_.isEqual(this.state.duration, prevState.duration))
+      console.log('*****1') 
+    if (_.isEqual(this.state.interval, prevState.interval))
+    console.log('*****2') 
+    if (_.isEqual(this.state.networkModel,prevState.networkModel))
+        console.log('*****3') 
+    if (_.isEqual(this.state.weatherModel, prevState.weatherModel))
+       console.log('*****4') 
+    if (_.isEqual(this.state.simulation_name, prevState.simulation_name))
+      console.log('*****5') 
+    if (_.isEqual(this.state.currentSimulationPopulated, prevState.currentSimulationPopulated))
+      console.log('*****6') 
+    if (_.isEqual(this.state.networkModelItems, prevState.networkModelItems))
+      console.log('*****7') 
+    if (_.isEqual(this.state.retrieveDataSourcesFailed,
+      prevState.retrieveDataSourcesFailed))
+      console.log('*****8') 
+    if ( _.isEqual(this.state.disabled, prevState.disabled))
+      console.log('*****9') */
 
     if (
         _.isEqual(this.state.duration, prevState.duration) &&
@@ -95,8 +116,7 @@ class SimulationRunHeader extends PureComponent {
         _.isEqual(this.state.currentSimulationPopulated, prevState.currentSimulationPopulated) &&
         _.isEqual(this.state.networkModelItems, prevState.networkModelItems) &&
         _.isEqual(this.state.retrieveDataSourcesFailed, prevState.retrieveDataSourcesFailed) &&
-        _.isEqual(this.state.disabled, prevState.disabled) &&
-        _.isEqual(this.state.submittingDataSourceRequest, prevState.submittingDataSourceRequest)
+        _.isEqual(this.state.disabled, prevState.disabled)
     ) {
       console.log('1SimulationRunHeader 7 No changes to existing simulation');
       return;
