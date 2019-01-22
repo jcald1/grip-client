@@ -297,7 +297,7 @@ class Assets extends Component {
         key: 'peak_power_max',
         dataIndex: 'peak_power_max',
         className: 'assets-header',
-        sorter: (a, b) => this.stringSorter(a.power_out_real, b.power_out_real),
+        sorter: (a, b) => this.stringSorter(a.peak_power_max, b.peak_power_max),
         width: '15%'
       }
     ];
