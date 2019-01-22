@@ -10,10 +10,10 @@ const Configuration = {
     version: 'v1'
   },
   vulnerabilityBands: {
-     low: 0.8,
+    low: 0.8,
     medium: 1,
-    high: null // infinite 
-/*       low: 0.005,
+    high: null // infinite
+    /*       low: 0.005,
       medium: 0.01,
       high: null // infinite */
   },
@@ -83,7 +83,10 @@ const Configuration = {
       class: 'line',
       properties: [
         {
-          key: 'power_out_real'
+          key: 'power_out___real'
+        },
+        {
+          key: 'power_in___real'
         },
         {
           key: 'wind_speed'
@@ -94,7 +97,24 @@ const Configuration = {
       class: 'overhead_line',
       properties: [
         {
-          key: 'power_out_real'
+          key: 'power_out___real'
+        },
+        {
+          key: 'power_in___real'
+        },
+        {
+          key: 'wind_speed'
+        }
+      ]
+    },
+    {
+      class: 'underground_line',
+      properties: [
+        {
+          key: 'power_out___real'
+        },
+        {
+          key: 'power_in___real'
         },
         {
           key: 'wind_speed'
@@ -471,6 +491,24 @@ const Configuration = {
       label: 'Critical Vulnerability Index',
       unit: 'pu',
       YAxisPosition: 'left'
+    },
+    {
+      name: 'power_out___real',
+      label: 'Power Out Real',
+      unit: 'W',
+      YAxisPosition: 'left'
+    },
+    {
+      name: 'power_out_real',
+      label: 'Power Out Real',
+      unit: 'W',
+      YAxisPosition: 'left'
+    },
+    {
+      name: 'power_in___real',
+      label: 'Power In Real',
+      unit: 'W',
+      YAxisPosition: 'right'
     },
     {
       name: 'measured_real_power',
