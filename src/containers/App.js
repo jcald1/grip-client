@@ -46,13 +46,23 @@ if (log && log.toUpperCase() !== 'OFF') {
     }
   }; */
 } else {
-  window.console = {
+/*   window.console = {
     log: (...args) => { },
     warn: (...args) => { },
     error: (...args) => (...args) => window_console.error(...args),
     debug: (...args) => { },
-    info: (...args) => { }
-  };
+    info: (...args) => { },
+    trace: (...args) => { },
+  }; */
+
+  window.console = {...window_console, 
+    log: (...args) => { },
+    warn: (...args) => { },
+    error: (...args) => (...args) => window_console.error(...args),
+    debug: (...args) => { },
+    info: (...args) => { },
+    trace: (...args) => { }
+  }
 }
 
 const DEFAULT_API_VERSION = 'v1';
@@ -235,7 +245,7 @@ class App extends Component {
       } else {
         errStr = '';
       }
-      error = this.state.error ? `${this.state.error}<br/>\n${errStr}` : errStr;
+      error = this.state.error ? `${this.state.error}\n${errStr}` : errStr;
       console.log('handleError setting error', error);
       this.setState({ error: new Error(error) });
     }

@@ -8,7 +8,7 @@ import React, { Component } from 'react';
 import {
   Table, Icon, Switch, Radio, Form, Divider
 } from 'antd';
-
+import _ from 'lodash';
 
 /* const data = [];
 for (let i = 1; i <= 10; i++) {
@@ -61,8 +61,8 @@ const getAssets = data => {
     peak_power_max = asset.calculated_recordings.filter(d => d.name === 'peak_power_max');
     if (peak_power_max.length === 1) {
       peak_power_max_value = peak_power_max[0].value;
-      peak_power_max_value = peak_power_max_value / 1000;
-      peak_power_max_value = peak_power_max_value.toFixed(2) + ' kW'
+      peak_power_max_value /= 1000;
+      peak_power_max_value = `${peak_power_max_value.toFixed(2)} kW`;
     } else {
       peak_power_max_value = null;
     }
@@ -103,7 +103,29 @@ class Assets extends Component {
   }
 
   componentDidMount() {
+    console.log('Assets componentDidMount');
     if (!this.props.data || !this.props.data.length || this.props.data.length === 0) {
+      return null;
+    }
+
+    this.colorVulnerabilityBands();
+    this.hoverOverTableRow(this.props.selectNode);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log('Assets componentDidMcomponentDidUpdateount');
+
+    if (
+      !(
+        _.isEqual(this.props.data, prevState.data) &&
+        _.isEqual(this.props.assetsList, prevState.assetsList) &&
+        _.isEqual(this.props.selectNode, prevState.selectNode) &&
+        _.isEqual(this.props.selectionBands, prevState.selectionBands) &&
+        _.isEqual(this.props.assetsList, prevState.assetsList) &&
+        _.isEqual(this.props.assetsList, prevState.assetsList) &&
+        _.isEqual(this.props.assetsList, prevState.assetsList)
+      )
+    ) {
       return null;
     }
 
@@ -133,6 +155,7 @@ class Assets extends Component {
     this.setState({ showHeader: enable ? showHeader : false });
   }
 
+  /*  */
   handleFooterChange(enable) {
     this.setState({ footer: enable ? footer : undefined });
   }
@@ -183,8 +206,8 @@ class Assets extends Component {
             console.log('colorVulnerabilityBands coloring', data, 'data.id', data.id);
 
             const row = document.querySelector(`.ant-table-tbody tr[data-row-key='${data.id}']`);
-            //console.log('colorVulnerabilityBands row',row);
-            //console.log('colorVulnerabilityBands general query',document.querySelector('.ant-table-tbody tr'));
+            // console.log('colorVulnerabilityBands row',row);
+            // console.log('colorVulnerabilityBands general query',document.querySelector('.ant-table-tbody tr'));
             if (row && !row.classList.contains(`asset-table-${level}`)) {
               row.classList.add(`asset-table-${level}`);
             }
@@ -305,7 +328,6 @@ class Assets extends Component {
     this.table = (
       <Table
         size="small"
-
         onRow={record => ({
           onMouseEnter: e => {
             this.clearAssetTableHighlights(); // For highlights resulting from network topology hover.
@@ -323,14 +345,8 @@ class Assets extends Component {
         dataSource={this.state.hasData ? getAssets(data) : null}
       />
     );
-    this.colorVulnerabilityBands();
-    this.hoverOverTableRow(this.props.selectNode);
 
-    return (
-      <div className="">
-        {this.table}
-      </div>
-    );
+    return <div className="">{this.table}</div>;
   }
 }
 
