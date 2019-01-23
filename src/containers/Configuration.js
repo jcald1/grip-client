@@ -10,13 +10,13 @@ const Configuration = {
     version: 'v1'
   },
   vulnerabilityBands: {
-     low: 0.8,
+    low: 0.8,
     medium: 1,
-    high: null // infinite 
+    high: null // infinite
     // For testing
-/*            low: 0.005,
-      medium: 0.01,
-      high: null // infinite  */
+    /*            low: 0.005,
+          medium: 0.01,
+          high: null // infinite  */
   },
   filtered_assets: ['meter', 'overhead_line', 'pole'],
   vulnerability_measurement: 'vulnerability',
