@@ -89,6 +89,7 @@ class SimulationRun extends Component {
     this.roundToTwo = this.roundToTwo.bind(this);
     this.getChartInterval = this.getChartInterval.bind(this);
     this.handleMeasurementClick = this.handleMeasurementClick.bind(this);
+    this.formatYAxis = this.formatYAxis.bind(this);
   }
 
   componentDidMount() {
@@ -631,7 +632,7 @@ class SimulationRun extends Component {
     this.setState({ selectedAssetDetailId });
     const newUrl = `/simulation-runs/${
       this.props.match.params.simulationRunId
-      }/assets/${selectedAssetDetailId}`;
+    }/assets/${selectedAssetDetailId}`;
     console.log('** NEW PUSH', newUrl);
     console.log('newUrl', newUrl);
     this.props.history.push({
@@ -752,6 +753,19 @@ class SimulationRun extends Component {
     return xaxisInterval;
   }
 
+  formatYAxis(e) {
+    if (
+      selectedRightYAxisMeasurement === 'measured_real_power' ||
+      selectedRightYAxisMeasurement === 'measured_reactive_power' ||
+      selectedRightYAxisMeasurement === 'power_out___real' ||
+      selectedRightYAxisMeasurement === 'power_in___real'
+    ) {
+      return (value / 1000).toFixed(3);
+    }
+    console.log('{measureUnitRightvalue}', value);
+    return value;
+  }
+
   renderLineChartAssetDetail({
     data,
     lines,
@@ -833,6 +847,26 @@ class SimulationRun extends Component {
         yAxisId="left"
         orientation="left"
         unit={measureUnitLeft}
+        tickFormatter={value => {
+          console.log(`tickFormatterLeft: ${selectedMeasurement}`);
+          if (
+            selectedMeasurement === 'measured_real_power' ||
+            selectedMeasurement === 'measured_reactive_power' ||
+            selectedMeasurement === 'power_out_real' ||
+            selectedMeasurement === 'power_out___real' ||
+            selectedMeasurement === 'power_in___real'
+          ) {
+            return (value / 1000).toFixed(3);
+          }
+          if (
+            selectedMeasurement.indexOf('vulnerability') > -1 ||
+            selectedMeasurement.indexOf('pole_stress') > -1
+          ) {
+            console.log('{tickFormatterLeft}', value);
+            return value.toFixed(2);
+          }
+          return value;
+        }}
         tick={{ fontSize: 9 }}
         label={{
           value: measureLabelLeft,
@@ -866,6 +900,25 @@ class SimulationRun extends Component {
           orientation="right"
           tick={{ fontSize: 10 }}
           unit={measureUnitRight}
+          tickFormatter={value => {
+            console.log(
+              '{measureUnitRight}|',
+              measureUnitRight,
+              '|',
+              selectedRightYAxisMeasurement
+            );
+            if (
+              selectedRightYAxisMeasurement === 'measured_real_power' ||
+              selectedRightYAxisMeasurement === 'measured_reactive_power' ||
+              selectedRightYAxisMeasurement === 'power_out___real' ||
+              selectedRightYAxisMeasurement === 'power_in___real'
+            ) {
+              console.log('{measureUnitRightconvert}', measureUnitRight);
+              return (value / 1000).toFixed(3);
+            }
+            console.log('{measureUnitRightvalue}', value);
+            return value;
+          }}
           label={{
             value: measureLabelRight,
             position: 'top',
@@ -931,6 +984,12 @@ class SimulationRun extends Component {
               )}e-2`} Hours`
               }
               dataKey="timestamp"
+              label={{
+                value: 'Elapsed Time',
+                dx: 60,
+                dy: -4,
+                position: 'left'
+              }}
               fontSize={10}
               padding={{ left: 0, right: 0 }}
             />
@@ -946,7 +1005,28 @@ class SimulationRun extends Component {
                 paddingLeft: '60px'
               }}
             />
-            <Tooltip />
+            <Tooltip
+              formatter={(value, b, c) => {
+                console.log('{TooltipmeasureUnitRight}|', measureUnitRight, '|');
+                console.log('{TooltipmeasureUnitRightValues}|', value, '|b', b, 'c', c);
+                if (
+                  c.dataKey.indexOf('measured_real_power') > -1 ||
+                  c.dataKey.indexOf('measured_reactive_power') > -1 ||
+                  c.dataKey.indexOf('power_out___real') > -1 ||
+                  c.dataKey.indexOf('power_in___real') > -1
+                ) {
+                  console.log('{TooltipmeasureUnitRightconvert}', measureUnitRight);
+                  let formValue = (value / 1000).toFixed(3);
+                  formValue = `${formValue} ${measureUnitRight}`;
+                  return formValue;
+                }
+                if (c.dataKey.indexOf('vulnerability') > -1) {
+                  console.log('{TooltipmeasureUnitRightvalue}', value);
+                  return value.toFixed(2);
+                }
+                return value;
+              }}
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -983,6 +1063,7 @@ class SimulationRun extends Component {
         lineToAdd = (
           <Bar
             key={line.assetMeasurement}
+            yAxisId={line.yAxisId}
             type="monotone"
             dataKey={line.assetMeasurement}
             fill={line.fill}
@@ -997,6 +1078,11 @@ class SimulationRun extends Component {
     });
     // const bottomMargin = renderXaxis || renderXaxis == null ? 100 : 20;
     const bottomMargin = 60;
+
+    const assetMeasurement = this.getAssetMeasurement(
+      this.state.currentAsset,
+      this.state.selectedMeasurement
+    );
 
     let measureLabelRight = '';
     let measureUnitRight = '';
@@ -1052,12 +1138,19 @@ class SimulationRun extends Component {
               )}e-2`} Hours`
               }
               dataKey="timestamp"
+              label={{
+                value: 'Elapsed Time',
+                dx: 60,
+                dy: -4,
+                position: 'left'
+              }}
               fontSize={10}
               padding={{ left: 0, right: 0 }}
             />
             <YAxis
               domain={domain}
               yAxisId="left"
+              tickFormatter={value => value.toFixed(2)}
               label={{
                 value: 'Peak Vulnerability',
                 dx: 2,
@@ -1071,6 +1164,26 @@ class SimulationRun extends Component {
               orientation="right"
               tick={{ fontSize: 10 }}
               unit={measureUnitRight}
+              tickFormatter={value => {
+                console.log(
+                  '{measureUnitRight}|',
+                  measureUnitRight,
+                  '|',
+                  this.state.selectedRightYAxisMeasurement
+                );
+                if (
+                  this.state.selectedRightYAxisMeasurement === 'measured_real_power' ||
+                  this.state.selectedRightYAxisMeasurement === 'measured_reactive_power'
+                ) {
+                  console.log('{measureUnitRightconvert}', measureUnitRight);
+                  return (value / 1000).toFixed(3);
+                }
+                if (this.state.selectedRightYAxisMeasurement.indexOf('vulnerability') > -1) {
+                  console.log('{TooltipmeasureUnitRightvalue}', value);
+                  return value.toFixed(2);
+                }
+                return value;
+              }}
               label={{
                 value: measureLabelRight,
                 position: 'top',
@@ -1088,7 +1201,28 @@ class SimulationRun extends Component {
                 paddingLeft: '60px'
               }}
             />
-            <Tooltip />
+            <Tooltip
+              formatter={(value, b, c) => {
+                console.log('{TooltipmeasureUnitRight}|', measureUnitRight, '|');
+                console.log('{TooltipmeasureUnitRightValues}|', value, '|b', b, 'c', c);
+                if (
+                  c.dataKey.indexOf('measured_real_power') > -1 ||
+                  c.dataKey.indexOf('measured_reactive_power') > -1 ||
+                  c.dataKey.indexOf('power_out___real') > -1 ||
+                  c.dataKey.indexOf('power_in___real') > -1
+                ) {
+                  console.log('{TooltipmeasureUnitRightconvert}', measureUnitRight);
+                  let formValue = (value / 1000).toFixed(3);
+                  formValue = `${formValue} ${measureUnitRight}`;
+                  return formValue;
+                }
+                if (c.dataKey.indexOf('vulnerability') > -1) {
+                  console.log('{TooltipmeasureUnitRightvalue}', value);
+                  return value.toFixed(2);
+                }
+                return value;
+              }}
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </div>

@@ -496,43 +496,43 @@ const Configuration = {
     {
       name: 'power_out___real',
       label: 'Power Out Real',
-      unit: 'W',
-      YAxisPosition: 'left'
+      unit: 'kW',
+      YAxisPosition: 'right'
     },
     {
       name: 'power_out_real',
       label: 'Power Out Real',
-      unit: 'W',
+      unit: 'kW',
       YAxisPosition: 'left'
     },
     {
       name: 'power_in___real',
       label: 'Power In Real',
-      unit: 'W',
+      unit: 'kW',
       YAxisPosition: 'right'
     },
     {
       name: 'measured_real_power',
       label: 'Measured Real Power',
-      unit: 'W',
+      unit: 'kW',
       YAxisPosition: 'right'
     },
     {
       name: 'measured_real_power',
       label: 'Measured Real Power',
-      unit: 'W',
+      unit: 'kW',
       YAxisPosition: 'left'
     },
     {
       name: 'measured_real_power',
       label: 'Measured Real Power',
-      unit: 'W',
+      unit: 'kW',
       YAxisPosition: 'right'
     },
     {
       name: 'measured_reactive_power',
       label: 'Measured Reactive Power',
-      unit: 'W',
+      unit: 'kW',
       YAxisPosition: 'right'
     },
     {
@@ -580,7 +580,7 @@ const Configuration = {
     {
       name: 'power_out_real',
       label: 'Power Out Real',
-      unit: 'W',
+      unit: 'kW',
       YAxisPosition: 'right'
     }
   ]
