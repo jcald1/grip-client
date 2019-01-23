@@ -311,6 +311,13 @@ class Assets extends Component {
         dataIndex: 'peak_vulnerability',
         className: 'assets-header',
         defaultSortOrder: 'descend',
+        render: text => {
+          // Now, row has type IPhoto.
+          if (text !== '-') {
+            return text.toFixed(2);
+          }
+          return text;
+        },
         sorter: (a, b) => this.numberWithDashSorter(a.peak_vulnerability, b.peak_vulnerability),
         width: '14%'
       },
@@ -320,7 +327,14 @@ class Assets extends Component {
         key: 'peak_power_max',
         dataIndex: 'peak_power_max',
         className: 'assets-header',
-        sorter: (a, b) => this.stringSorter(a.peak_power_max, b.peak_power_max),
+        render: text => {
+          // Now, row has type IPhoto.
+          if (text !== '-') {
+            return `${text} kW`;
+          }
+          return text;
+        },
+        sorter: (a, b) => this.numberWithDashSorter(a.peak_power_max, b.peak_power_max),
         width: '15%'
       }
     ];
