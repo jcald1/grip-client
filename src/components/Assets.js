@@ -62,7 +62,7 @@ const getAssets = data => {
     if (peak_power_max.length === 1) {
       peak_power_max_value = peak_power_max[0].value;
       peak_power_max_value /= 1000;
-      peak_power_max_value = `${peak_power_max_value.toFixed(2)} kW`;
+      peak_power_max_value = `${peak_power_max_value.toFixed(2)}`;
     } else {
       peak_power_max_value = null;
     }
