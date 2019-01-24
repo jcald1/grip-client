@@ -6,6 +6,7 @@ export default class AssetRenderOnMap extends Component {
     super(props);
   }
 
+
   render() {
     const style = this.props.$hover ? 'map-asset-hover' : 'map-asset';
     const txtstyle =

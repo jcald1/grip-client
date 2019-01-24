@@ -33,6 +33,7 @@ class SimpleMap extends Component {
       ) {
         lineToAdd = (
           <AssetRenderOnMap
+            colorVulnerabilityBands={this.colorVulnerabilityBands}
             key={asset.name}
             id={asset.name}
             lat={asset.latitude}
@@ -46,11 +47,17 @@ class SimpleMap extends Component {
     return linesToRender;
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    const assetMapComponents = this.buildAssetMapComponents(this.props.allModelAssets);
+    console.log('SimpleMap  componentDidMount', assetMapComponents);
+    this.setState({ assetMapComponents });
+  }
 
   componentDidUpdate(prevProps, prevState) {
     console.log('SimpleMap componentDidUpdate ', this.state, this.prevProps, this.prevState);
     this.resetMarkerStyles();
+    this.colorVulnerabilityBands();
+    console.log(' //thiis.colorVulnerabilityBands(); ');
     if (this.props && this.props.selectedNode) {
       this.nodeSelect(this.props.selectedNode);
     }
@@ -108,6 +115,7 @@ class SimpleMap extends Component {
 
   nodeSelect(nodeName) {
     this.resetMarkerStyles();
+    this.colorVulnerabilityBands();
     console.log('nodeSelect nodeName', nodeName);
     if (!nodeName) {
       return null;
@@ -145,7 +153,7 @@ class SimpleMap extends Component {
       const content =
         `<div id=popup-${asset.name} className=map-asset-hover>` +
         `<div id=popup-${asset.name}-txt  className=map-asset-hover-txt><b>${
-          asset.name
+        asset.name
         }</b></div>` +
         '</div>';
       infoWindow.setContent(content);
@@ -211,7 +219,7 @@ class SimpleMap extends Component {
           const content =
             `<div id=popup-${asset.name} className=map-asset-hover>` +
             `<div id=popup-${asset.name}-txt  className=map-asset-hover-txt><b>${
-              asset.name
+            asset.name
             }</b></div>` +
             '</div>';
           infoWindow.setContent(content);
@@ -246,9 +254,15 @@ class SimpleMap extends Component {
   }
 
   render() {
-    console.log('simepleMap Render', this.state.defaultProps.center);
-    return (
-      <div style={{ height: '370px', width: '100%', marginTop: '-15px' }}>
+    console.log(
+      'simepleMap Render',
+      this.state.defaultProps.center,
+      'this.state.assetMapComponents',
+      this.state.assetMapComponents
+    );
+    let googleMap = '';
+    if (this.state.assetMapComponents) {
+      googleMap = (
         <GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyBmP__YMCIKYPJom6jCYnyV4BbFruBCKsQ' }}
           defaultCenter={this.state.defaultProps.center}
@@ -257,10 +271,11 @@ class SimpleMap extends Component {
           onGoogleApiLoaded={({ map, maps }) => this.renderPolylines(map, maps, this.props.allModelAssets)
           }
         >
-          {this.buildAssetMapComponents(this.props.allModelAssets)}
+          {this.state.assetMapComponents}
         </GoogleMapReact>
-      </div>
-    );
+      );
+    }
+    return <div style={{ height: '370px', width: '100%', marginTop: '-15px' }}>{googleMap}</div>;
   }
 }
 
