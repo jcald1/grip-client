@@ -1370,14 +1370,14 @@ class SimulationRun extends Component {
             <div className="">
               <div className="run-border">
                 <Tabs tabPosition="top" type="card" style={{ textAlign: 'left' }}>
-                  <TabPane tab="Map" key="1">
+                  <TabPane forceRender="true" tab="Map" key="1">
                     <SimpleMap
                       allModelAssets={this.state.allModelAssets}
                       selectedNode={this.state.selectNode}
                       selectionBands={this.state.vulnerabilityBands}
                     />
                   </TabPane>
-                  <TabPane tab="Network" key="2" style={{ textAlign: 'left ' }}>
+                  <TabPane forceRender="true" tab="Network" key="2" style={{ textAlign: 'left ' }}>
                     {this.renderNetworkTopologyGraph()}
                   </TabPane>
                   <TabPane tab="OMF" key="3" style={{ textAlign: 'left' }}>

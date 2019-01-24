@@ -12,9 +12,18 @@ class NetworkTopology extends PureComponent {
     super(props);
 
     this.configuration = {
+      // hard coding of the bounds width and height to allow zoom fit to work when force refreshing it on TabPane (since it's not displayed on load by default.)
       width: 640,
       height: 404,
-      zoomFitDelay: 4000
+      zoomFitDelay: 4000,
+
+      bounds: {
+        width: 1719.238525390625,
+        height: 1656.7420654296875,
+        x: -403.7384948730469,
+        y: -611.1776123046875 ,
+      }
+
     };
 
     this.handleTopologyMapMouseOver = this.handleTopologyMapMouseOver.bind(this);
