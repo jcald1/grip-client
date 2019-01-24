@@ -97,19 +97,20 @@ class SimulationRun extends Component {
     console.log('SimulationRun componentDidMount');
 
     // Only force open the category on the initial load
-		/*     if (this.props.match.params.simulationRunId) {
-					this.props.openCategory(DEFAULT_ANTICIPATION);
-				}
-				if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
-					return null;
-				}
-				if (
-					!this.props.getCurrentSimulationRunRequestMetadata(this.props.match.params.simulationRunId)
-				) {
-					return;
-				}
-	
-				this.populateSimulationRun(); */
+        if (this.props.match.params.simulationRunId) {
+          this.props.openCategory(DEFAULT_ANTICIPATION);
+        }
+        /*
+        if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
+          return null;
+        }
+        if (
+          !this.props.getCurrentSimulationRunRequestMetadata(this.props.match.params.simulationRunId)
+        ) {
+          return;
+        }
+  
+        this.populateSimulationRun(); */
   }
 
   checkAllApiStates(status) {
@@ -137,7 +138,11 @@ class SimulationRun extends Component {
       this.state
     );
 
-    // When creating a simulation, don't try to pull one up
+/*     if (this.props.match.params.simulationRunId) {
+      this.props.openCategory(DEFAULT_ANTICIPATION);
+    } */
+
+    // When creating a simulation, don't try to pull up an old one, but also don't keep clearing the state while API calls are going on.
     if (!this.props.match.params.simulationRunId) {
       console.log('SimulationRun 1componentDidUpdate 1', 'New simulation being created');
       if (!this.checkAllApiStates(false)) {
@@ -240,7 +245,7 @@ class SimulationRun extends Component {
     let currentAsset;
     let selectedAssetDetailId;
 
-    this.props.openCategory(DEFAULT_ANTICIPATION);
+    /* this.props.openCategory(DEFAULT_ANTICIPATION); */
 
     if (this.props.forceRefreshSimulationRun) {
       this.props.setForceRefreshSimulationRun(false);
@@ -623,6 +628,7 @@ class SimulationRun extends Component {
     // const assetDetailPageAssetId = e;
 
     console.log('state', this.state, 'assetDetailPageAssetId', assetDetailPageAssetId);
+    this.props.commonProps.handleError(null);
     this.navigateToAsset(assetDetailPageAssetId);
   }
 
@@ -1043,6 +1049,13 @@ class SimulationRun extends Component {
   }) {
     console.log('renderLineChart', 'data', data, 'lines', lines);
 
+    if (_.isEmpty(data) || _.isEmpty(lines) || _.isEmpty(domain)) {
+      return null;
+    }
+    if (_.isEmpty(this.state.selectedRightYAxisMeasurement)) {
+      return null;
+    }
+    
     const linesToRender = lines.map(line => {
       let lineToAdd = null;
       if (line.type === 'Line') {

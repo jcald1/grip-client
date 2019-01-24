@@ -296,7 +296,7 @@ D3_NetworkTopology.create = (el, data, configuration, d3ver) => {
 
   setTimeout(() => {
     zoomFit(zoom, container, 0.95, 500);
-  }, defaultConfiguration.zoomFitDelay);
+  }, configuration.zoomFitDelay || defaultConfiguration.zoomFitDelay);
 
   return d3.select(el).select('div');
 }; // end create()

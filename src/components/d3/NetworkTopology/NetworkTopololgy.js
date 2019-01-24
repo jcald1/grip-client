@@ -14,7 +14,7 @@ class NetworkTopology extends PureComponent {
     this.configuration = {
       width: 640,
       height: 404,
-      zoomFitDelay: 0
+      zoomFitDelay: 4000
     };
 
     this.handleTopologyMapMouseOver = this.handleTopologyMapMouseOver.bind(this);

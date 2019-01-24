@@ -190,6 +190,8 @@ class App extends Component {
       return this.handleError(new Error('Simulation Run ID must be numeric'));
     }
     this.setState({ selectedSimulationRunId: simulationRunIdInt, forceRefreshSimulationRun: true });
+    // this.setState({ selectedSimulationRunId: simulationRunIdInt });
+    this.handleError(null);
     this.props.history.push({
       pathname: `/simulation-runs/${simulationRunId}`
     });
@@ -234,7 +236,7 @@ class App extends Component {
   }
   handleError(err) {
     console.log('handleError', err);
-    let error;
+    let error=null;
     if (err) {
       console.error('handleError', err);
       let errStr;
@@ -243,11 +245,14 @@ class App extends Component {
       } else if (err) {
         errStr = err;
       } else {
-        errStr = '';
+        errStr = 'Unknown Error';
       }
-      error = this.state.error ? `${this.state.error}\n${errStr}` : errStr;
+      const errorMsg = this.state.error ? `${this.state.error}\n${errStr}` : errStr;
       console.log('handleError setting error', error);
-      this.setState({ error: new Error(error) });
+      error = new Error(errorMsg);
+    }
+    if (!_.isEqual(error, this.state.error )) {
+      this.setState({ error });
     }
   }
 
@@ -316,6 +321,7 @@ class App extends Component {
       'change to: ',
       !this.state.open[id]
     );
+    this.handleError(null);
     this.setState({
       open: { ...this.state.open, [e.currentTarget.getAttribute('id')]: !this.state.open[id] }
     });
