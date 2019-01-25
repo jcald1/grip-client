@@ -72,7 +72,7 @@ function zoomFit(zoom, root, paddingPercent, transitionDuration) {
 
   const width = bounds.width || configuration.bounds.width; // parent.getAttribute('width');
   const height = bounds.height || configuration.bounds.height;  //parent.getAttribute('height');
-console.log('***WW', width, height, parent.height);
+
   const midX = ( bounds.x || configuration.bounds.x) + width / 2;
   const midY = ( bounds.y || configuration.bounds.y) + height / 2;
 
