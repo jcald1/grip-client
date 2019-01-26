@@ -103,31 +103,31 @@ class Assets extends Component {
   }
 
   componentDidMount() {
-    console.log('Assets componentDidMount');
     if (!this.props.data || !this.props.data.length || this.props.data.length === 0) {
       return null;
     }
+
+    console.log('Assets componentDidMount this.props', this.props, 'this.state', this.state);
 
     this.colorVulnerabilityBands();
     this.hoverOverTableRow(this.props.selectNode);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('Assets componentDidMcomponentDidUpdateount');
-
+    console.log('Assets componentDidUpdate1 this.props', this.props, 'this.state', this.state,'prevProps',prevProps);
     if (
-      !(
-        _.isEqual(this.props.data, prevState.data) &&
-        _.isEqual(this.props.assetsList, prevState.assetsList) &&
-        _.isEqual(this.props.selectNode, prevState.selectNode) &&
-        _.isEqual(this.props.selectionBands, prevState.selectionBands) &&
-        _.isEqual(this.props.assetsList, prevState.assetsList) &&
-        _.isEqual(this.props.assetsList, prevState.assetsList) &&
-        _.isEqual(this.props.assetsList, prevState.assetsList)
+      (
+        _.isEqual(this.props.data, prevProps.data) &&
+        _.isEqual(this.props.assetsList, prevProps.assetsList) &&
+        _.isEqual(this.props.selectNode, prevProps.selectNode) &&
+        _.isEqual(this.props.selectionBands, prevProps.selectionBands) &&
+        _.isEqual(this.props.assetsList, prevProps.assetsList)
       )
     ) {
       return null;
     }
+
+    console.log('Assets componentDidUpdate this.props', this.props, 'this.state', this.state);
 
     this.colorVulnerabilityBands();
     this.hoverOverTableRow(this.props.selectNode);
