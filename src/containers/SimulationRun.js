@@ -97,20 +97,10 @@ class SimulationRun extends Component {
     console.log('SimulationRun componentDidMount');
 
     // Only force open the category on the initial load
-        if (this.props.match.params.simulationRunId) {
-          this.props.openCategory(DEFAULT_ANTICIPATION);
-        }
-        /*
-        if (_.isEmpty(this.props.commonProps.simulationRunRequestsMetadata)) {
-          return null;
-        }
-        if (
-          !this.props.getCurrentSimulationRunRequestMetadata(this.props.match.params.simulationRunId)
-        ) {
-          return;
-        }
-  
-        this.populateSimulationRun(); */
+    if (this.props.match.params.simulationRunId) {
+      this.props.openCategory(DEFAULT_ANTICIPATION);
+    }
+
   }
 
   checkAllApiStates(status) {
@@ -138,9 +128,9 @@ class SimulationRun extends Component {
       this.state
     );
 
-/*     if (this.props.match.params.simulationRunId) {
-      this.props.openCategory(DEFAULT_ANTICIPATION);
-    } */
+    /*     if (this.props.match.params.simulationRunId) {
+          this.props.openCategory(DEFAULT_ANTICIPATION);
+        } */
 
     // When creating a simulation, don't try to pull up an old one, but also don't keep clearing the state while API calls are going on.
     if (!this.props.match.params.simulationRunId) {
@@ -638,7 +628,7 @@ class SimulationRun extends Component {
     this.setState({ selectedAssetDetailId });
     const newUrl = `/simulation-runs/${
       this.props.match.params.simulationRunId
-    }/assets/${selectedAssetDetailId}`;
+      }/assets/${selectedAssetDetailId}`;
     console.log('** NEW PUSH', newUrl);
     console.log('newUrl', newUrl);
     this.props.history.push({
@@ -1055,7 +1045,7 @@ class SimulationRun extends Component {
     if (_.isEmpty(this.state.selectedRightYAxisMeasurement)) {
       return null;
     }
-    
+
     const linesToRender = lines.map(line => {
       let lineToAdd = null;
       if (line.type === 'Line') {

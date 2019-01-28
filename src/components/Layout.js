@@ -36,6 +36,7 @@ class Layout extends Component {
     console.log('e.currentTarget.getAttribute...', e.currentTarget.getAttribute('path'));
     const path = e.currentTarget.getAttribute('path') ? e.currentTarget.getAttribute('path') : '/';
     const { history } = this.props;
+    this.props.commonProps.handleError(null);
     history.push({
       pathname: path
     });
