@@ -3,7 +3,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import * as d3 from 'd3-v3';
+//import * as d3 from 'd3-v3';
+import * as d3 from 'd3';
 import './css/style.css';
 import D3_NetworkTopology from './js/D3_NetworkTopology';
 

@@ -1,26 +1,29 @@
 import React, { Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import AssetRenderOnMap from './AssetRenderOnMap';
+import _ from 'lodash';
 
 class SimpleMap extends Component {
   constructor(props) {
     super(props);
-    const defaultProps = {
+    this.defaultProps = {
       center: { lat: 35.388467, lng: -118.99515 },
       zoom: 15
     };
     this.state = {
-      defaultProps,
-      polyLinesMap: {}
+      polyLinesMap: {},
+      assetMapComponents: [],
     };
     this.buildAssetMapComponents = this.buildAssetMapComponents.bind(this);
     this.createMapOptions = this.createMapOptions.bind(this);
     this.currentInfoWindow = null;
+    this.nodeSelect = this.nodeSelect.bind(this);
   }
 
   buildAssetMapComponents(assets, map) {
-    // console.log('assets-----', assets);
+    // console.log('assets-----', assets,this.props);
     const linesToRender = assets.map(asset => {
+      // console.log('buildAssetMapComponents asset', asset, this.props);
       let lineToAdd = '';
       if (
         asset.latitude &&
@@ -39,6 +42,9 @@ class SimpleMap extends Component {
             lat={asset.latitude}
             lng={asset.longitude}
             text={asset.name}
+            asset={asset}
+            handleTopologyMapAssetHover={this.props.handleTopologyMapAssetHover}
+            nodeSelect={this.nodeSelect}
           />
         );
       }
@@ -54,9 +60,19 @@ class SimpleMap extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (_.isEqual(this.props.selectedNode, prevProps.selectedNode) &&
+      _.isEqual(this.props.allModelAssets, prevProps.allModelAssets) &&
+      _.isEqual(this.props.selectionBands, prevProps.selectionBands) &&
+
+      _.isEqual(this.state.polyLinesMap, prevState.polyLinesMap) &&
+      _.isEqual(this.state.assetMapComponents, prevState.assetMapComponents)
+    ) {
+      return;
+    }
     console.log('SimpleMap componentDidUpdate ', this.state, this.prevProps, this.prevState);
+
     this.resetMarkerStyles();
-    this.colorVulnerabilityBands();
+    // this.colorVulnerabilityBands();
     console.log(' //thiis.colorVulnerabilityBands(); ');
     if (this.props && this.props.selectedNode) {
       this.nodeSelect(this.props.selectedNode);
@@ -115,8 +131,7 @@ class SimpleMap extends Component {
 
   nodeSelect(nodeName) {
     this.resetMarkerStyles();
-    this.colorVulnerabilityBands();
-    console.log('nodeSelect nodeName', nodeName);
+    //this.colorVulnerabilityBands();
     if (!nodeName) {
       return null;
     }
@@ -132,6 +147,7 @@ class SimpleMap extends Component {
     if (rowtxt) {
       rowtxt.className = 'map-asset-txt-hover';
     }
+    console.log('nodeSelect nodeName', row)
 
     const assets = this.props.allModelAssets;
     const asset = assets.find(assetf => assetf.name === nodeName);
@@ -151,11 +167,10 @@ class SimpleMap extends Component {
 
       infoWindow.setPosition({ lat: parseFloat(asset.latitude), lng: parseFloat(asset.longitude) });
       const content =
-        `<div id=popup-${asset.name} className=map-asset-hover>` +
-        `<div id=popup-${asset.name}-txt  className=map-asset-hover-txt><b>${
-        asset.name
-        }</b></div>` +
-        '</div>';
+        (<div id={`popup-${asset.name}`} className="map-asset-hover">
+          <div id={`popup-${asset.name}-txt`} className="map-asset-hover-txt"><b>{
+            asset.name}</b></div>
+        </div>);
       infoWindow.setContent(content);
       infoWindow.open(this.state.map);
       console.log('infoWindowToClose setting', this.currentInfoWindow);
@@ -256,7 +271,7 @@ class SimpleMap extends Component {
   render() {
     console.log(
       'simepleMap Render',
-      this.state.defaultProps.center,
+      this.defaultProps.center,
       'this.state.assetMapComponents',
       this.state.assetMapComponents
     );
@@ -265,8 +280,8 @@ class SimpleMap extends Component {
       googleMap = (
         <GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyBmP__YMCIKYPJom6jCYnyV4BbFruBCKsQ' }}
-          defaultCenter={this.state.defaultProps.center}
-          defaultZoom={this.state.defaultProps.zoom}
+          defaultCenter={this.defaultProps.center}
+          defaultZoom={this.defaultProps.zoom}
           options={this.createMapOptions}
           onGoogleApiLoaded={({ map, maps }) => this.renderPolylines(map, maps, this.props.allModelAssets)
           }
