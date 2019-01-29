@@ -31,6 +31,8 @@ class SimpleMapAsset extends Component {
           lat={parseFloat(this.props.asset.properties.latitude)}
           lng={parseFloat(this.props.asset.properties.longitude)}
           text={asset.name}
+          asset={asset}
+          nodeSelect={this.nodeSelect}
         />
       );
     }

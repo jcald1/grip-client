@@ -1365,6 +1365,7 @@ class SimulationRun extends Component {
                       allModelAssets={this.state.allModelAssets}
                       selectedNode={this.state.selectNode}
                       selectionBands={this.state.vulnerabilityBands}
+                      handleTopologyMapAssetHover={this.handleTopologyMapAssetHover}
                     />
                   </TabPane>
                   <TabPane forceRender="true" tab="Network" key="2" style={{ textAlign: 'left ' }}>

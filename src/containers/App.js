@@ -211,7 +211,10 @@ class App extends Component {
   }
 
   refreshSimulationRuns() {
-    console.log('App refreshSimulationRuns');
+    console.log('App refreshSimulationRuns simulationRuns',simulationRuns.getSimulationRuns({
+      baseUrl: this.state.commonProps.apiPath,
+      apiVersion: DEFAULT_API_VERSION
+    }));
     // TODO: Add message to user
     this.setState({ gettingSimulationRuns: true });
     return simulationRuns
