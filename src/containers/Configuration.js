@@ -154,6 +154,7 @@ const Configuration = {
   primaryPropertiesForClasses: [
     {
       class: 'meter',
+      configuration: [],
       properties: [
         {
           key: 'Name',
@@ -191,6 +192,7 @@ const Configuration = {
     },
     {
       class: 'triplex-meter',
+      configuration: [],
       properties: [
         {
           key: 'Name',
@@ -265,6 +267,7 @@ const Configuration = {
     },
     {
       class: 'substation',
+      configuration: [],
       properties: [
         {
           key: 'Name',
@@ -302,6 +305,7 @@ const Configuration = {
     },
     {
       class: 'substation_meter',
+      configuration: [],
       properties: [
         {
           key: 'Name',
@@ -339,6 +343,12 @@ const Configuration = {
     },
     {
       class: 'pole',
+      configuration: [
+        {
+          key: 'pole_length',
+          name: 'Pole Length'
+        }
+      ],
       properties: [
         {
           key: 'Name',
@@ -351,10 +361,6 @@ const Configuration = {
         {
           key: 'pole_type',
           name: 'Type'
-        },
-        {
-          key: 'equipment_height',
-          name: 'Height'
         },
         {
           key: 'equipment_area',
@@ -380,10 +386,12 @@ const Configuration = {
     },
     {
       class: 'weather',
+      configuration: [],
       properties: []
     },
     {
       class: 'line',
+      configuration: [],
       properties: [
         {
           key: 'Name',
@@ -425,6 +433,7 @@ const Configuration = {
     },
     {
       class: 'overhead_line',
+      configuration: [],
       properties: [
         {
           key: 'Name',
