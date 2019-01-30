@@ -72,7 +72,7 @@ class AssetProperties extends Component {
       filteredAssetPropertiesToRender = AssetPropertiesToRender;
     }
 
-    let AssetConfigurationToRender = Object.keys(configuration)
+    let AssetConfigurationToRender = Object.keys(configuration || {})
       .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
       .map(property => {
         // console.log('renderAssetProperties list', property, 'asset', asset);
