@@ -57,18 +57,11 @@ class Asset extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     console.log(
-      'AssetcomponentDidUpdate',
-      'this.state.currentMeasurement',
+      'Asset componentDidUpdate',
+      'this.state',
       this.state,
-      'prevstate',
-      prevState,
-      'AllPropsCompare',
+      'this.props',
       this.props,
-      'prevprops',
-      prevProps,
-
-      'props assetid',
-      this.props.match.params.assetId,
       'this.state.asset',
       this.state.asset
     );

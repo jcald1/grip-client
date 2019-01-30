@@ -35,11 +35,11 @@ class AssetProperties extends Component {
   }
 
   renderAssetProperties(asset, props, filterList) {
-   console.log('renderAssetProperties asset', asset);
-    const { properties } = asset;
+    console.log('renderAssetProperties asset', asset);
+    const { properties, configuration } = asset;
     const assetClass = properties.class;
     // console.log('renderAssetProperties list', properties, 'asset', asset);
-    properties['Name'] = asset.name;
+
     const AssetPropertiesToRender = Object.keys(properties)
       .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
       .map(property => {
@@ -56,14 +56,14 @@ class AssetProperties extends Component {
     ).properties;
 
     console.log('classProperties', classProperties);
-    let filteredAssetPropertiesToRender = [];
 
+    let filteredAssetPropertiesToRender = [];
     if (filterList) {
       AssetPropertiesToRender.map(property => {
-        //console.log('property', property, property.name, classProperties[0].key);
+        // console.log('property', property, property.name, classProperties[0].key);
         const propFound = classProperties.find(prop => prop.key === property.name);
         if (propFound) {
-          //console.log('property found', property);
+          // console.log('property found', property);
           property.name = propFound.name;
           filteredAssetPropertiesToRender.push(property);
         }
@@ -71,9 +71,61 @@ class AssetProperties extends Component {
     } else {
       filteredAssetPropertiesToRender = AssetPropertiesToRender;
     }
+
+    let AssetConfigurationToRender = Object.keys(configuration || {})
+      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+      .map(property => {
+        // console.log('renderAssetProperties list', property, 'asset', asset);
+        const mapProperty = {
+          name: property,
+          value: configuration[property]
+        };
+        return mapProperty;
+      });
+    console.log('AssetConfigurationToRender', AssetConfigurationToRender);
+    const classConfigurations = props.chartsConfiguration.primaryPropertiesForClasses.find(
+      assetConfigurations => assetConfigurations.class === assetClass
+    ).configuration;
+
+    console.log('classConfigurations', classConfigurations);
+
+    let filteredAssetConfigurationsToRender = [];
+    if (filterList) {
+      AssetConfigurationToRender.map(property => {
+        // console.log('property', property, property.name, classProperties[0].key);
+        const propFound = classConfigurations.find(prop => prop.key === property.name);
+        if (propFound) {
+          // console.log('property found', property);
+          property.name = propFound.name;
+          filteredAssetConfigurationsToRender.push(property);
+        }
+      });
+    } else {
+          // Make the configuration property names unique so that they don't collide with the main properties (class and id exist in both)
+    AssetConfigurationToRender = AssetConfigurationToRender.map(configProperty => ({
+      ...configProperty,
+      name: `configuration.${configProperty.name}`
+    }));
+      filteredAssetConfigurationsToRender = AssetConfigurationToRender;
+    }
+
+
+    console.log(
+      '1filteredAssetPropertiesToRender',
+      filteredAssetPropertiesToRender,
+      'filteredAssetConfigurationsToRender',
+      filteredAssetConfigurationsToRender,
+      'AssetConfigurationToRender',
+      AssetConfigurationToRender
+    );
+    filteredAssetPropertiesToRender = filteredAssetPropertiesToRender.concat(
+      filteredAssetConfigurationsToRender
+    );
+    console.log('2filteredAssetPropertiesToRender', filteredAssetPropertiesToRender);
+
     filteredAssetPropertiesToRender = filteredAssetPropertiesToRender.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
-    console.log('filteredAssetPropertiesToRender', filteredAssetPropertiesToRender);
+    console.log('3filteredAssetPropertiesToRender', filteredAssetPropertiesToRender);
 
     const columns = [
       /*     {

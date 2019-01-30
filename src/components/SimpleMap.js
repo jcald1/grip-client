@@ -6,7 +6,7 @@ import _ from 'lodash';
 class SimpleMap extends Component {
   constructor(props) {
     super(props);
-    this.defaultProps = {
+    this.configuration = {
       center: { lat: 35.388467, lng: -118.99515 },
       zoom: 15
     };
@@ -271,7 +271,7 @@ class SimpleMap extends Component {
   render() {
     console.log(
       'simepleMap Render',
-      this.defaultProps.center,
+      this.configuration.center,
       'this.state.assetMapComponents',
       this.state.assetMapComponents
     );
@@ -280,8 +280,8 @@ class SimpleMap extends Component {
       googleMap = (
         <GoogleMapReact
           bootstrapURLKeys={{ key: 'AIzaSyBmP__YMCIKYPJom6jCYnyV4BbFruBCKsQ' }}
-          defaultCenter={this.defaultProps.center}
-          defaultZoom={this.defaultProps.zoom}
+          defaultCenter={this.configuration.center}
+          defaultZoom={this.configuration.zoom}
           options={this.createMapOptions}
           onGoogleApiLoaded={({ map, maps }) => this.renderPolylines(map, maps, this.props.allModelAssets)
           }
