@@ -63,7 +63,7 @@ const getSimulationRunAssets = ({ baseUrl, apiVersion, simulationRunId }) => {
 // TODO: This is returning the BQ data but we may need to also return the
 // PostgreS data by adding it to the API
 const getSimulationRunResults = ({ baseUrl, apiVersion, simulationRunId }) => {
-  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/results`;
+  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/time-series-results`;
 
   const context = `GET Simulation Run API Call: ${urlPath}`;
   console.log(context);
@@ -95,7 +95,7 @@ const getSimulationRunVulnerabilityAggByTimeStepResults = ({
   apiVersion,
   simulationRunId
 }) => {
-  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/results/max_vulnerability_by_timestep`;
+  const urlPath = `${baseUrl}${apiVersion}/simulation-runs/${simulationRunId}/time-series-results/peak_vulnerability_by_timestep`;
 
   const context = `GET Simulation Run API Call: ${urlPath}`;
   console.log(context);
