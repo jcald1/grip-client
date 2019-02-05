@@ -1,0 +1,113 @@
+.Absorption {
+    width: 82px;
+    height: 19px;
+    font-family: SFProDisplay;
+    font-size: 16px;
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: 0.5px;
+    color: #3d5170;
+  }
+
+  .Anticipation {
+    width: 89px;
+    height: 19px;
+    font-family: SFProDisplay;
+    font-size: 16px;
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: 0.5px;
+    color: var(--deep-sky-blue);
+  }
+
+
+  .Menu-Item-Background-Active {
+    width: 240px;
+    height: 79.9px;
+    box-shadow: inset 8px 0 0 0 var(--deep-sky-blue), inset 0 -2px 0 0 #e1e5eb;
+    background-color: #fbfbfb;
+  }
+
+  .Menu-Item-Background {
+    width: 240px;
+    height: 79.9px;
+    box-shadow: inset 0 -2px 0 0 #e1e5eb;
+    background-color: #ffffff;
+  }
+
+  .Sidebar-Background {
+    width: 240px;
+    /* height: 1023px; */
+    box-shadow: 0 6px 35px 0 rgba(165, 182, 201, 0.1), 0 10px 22px 0 rgba(90, 97, 105, 0.1), 0 4px 8px 0 rgba(90, 97, 105, 0.12), 0 2px 150px 0 rgba(90, 97, 105, 0.11);
+    background-color: #ffffff;
+  }
+
+  .Sidebar-Header-Background {
+    width: 240px;
+    height: 80.9px;
+    box-shadow: inset 0 -1px 0 0 #e1e5eb;
+    background-color: #ffffff;
+  }
+
+  .active {
+    width: 25px;
+    height: 20px;
+    object-fit: contain;
+    /* Added */
+    color: var(--deep-sky-blue);
+    
+  }
+
+  .inactive {
+    width: 25px;
+    height: 23px;
+    object-fit: contain;
+    /* Added */
+    color: #cacedb;
+  }
+
+  .Header-Background {
+    /* Removed */
+    /* width: 1200px; */
+    height: 80px;
+    box-shadow: 0 5px 19px 0 rgba(90, 97, 105, 0.12);
+    background-color: #ffffff;
+  }
+
+  .Dashboard {
+    /* Removed */
+    /* width: 209.2px; */
+    height: 36px;
+    font-family: SFProDisplay;
+    font-size: 30px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #3a4e75;
+  }
+
+  .Rectangle {
+    width: 440px;
+    height: 80px;
+    box-shadow: -1px 0 0 0 #cacedb;
+    background-color: #ffffff;
+  }
+
+  .Test-User {
+    width: 87px;
+    height: 19px;
+    font-family: SFProDisplay;
+    font-size: 16px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #3d5170;
+  }

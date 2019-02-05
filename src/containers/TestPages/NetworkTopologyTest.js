@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter, Route } from 'react-router-dom';
-import Layout from '../../components/Layout';
+import SiteLayout from '../../components/SiteLayout';
 import '../App.css';
 
 import Iframe from 'react-iframe';
