@@ -18,7 +18,7 @@ import { Redirect } from 'react-router-dom';
 /* import './App.css';
  */
 import simulationRuns from '../actions/simulationRuns';
-import util from 'util'
+import util from 'util';
 import path from 'path';
 var qs = require('qs');
 
@@ -63,12 +63,12 @@ if (log && log.toUpperCase() !== 'OFF') {
 
   window.console = {
     ...window_console,
-    log: (...args) => { },
-    warn: (...args) => { },
+    log: (...args) => {},
+    warn: (...args) => {},
     error: (...args) => (...args) => window_console.error(...args),
-    debug: (...args) => { },
-    info: (...args) => { },
-    trace: (...args) => { }
+    debug: (...args) => {},
+    info: (...args) => {},
+    trace: (...args) => {}
   };
 }
 
@@ -119,7 +119,7 @@ class App extends Component {
         handleError: this.handleError
       },
       forceRefreshSimulationRun: false,
-      loggedInUser: { name: "Test User" }
+      loggedInUser: { name: 'Test User' }
     };
 
     this.setForceRefreshSimulationRun = this.setForceRefreshSimulationRun.bind(this);
@@ -246,7 +246,7 @@ class App extends Component {
         apiVersion: DEFAULT_API_VERSION
       })
       .then(data => {
-        console.log('!***',util.inpsect(data))
+        console.log('!***', util.inspect(data), document);
         this.setState({
           commonProps: {
             ...this.state.commonProps,
@@ -255,6 +255,7 @@ class App extends Component {
         });
       })
       .catch(err => {
+        console.log('#################', document, global.document);
         this.handleError(err);
       })
       .finally(() => {
@@ -345,16 +346,12 @@ class App extends Component {
     if (!DEFAULT_ENABLED_CATEGORIES[id]) {
       return;
     }
-    console.log(
-      'SiteLayout handleCategoryClick',
-      id,
-
-    );
+    console.log('SiteLayout handleCategoryClick', id);
     this.handleError(null);
     this.refreshSimulationRuns();
 
     if (this.state.open[id]) {
-      return
+      return;
     }
 
     this.setState({
@@ -382,19 +379,24 @@ class App extends Component {
 
     const mainItems = <div />;
 
-    const simulationRunRequests =
-      (<div>
-        <div onClick={e => {
-          this.props.history.push({
-            pathname: '/simulation-runs'
-          })
-        }}>Create New Simulation Run</div>
+    const simulationRunRequests = (
+      <div>
+        <div
+          onClick={e => {
+            this.props.history.push({
+              pathname: '/simulation-runs'
+            });
+          }}
+        >
+          Create New Simulation Run
+        </div>
         <SimulationRunRequests
           data={this.state.commonProps.simulationRunRequestsMetadata}
           handleSimulationRunRequestClick={this.handleSimulationRunRequestClick}
           key="main-items-1"
         />
-      </div >)
+      </div>
+    );
 
     const simulationRun = (
       <SimulationRun

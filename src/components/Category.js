@@ -1,7 +1,6 @@
 /* eslint-disable no-undef */
 import React, { Component } from 'react';
 import { Tooltip } from 'antd';
-import SVG from 'react-inlinesvg';
 
 class Category extends Component {
   constructor(props) {
