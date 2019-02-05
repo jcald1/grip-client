@@ -18,7 +18,7 @@ import { Redirect } from 'react-router-dom';
 /* import './App.css';
  */
 import simulationRuns from '../actions/simulationRuns';
-
+import util from 'util'
 import path from 'path';
 var qs = require('qs');
 
@@ -246,6 +246,7 @@ class App extends Component {
         apiVersion: DEFAULT_API_VERSION
       })
       .then(data => {
+        console.log('!***',util.inpsect(data))
         this.setState({
           commonProps: {
             ...this.state.commonProps,

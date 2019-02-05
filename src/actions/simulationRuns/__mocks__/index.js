@@ -1,3 +1,4 @@
+const exp = {};
 const getSimulationRuns = ({ baseUrl, apiVersion }) => {
   const data = [
     {
@@ -42,5 +43,6 @@ const getSimulationRuns = ({ baseUrl, apiVersion }) => {
 
   return Promise.resolve(data);
 };
+exp.getSimulationRuns = getSimulationRuns;
 
-exports.getSimulationRuns = getSimulationRuns;
+export default exp;
