@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="25" height="21" viewBox="0 0 25 21">
+    <g fill="#CACEDB" fill-rule="evenodd">
+        <path d="M0 10.813h25c0 5.523-5.596 10-12.5 10S0 16.336 0 10.813z"/>
+        <path fill-rule="nonzero" d="M22.368.813H2.632C1.184.813 0 2.063 0 3.591v4.167h25V3.59C25 2.063 23.816.813 22.368.813z"/>
+    </g>
+</svg>

@@ -33,6 +33,7 @@ const DEFAULT_DIVIDER = '__';
 const DEFAULT_YAXIS_DOMAIN = [0, 1.2];
 const DEFAULT_SIMULATION_RUN_STATUS_COMPLETED = 4;
 const DEFAULT_ANTICIPATION = 'anticipation';
+const DEFAULT_HEADER_NAME='Simulation Name';
 
 const TabPane = Tabs.TabPane;
 
@@ -94,7 +95,7 @@ class SimulationRun extends Component {
 
   componentDidMount() {
     console.log('SimulationRun componentDidMount');
-    console.log('SimulationRun componentDidMount');
+    this.props.setPageHeaderName(DEFAULT_HEADER_NAME);
 
     // Only force open the category on the initial load
     if (this.props.match.params.simulationRunId) {
@@ -201,6 +202,7 @@ class SimulationRun extends Component {
     );
 
     console.log('SimulationRun 1componentDidUpdate 8', 'Attempt to call APIs');
+    this.props.setPageHeaderName(DEFAULT_HEADER_NAME);
     this.populateSimulationRun();
   }
 

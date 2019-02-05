@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { withRouter, Route } from 'react-router-dom';
 import './App.css';
 import { Col, Row } from 'antd';
-import Layout from '../components/Layout';
+import SiteLayout from '../components/SiteLayout';
 import Measurements from '../components/Measurements';
 import AssetRelationships from '../components/AssetRelationships';
 import SimpleMapAsset from '../components/SimpleMapAsset';

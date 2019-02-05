@@ -12,15 +12,21 @@ import { Route } from 'react-router-dom';
 import SimulationRunRequests from './SimulationRunRequests';
 import SimulationRun from './SimulationRun';
 import _ from 'lodash';
-import Layout from '../components/Layout';
+import SiteLayout from '../components/SiteLayout';
 import Admin from './Admin';
 import { Redirect } from 'react-router-dom';
-import './App.css';
-
+/* import './App.css';
+ */
 import simulationRuns from '../actions/simulationRuns';
 
 import path from 'path';
 var qs = require('qs');
+
+const DEFAULT_ENABLED_CATEGORIES = {
+  anticipation: true,
+  data: true
+};
+const DEFAULT_HEADER_NAME = 'Dashboard';
 
 const log = process.env.REACT_APP_LOG;
 const window_console = console;
@@ -46,7 +52,7 @@ if (log && log.toUpperCase() !== 'OFF') {
     }
   }; */
 } else {
-/*   window.console = {
+  /*   window.console = {
     log: (...args) => { },
     warn: (...args) => { },
     error: (...args) => (...args) => window_console.error(...args),
@@ -55,14 +61,15 @@ if (log && log.toUpperCase() !== 'OFF') {
     trace: (...args) => { },
   }; */
 
-  window.console = {...window_console, 
+  window.console = {
+    ...window_console,
     log: (...args) => { },
     warn: (...args) => { },
     error: (...args) => (...args) => window_console.error(...args),
     debug: (...args) => { },
     info: (...args) => { },
     trace: (...args) => { }
-  }
+  };
 }
 
 const DEFAULT_API_VERSION = 'v1';
@@ -91,22 +98,28 @@ class App extends Component {
     super(props);
 
     this.handleError = this.handleError.bind(this);
+    this.closedCategories = {
+      anticipation: false,
+      absorption: false,
+      recovery: false,
+      data: false
+    };
     this.state = {
+      pageHeaderName: DEFAULT_HEADER_NAME,
       error: null,
       gettingSimulationRuns: true,
       selectedSimulationRunId: null,
       open: {
-        anticipation: false,
-        absorption: false,
-        recovery: false,
-        settings: false
+        ...this.closedCategories,
+        anticipation: true
       },
       commonProps: {
         simulationRunRequestsMetadata: [],
         apiPath: process.env.REACT_APP_API_PATH,
         handleError: this.handleError
       },
-      forceRefreshSimulationRun: false
+      forceRefreshSimulationRun: false,
+      loggedInUser: { name: "Test User" }
     };
 
     this.setForceRefreshSimulationRun = this.setForceRefreshSimulationRun.bind(this);
@@ -120,6 +133,7 @@ class App extends Component {
     this.getCurrentSimulationRunRequestMetadata = this.getCurrentSimulationRunRequestMetadata.bind(
       this
     );
+    this.setPageHeaderName = this.setPageHeaderName.bind(this);
     this.updateSelectedSimulationRunId = this.updateSelectedSimulationRunId.bind(this);
 
     if (!process.env.REACT_APP_API_PATH) {
@@ -155,8 +169,14 @@ class App extends Component {
     console.log('App 1componentDidUpdate this.props', this.props, 'this.state', this.state);
   }
 
+  setPageHeaderName(name) {
+    if (!_.isEqual(name, this.state.pageHeaderName)) {
+      this.setState({ pageHeaderName: name });
+    }
+  }
+
   updateSelectedSimulationRunId(selectedSimulationRunId) {
-    console.log('App updateSelectedSimulationRunId', selectedSimulationRunId)
+    console.log('App updateSelectedSimulationRunId', selectedSimulationRunId);
     if (selectedSimulationRunId !== this.state.selectedSimulationRunId) {
       this.setState({ selectedSimulationRunId });
     }
@@ -211,10 +231,13 @@ class App extends Component {
   }
 
   refreshSimulationRuns() {
-    console.log('App refreshSimulationRuns simulationRuns',simulationRuns.getSimulationRuns({
-      baseUrl: this.state.commonProps.apiPath,
-      apiVersion: DEFAULT_API_VERSION
-    }));
+    console.log(
+      'App refreshSimulationRuns simulationRuns',
+      simulationRuns.getSimulationRuns({
+        baseUrl: this.state.commonProps.apiPath,
+        apiVersion: DEFAULT_API_VERSION
+      })
+    );
     // TODO: Add message to user
     this.setState({ gettingSimulationRuns: true });
     return simulationRuns
@@ -239,7 +262,7 @@ class App extends Component {
   }
   handleError(err) {
     console.log('handleError', err);
-    let error=null;
+    let error = null;
     if (err) {
       console.error('handleError', err);
       let errStr;
@@ -254,7 +277,7 @@ class App extends Component {
       console.log('handleError setting error', error);
       error = new Error(errorMsg);
     }
-    if (!_.isEqual(error, this.state.error )) {
+    if (!_.isEqual(error, this.state.error)) {
       this.setState({ error });
     }
   }
@@ -285,6 +308,7 @@ class App extends Component {
   }
 
   renderErrorMessage() {
+    console.log('App renderErrorMessage', this.state.error);
     /*    const { errorMessage } = this.props;
     if (!errorMessage) {
       return null;
@@ -306,7 +330,7 @@ class App extends Component {
           width: '100%',
           backgroundColor: 'red',
           color: 'white',
-          fontSize: '30px',
+          fontSize: '30px'
         }}
       >
         <div style={{ paddingLeft: '20px' }}> Error Occured: {this.state.error.message}</div>
@@ -316,17 +340,24 @@ class App extends Component {
 
   handleCategoryClick(e) {
     const id = e.currentTarget.getAttribute('id');
+
+    if (!DEFAULT_ENABLED_CATEGORIES[id]) {
+      return;
+    }
     console.log(
-      'Layout handleCategoryClick',
+      'SiteLayout handleCategoryClick',
       id,
-      'current: ',
-      this.state.open[id],
-      'change to: ',
-      !this.state.open[id]
+
     );
     this.handleError(null);
+    this.refreshSimulationRuns();
+
+    if (this.state.open[id]) {
+      return
+    }
+
     this.setState({
-      open: { ...this.state.open, [e.currentTarget.getAttribute('id')]: !this.state.open[id] }
+      open: { ...this.closedCategories, [e.currentTarget.getAttribute('id')]: true }
     });
   }
 
@@ -334,7 +365,7 @@ class App extends Component {
     console.log('App openCategory this state', this.state, category, 'current open status');
     if (!this.state.open[category]) {
       const newState = { open: { ...this.state.open, [category]: true } };
-      //console.log('Layout openCategory newState',newState);
+      //console.log('SiteLayout openCategory newState',newState);
       this.setState(newState);
     }
   }
@@ -350,6 +381,20 @@ class App extends Component {
 
     const mainItems = <div />;
 
+    const simulationRunRequests =
+      (<div>
+        <div onClick={e => {
+          this.props.history.push({
+            pathname: '/simulation-runs'
+          })
+        }}>Create New Simulation Run</div>
+        <SimulationRunRequests
+          data={this.state.commonProps.simulationRunRequestsMetadata}
+          handleSimulationRunRequestClick={this.handleSimulationRunRequestClick}
+          key="main-items-1"
+        />
+      </div >)
+
     const simulationRun = (
       <SimulationRun
         commonProps={this.state.commonProps}
@@ -359,18 +404,23 @@ class App extends Component {
         openCategory={this.openCategory}
         setForceRefreshSimulationRun={this.setForceRefreshSimulationRun}
         forceRefreshSimulationRun={this.state.forceRefreshSimulationRun}
+        setPageHeaderName={this.setPageHeaderName}
       />
     );
     return (
-      <Layout
+      <SiteLayout
         commonProps={this.state.commonProps}
+        pageHeaderName={this.state.pageHeaderName}
+        refreshSimulationRuns={this.refreshSimulationRuns}
         handleRunSimulationClick={this.handleRunSimulationClick}
         anticipationItemClick={this.handleSimulationRunRequestClick}
         selectedSimulationRunId={this.state.selectedSimulationRunId}
         open={this.state.open}
         handleCategoryClick={this.handleCategoryClick}
         renderErrorMessage={this.renderErrorMessage}
+        loggedInUser={this.state.loggedInUser}
       >
+        <Route exact path="/" render={() => simulationRunRequests} />
         <Route path="/simulation-runs/:simulationRunId?" render={() => simulationRun} />
         <Route
           path="/admin"
@@ -380,7 +430,7 @@ class App extends Component {
             </div>
           )}
         />
-      </Layout>
+      </SiteLayout>
     );
   }
 }
